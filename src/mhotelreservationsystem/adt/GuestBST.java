@@ -8,7 +8,7 @@ package mhotelreservationsystem.adt;
 import mhotelreservationsystem.entity.Guest;
 /**
  *
- * @author phoon
+ * @author phoon jiale
  */
 public class GuestBST implements GuestBSTInterface {
 
