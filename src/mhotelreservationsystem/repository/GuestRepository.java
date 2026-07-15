@@ -4,10 +4,15 @@
  */
 package mhotelreservationsystem.repository;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.time.LocalDate;
 import mhotelreservationsystem.adt.GuestBST;
 import mhotelreservationsystem.entity.Guest;
 import mhotelreservationsystem.entity.GuestStatus;
+import mhotelreservationsystem.utility.FileUtility;
+import mhotelreservationsystem.utility.FilePath;
 /**
  *
  * @author phoon
@@ -17,12 +22,23 @@ public class GuestRepository {
     private GuestBST guestBST;
 
     public GuestRepository() {
+
         guestBST = new GuestBST();
-        loadSampleData();
+
+        if (FileUtility.fileExists(FilePath.GUEST_FILE)) {
+            loadFromFile();
+        }
     }
 
     public boolean addGuest(Guest guest) {
-        return guestBST.insert(guest);
+
+        boolean success = guestBST.insert(guest);
+
+        if (success) {
+            saveToFile();
+        }
+
+        return success;
     }
 
     public Guest searchGuest(String confirmationNumber) {
@@ -30,7 +46,14 @@ public class GuestRepository {
     }
   
     public boolean removeGuest(String confirmationNumber){
-        return guestBST.remove(confirmationNumber);
+
+        boolean success = guestBST.remove(confirmationNumber);
+
+        if(success){
+            saveToFile();
+        }
+
+        return success;
     }
     
     public void displayAllGuests(){
@@ -50,6 +73,21 @@ public class GuestRepository {
 
     }
     
+    public boolean updateGuest(Guest guest){
+
+        if(searchGuest(guest.getConfirmationNumber()) == null){
+            return false;
+        }
+
+        guestBST.remove(guest.getConfirmationNumber());
+
+        guestBST.insert(guest);
+
+        saveToFile();
+
+        return true;
+    }
+    
     public boolean isEmpty() {
         return guestBST.isEmpty();
     }
@@ -59,125 +97,87 @@ public class GuestRepository {
     }
 
     public void clearAllGuests() {
+
         guestBST.clear();
+
+        saveToFile();
     }
     
     public GuestBST getGuestBST() {
         return guestBST;
     }
 
-    // Sample Data
+    // Load data from txt 
+    private void loadFromFile() {
+        
+        guestBST.clear();
 
-    private void loadSampleData() {
+        try {
+            BufferedReader reader =
+                    FileUtility.openReader(FilePath.GUEST_FILE);
 
-        addGuest(new Guest(
-                "10000001",
-                "Carson Phoon",
-                "0123456789",
-                "carson@gmail.com",
-                "BK0001",
-                101,
-                LocalDate.of(2026,7,1),
-                LocalDate.of(2026,7,3),
-                GuestStatus.CHECKED_IN));
+            String line;
 
-        addGuest(new Guest(
-                "10000002",
-                "Alex Tan",
-                "0112233445",
-                "alex@gmail.com",
-                "BK0002",
-                102,
-                LocalDate.of(2026,7,2),
-                LocalDate.of(2026,7,4),
-                GuestStatus.RESERVED));
+            while ((line = reader.readLine()) != null) {
 
-        addGuest(new Guest(
-                "10000003",
-                "John Lim",
-                "0178899001",
-                "john@gmail.com",
-                "BK0003",
-                201,
-                LocalDate.of(2026,7,5),
-                LocalDate.of(2026,7,7),
-                GuestStatus.CHECKED_OUT));
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
 
-        addGuest(new Guest(
-                "10000004",
-                "Alice Lee",
-                "0187654321",
-                "alice@gmail.com",
-                "BK0004",
-                202,
-                LocalDate.of(2026,7,6),
-                LocalDate.of(2026,7,8),
-                GuestStatus.CHECKED_IN));
+                Guest guest = convertToGuest(line);
+                guestBST.insert(guest);
+            }
 
-        addGuest(new Guest(
-                "10000005",
-                "David Wong",
-                "0198888777",
-                "david@gmail.com",
-                "BK0005",
-                301,
-                LocalDate.of(2026,7,7),
-                LocalDate.of(2026,7,9),
-                GuestStatus.RESERVED));
+            reader.close();
 
-        addGuest(new Guest(
-                "10000006",
-                "Sarah Ng",
-                "0129988776",
-                "sarah@gmail.com",
-                "BK0006",
-                302,
-                LocalDate.of(2026,7,8),
-                LocalDate.of(2026,7,10),
-                GuestStatus.CHECKED_IN));
+        } catch (IOException e) {
+            System.out.println("Error loading Guest.txt");
+        }
+    }
+    
+    public void saveToFile() {
 
-        addGuest(new Guest(
-                "10000007",
-                "Kevin Chan",
-                "0166677889",
-                "kevin@gmail.com",
-                "BK0007",
-                401,
-                LocalDate.of(2026,7,9),
-                LocalDate.of(2026,7,11),
-                GuestStatus.RESERVED));
+        try {
 
-        addGuest(new Guest(
-                "10000008",
-                "Emily Goh",
-                "0134455667",
-                "emily@gmail.com",
-                "BK0008",
-                402,
-                LocalDate.of(2026,7,10),
-                LocalDate.of(2026,7,12),
-                GuestStatus.CHECKED_IN));
+            BufferedWriter writer =
+                    FileUtility.openWriter(FilePath.GUEST_FILE);
 
-        addGuest(new Guest(
-                "10000009",
-                "Jason Yap",
-                "0115566778",
-                "jason@gmail.com",
-                "BK0009",
-                501,
-                LocalDate.of(2026,7,11),
-                LocalDate.of(2026,7,13),
-                GuestStatus.CHECKED_OUT));
+            guestBST.saveToFile(writer);
 
-        addGuest(new Guest(
-                "10000010",
-                "Michelle Teo",
-                "0183344556",
-                "michelle@gmail.com",
-                "BK0010",
-                502,
-                LocalDate.of(2026,7,12),
-                LocalDate.of(2026,7,14),
-                GuestStatus.CHECKED_IN));
+            writer.close();
+
+        } catch (IOException e) {
+
+            System.out.println("Error saving Guest.txt");
+
+        }
+
+    }
+
+    private Guest convertToGuest(String line){
+        
+        String [] data = line.split("\\|");
+        
+        if(data.length != 9){
+            return null;
+        }
+        
+        Guest guest = convertToGuest(line);
+
+        if(guest != null){
+            guestBST.insert(guest);
+        }
+        
+        return new Guest(
+            data[0],
+            data[1],    
+            data[2],
+            data[3],
+            data[4],
+            Integer.parseInt(data[5]),
+            LocalDate.parse(data[6]),    
+            LocalDate.parse(data[7]),
+            GuestStatus.valueOf(data[8])
+        );
     }
 }

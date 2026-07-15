@@ -4,11 +4,12 @@
  */
 package mhotelreservationsystem.adt;
 
-
+import java.io.BufferedWriter;
+import java.io.IOException;
 import mhotelreservationsystem.entity.Guest;
 /**
  *
- * @author phoon jiale
+ * @author phoon 
  */
 public class GuestBST implements GuestBSTInterface {
 
@@ -30,10 +31,9 @@ public class GuestBST implements GuestBSTInterface {
 
         if (compare < 0) {
             current.setLeft(insertNode(current.getLeft(), guest));
-        } else {
+        } else if (compare > 0) {
             current.setRight(insertNode(current.getRight(), guest));
         }
-
         return current;
     }
 
@@ -164,5 +164,41 @@ public class GuestBST implements GuestBSTInterface {
     @Override
     public int getSize(){
         return size;
+    }
+    
+    @Override
+    public void saveToFile(BufferedWriter writer) throws IOException {
+
+        saveNode(root, writer);
+
+    }
+
+    private void saveNode(GuestBSTNode current,
+                          BufferedWriter writer) throws IOException {
+
+        if (current == null) {
+            return;
+        }
+
+        saveNode(current.getLeft(), writer);
+
+        Guest guest = current.getData();
+
+        writer.write(
+                guest.getConfirmationNumber() + "|" +
+                guest.getGuestName() + "|" +
+                guest.getPhoneNumber() + "|" +
+                guest.getEmail() + "|" +
+                guest.getBookingID() + "|" +
+                guest.getRoomNumber() + "|" +
+                guest.getCheckInDate() + "|" +
+                guest.getCheckOutDate() + "|" +
+                guest.getStatus()
+        );
+
+        writer.newLine();
+
+        saveNode(current.getRight(), writer);
+
     }
 }

@@ -4,6 +4,8 @@
  */
 package mhotelreservationsystem.adt;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import mhotelreservationsystem.entity.Guest;
 /**
  *
@@ -24,4 +26,6 @@ public interface GuestBSTInterface {
     void inorderTraversal();
     
     int getSize();
+    
+    void saveToFile(BufferedWriter writer) throws IOException;
 }
