@@ -54,11 +54,11 @@ public class Room {
         return floor;
     }
     
-    public void setCapicity(int capacity){
+    public void setCapacity(int capacity){
         this.capacity = capacity;
     }
     
-    public int getCapicity(){
+    public int getCapacity(){
         return capacity;
     }
       
