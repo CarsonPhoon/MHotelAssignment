@@ -88,7 +88,7 @@ public class MemberRepository{
         return null;
     }
     
-    public Member SearchByConfirmation(String confirmationNumber){
+    public Member searchByConfirmation(String confirmationNumber){
         for(int i = 0; i < size; i++){
             if(members[i].getConfirmationNumber().equalsIgnoreCase(confirmationNumber)){
                 return members[i];
