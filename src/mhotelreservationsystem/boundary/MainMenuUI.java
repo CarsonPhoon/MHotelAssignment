@@ -23,7 +23,7 @@ public class MainMenuUI {
             
             System.out.println();
             System.out.println("\n\t\t------------------------------------------------------");
-            System.out.println("\n\t\t\t\t  Welcome to M Hotel ^-^");
+            System.out.println("\n\t\t\t\t  Welcome to M Hotel");
             System.out.println("\t\t\t\tEnter CHOICE to continue...");
             System.out.println("\n\t\t------------------------------------------------------");
             System.out.println();
@@ -34,7 +34,7 @@ public class MainMenuUI {
             System.out.println("5. Loyalty & Rewards");
             System.out.println("0. Exit");
                 
-           mainMenuChoice = Validation.getInt("\nEnter your choice (0-5): ",0,5);
+           mainMenuChoice = Validation.getIntOrReturn("\nEnter your choice (0-5): ",0,5);
             
             switch (mainMenuChoice){
             
@@ -51,8 +51,8 @@ public class MainMenuUI {
                     Validation.pressEnterToContinue();
                     break;
                 case 4:
-                    System.out.println("\nFront Desk Service Module");
-                    Validation.pressEnterToContinue();
+                    FrontDeskUI frontDeskUI = new FrontDeskUI();
+                    frontDeskUI.start();
                     break;
                 case 5:
                     System.out.println("\nLoyalty & Rewards Module");

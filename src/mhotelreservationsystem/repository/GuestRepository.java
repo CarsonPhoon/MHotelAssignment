@@ -106,6 +106,10 @@ public class GuestRepository {
     public GuestBST getGuestBST() {
         return guestBST;
     }
+    
+    public int displayGuestByStatus(GuestStatus status){
+        return guestBST.displayGuestByStatus(status);
+    }
 
     // Load data from txt 
     private void loadFromFile() {
@@ -155,29 +159,19 @@ public class GuestRepository {
     }
 
     private Guest convertToGuest(String line){
-        
-        String [] data = line.split("\\|");
-        
-        if(data.length != 9){
-            return null;
-        }
-        
-        Guest guest = convertToGuest(line);
 
-        if(guest != null){
-            guestBST.insert(guest);
-        }
-        
+        String[] data = line.split("\\|");
+
         return new Guest(
-            data[0],
-            data[1],    
-            data[2],
-            data[3],
-            data[4],
-            Integer.parseInt(data[5]),
-            LocalDate.parse(data[6]),    
-            LocalDate.parse(data[7]),
-            GuestStatus.valueOf(data[8])
+                data[0],
+                data[1],
+                data[2],
+                data[3],
+                data[4],
+                Integer.parseInt(data[5]),
+                LocalDate.parse(data[6]),
+                LocalDate.parse(data[7]),
+                GuestStatus.valueOf(data[8])
         );
     }
 }

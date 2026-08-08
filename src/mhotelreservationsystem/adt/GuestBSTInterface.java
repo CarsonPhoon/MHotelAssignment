@@ -7,6 +7,7 @@ package mhotelreservationsystem.adt;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import mhotelreservationsystem.entity.Guest;
+import mhotelreservationsystem.entity.GuestStatus;
 /**
  *
  * @author phoon
@@ -28,4 +29,8 @@ public interface GuestBSTInterface {
     int getSize();
     
     void saveToFile(BufferedWriter writer) throws IOException;
+    
+    int displayGuestByStatus(GuestStatus status);
 }
+
+  

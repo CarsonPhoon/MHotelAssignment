@@ -10,13 +10,18 @@ package mhotelreservationsystem.utility;
  */
 public class Validation {
     
-    // Read int with validation
-    public static int getInt(String message, int min, int max){
+    // Read int with validation and if 0 will return
+    public static int getIntOrReturn(String message, int min, int max){
            
         while(true){
          System.out.print(message);
          
          String input = ScannerUtility.scanner.nextLine().trim();
+        
+        // Check if it empty
+        if(input.equals("0")){
+            return 0;
+        }
          
          // Check empty input
          if(input.isEmpty()){
@@ -71,19 +76,26 @@ public class Validation {
         }
     }
     
-    // Read string with validation
-    public static String getString(String message){
-    
-        while(true){
-            System.out.println(message);
-            
+    // Read string with validation and if 0 will return
+    public static String getStringOrReturn(String message) {
+
+        while (true) {
+
+            System.out.print(message);
+
             String input = ScannerUtility.scanner.nextLine().trim();
+
+            // Check if equal 0
+            if (input.equals("0")) {
+                return "0";
+            }
             
-            // Check empty input
-            if (input.isEmpty()){
-                System.out.println("Input cannot be empty");
+            // Check if is empty
+            if (input.isEmpty()) {
+                System.out.println("Input cannot be empty.");
                 continue;
             }
+
             return input;
         }
     }
@@ -110,7 +122,7 @@ public class Validation {
     
     // Pause Screen 
     public static void pressEnterToContinue() {
-        System.out.println("\nPress ENTER to continue...");
+        System.out.println("\nPress ENTER to return back...");
         ScannerUtility.scanner.nextLine();
     }
     

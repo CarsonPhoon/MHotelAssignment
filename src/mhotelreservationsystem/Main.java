@@ -4,6 +4,7 @@
  */
 package mhotelreservationsystem;
 import mhotelreservationsystem.boundary.MainMenuUI;
+import mhotelreservationsystem.report.FrontDeskReport;
 
 /**
  *
@@ -16,5 +17,6 @@ public class Main {
         // Start the program here
         MainMenuUI menu = new MainMenuUI();
         menu.start();
+        
     }
 }

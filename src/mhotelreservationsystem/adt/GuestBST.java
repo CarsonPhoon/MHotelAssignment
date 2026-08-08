@@ -7,6 +7,7 @@ package mhotelreservationsystem.adt;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import mhotelreservationsystem.entity.Guest;
+import mhotelreservationsystem.entity.GuestStatus;
 /**
  *
  * @author phoon 
@@ -200,5 +201,27 @@ public class GuestBST implements GuestBSTInterface {
 
         saveNode(current.getRight(), writer);
 
+    }
+    
+    @Override
+    public int displayGuestByStatus(GuestStatus status){
+        return displayGuestByStatus(root,status);
+    }
+    
+    private int displayGuestByStatus(GuestBSTNode current, GuestStatus status){
+        
+        if(current == null){
+            return 0;
+        }
+        
+        int count = 0;
+        count += displayGuestByStatus(current.getLeft(), status);
+        
+        if(current.getData().getStatus() == status){
+            System.out.println(current.getData());
+            count++;
+        }
+        count += displayGuestByStatus(current.getRight(), status);
+        return count;
     }
 }

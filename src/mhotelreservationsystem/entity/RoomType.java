@@ -10,7 +10,8 @@ package mhotelreservationsystem.entity;
  */
 public enum RoomType {
 
-    STANDARD("Standard"),
+    SINGLE("Single"),
+    DOUBLE("Double"),
     DELUXE("Deluxe"),
     FAMILY("Family"),
     SUITE("Suite"),
