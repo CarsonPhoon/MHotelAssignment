@@ -12,4 +12,13 @@ package mhotelreservationsystem.boundary;
  */
 public class HousekeepingUI {
     
+        public void menu(){
+            System.out.println(" ---------------------------- ");
+            System.out.println("|                            |");
+            System.out.println("|        HOUSEKEEPING        |");
+            System.out.println("|                            |");
+            System.out.println(" ---------------------------- ");
+            System.out.println("\n1. ");
+    }
+   
 }
