@@ -4,8 +4,12 @@
  */
 package mhotelreservationsystem.boundary;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import mhotelreservationsystem.control.FrontDeskControl;
 import mhotelreservationsystem.report.FrontDeskReport;
+import mhotelreservationsystem.utility.ScannerUtility;
 import mhotelreservationsystem.utility.Validation;
 /**
  *
@@ -18,7 +22,12 @@ public class FrontDeskUI {
     
     public FrontDeskUI(){
         control = new FrontDeskControl();
-        report = new FrontDeskReport();
+        report = new FrontDeskReport(
+            control.getGuestRepository(),
+            control.getBookingRepository(),
+            control.getRoomRepository(),
+            control.getMemberRepository()
+        );
     }
     
     public void start(){
@@ -26,7 +35,7 @@ public class FrontDeskUI {
         
         do{
             displayMenu();
-            choice = Validation.getIntOrReturn("Enter your choice: ", 0, 9);
+            choice = Validation.getIntOrReturn("Enter your choice: ", 0, 10);
             boolean back = false;
             
             switch(choice) {
@@ -40,7 +49,7 @@ public class FrontDeskUI {
                     break;
 
                 case 3:
-                    back = checkRoomAvailability();
+                    back = viewMemberDetails();
                     break;
 
                 case 4:
@@ -56,14 +65,18 @@ public class FrontDeskUI {
                     break;
 
                 case 7:
-                    back = viewMemberDetails();
+                    back = viewAllComments();
                     break;
 
                 case 8:
-                    report.generateRoomOccupancyReport();
+                    back = searchCommentsByDate();
                     break;
 
                 case 9:
+                    report.generateRoomOccupancyReport();
+                    break;
+
+                case 10:
                     report.generateGuestCheckInOutReport();
                     break;
 
@@ -83,20 +96,21 @@ public class FrontDeskUI {
         System.out.println("========================================");
         System.out.println("         FRONT DESK SERVICE");
         System.out.println("========================================");
-        System.out.println("1. Search Guest");
-        System.out.println("2. View Complete Guest Information");
-        System.out.println("3. Check Room Availability");
-        System.out.println("4. View Room Details");
-        System.out.println("5. View Booking Details");
-        System.out.println("6. View Billing");
-        System.out.println("7. View Member Details");
-        System.out.println("8. Room Occupancy Report");
-        System.out.println("9. Guest Check-In/Check-Out Report");
+        System.out.println("1.  Search Guest");
+        System.out.println("2.  View Complete Guest Information");
+        System.out.println("3.  View Member Details");
+        System.out.println("4.  View Room Details");
+        System.out.println("5.  View Booking Details");
+        System.out.println("6.  View Billing");
+        System.out.println("7.  View All Comments");
+        System.out.println("8.  Search Comments by Date");
+        System.out.println("9.  Daily Room Occupancy Report");
+        System.out.println("10. Daily Guest Check-In/Check-Out Report");
         System.out.println("0. Back");
         System.out.println("========================================");
     }
     
-    // Search Guest
+    // 1. Search Guest
     private boolean searchGuest() {
         String confirmationNumber = Validation.getStringOrReturn("Enter Confirmation Number (0 to return back):");
 
@@ -108,8 +122,7 @@ public class FrontDeskUI {
         return false;
     }
 
-    
-    // View Complete Guest Information
+    // 2. View Complete Guest Information
     private boolean viewCompleteGuestInformation() {
         String confirmationNumber = Validation.getStringOrReturn("Enter Confirmation Number (0 to return back):");
 
@@ -121,21 +134,19 @@ public class FrontDeskUI {
         return false;
     }
 
+    // 3. View Member Details
+    private boolean viewMemberDetails() {
+        String confirmationNumber = Validation.getStringOrReturn("Enter Confirmation Number (0 to return back):");
 
-    // Check Room Availability
-    private boolean checkRoomAvailability() {
-        int roomNumber = Validation.getIntOrReturn("Enter Room Number (0 to return back):",1,9999);
-
-        if(roomNumber == 0) {
+        if(confirmationNumber.equals("0")) {
             return true;
         }
 
-        control.displayRoomAvailability(roomNumber);
+        control.viewMemberDetails(confirmationNumber);
         return false;
     }
 
-
-    // View Room Details
+    // 4. View Room Details
     private boolean viewRoomDetails() {
         int roomNumber = Validation.getIntOrReturn("Enter Room Number (0 to return back):",1,9999);
 
@@ -147,8 +158,7 @@ public class FrontDeskUI {
         return false;
     }
 
-
-    // View Booking Details
+    // 5. View Booking Details
     private boolean viewBookingDetails() {
         String bookingID = Validation.getStringOrReturn("Enter Booking ID (0 to return back):");
 
@@ -160,8 +170,7 @@ public class FrontDeskUI {
         return false;
     }
 
-
-    // View Billing
+    // 6. View Billing
     private boolean viewBilling() {
         String bookingID = Validation.getStringOrReturn("Enter Booking ID (0 to return back):");
 
@@ -173,16 +182,28 @@ public class FrontDeskUI {
         return false;
     }
 
-    
-    // View Member Details
-    private boolean viewMemberDetails() {
-        String confirmationNumber = Validation.getStringOrReturn("Enter Confirmation Number (0 to return back):");
+    // 7. View All Comments (Sorted)
+    private boolean viewAllComments() {
+        control.displayAllComments();
+        return false;
+    }
 
-        if(confirmationNumber.equals("0")) {
+    // 8. Search Comments by Date
+    private boolean searchCommentsByDate() {
+        System.out.print("Enter date (yyyy-MM-dd) (0 to return back): ");
+        String input = ScannerUtility.scanner.nextLine().trim();
+
+        if(input.equals("0")) {
             return true;
         }
 
-        control.viewMemberDetails(confirmationNumber);
+        try{
+            LocalDate date = LocalDate.parse(input);
+            control.searchCommentByDate(date);
+        }catch(DateTimeParseException e){
+            System.out.println("Invalid date format. Please use yyyy-MM-dd.");
+        }
+
         return false;
     }
 }

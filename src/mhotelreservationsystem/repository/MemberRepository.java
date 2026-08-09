@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.time.LocalDate;
+import mhotelreservationsystem.adt.ArrayListADT;
 import mhotelreservationsystem.entity.Member;
 import mhotelreservationsystem.entity.MemberLevel;
 import mhotelreservationsystem.entity.MembershipStatus;
@@ -19,13 +20,10 @@ import mhotelreservationsystem.utility.FileUtility;
  */
 public class MemberRepository{
     
-    private static final int MAX_MEMBER = 100;
-    private Member[] members;
-    private int size;
+    private ArrayListADT<Member> members;
     
     public MemberRepository(){
-        members = new Member[MAX_MEMBER];
-        size = 0;
+        members = new ArrayListADT<Member>();
         
         if(FileUtility.fileExists(FilePath.MEMBER_FILE)){
             loadFromFile();
@@ -34,25 +32,23 @@ public class MemberRepository{
     
     // CRUD operation
     public boolean addMember(Member member){
-        if(size >= MAX_MEMBER){
-            return false;
+
+        boolean success = members.add(member);
+
+        if(success){
+            saveToFile();
         }
-        
-        members[size++] = member;
-        saveToFile();
-        return true;
+
+        return success;
     }
     
     public Member getMember(int index){
-        if(index < 0 || index >= size){
-            return null;
-        }
-        
-        return members[index];
+
+        return members.get(index);
     }
     
     public int getTotalMember(){
-        return size;
+        return members.getNumberOfEntries();
     }
     
     public void displayAllMembers(){
@@ -68,39 +64,42 @@ public class MemberRepository{
                 "Status");
         System.out.println("==================================================================================");
 
-        for(int i = 0; i < size; i++){
+        for(int i = 0; i < members.getNumberOfEntries(); i++){
 
-            System.out.println(members[i]);
+            System.out.println(members.get(i));
 
         }
 
         System.out.println("==================================================================================");
-        System.out.println("Total Members : " + size);
+        System.out.println("Total Members : " + members.getNumberOfEntries());
 
     }
     
     public Member searchMember(String memberID){
-        for(int i = 0; i < size; i++){
-            if(members[i].getMemberID().equalsIgnoreCase(memberID)){
-                return members[i];
+        for(int i = 0; i < members.getNumberOfEntries(); i++){
+            Member m = members.get(i);
+            if(m.getMemberID().equalsIgnoreCase(memberID)){
+                return m;
             }
         }
         return null;
     }
     
     public Member searchByConfirmation(String confirmationNumber){
-        for(int i = 0; i < size; i++){
-            if(members[i].getConfirmationNumber().equalsIgnoreCase(confirmationNumber)){
-                return members[i];
+        for(int i = 0; i < members.getNumberOfEntries(); i++){
+            Member m = members.get(i);
+            if(m.getConfirmationNumber().equalsIgnoreCase(confirmationNumber)){
+                return m;
             }
         }
         return null;
     }
     
     public boolean updateMember(Member member){
-        for(int i = 0; i < size; i++){
-            if(members[i].getMemberID().equalsIgnoreCase(member.getMemberID())){
-                members[i] = member;
+        for(int i = 0; i < members.getNumberOfEntries(); i++){
+            Member m = members.get(i);
+            if(m.getMemberID().equalsIgnoreCase(member.getMemberID())){
+                members.replace(i, member);
                 saveToFile();
                 return true;
             }
@@ -109,14 +108,10 @@ public class MemberRepository{
     }
     
     public boolean removeMember(String memberID){
-        for(int i = 0; i < size; i++){
-            if(members[i].getMemberID().equalsIgnoreCase(memberID)){
-                for(int j = i; j < size - 1; j++){
-                    members[j] = members[j + 1];
-                }
-                
-                members[size - 1] = null;
-                size--;
+        for(int i = 0; i < members.getNumberOfEntries(); i++){
+            Member m = members.get(i);
+            if(m.getMemberID().equalsIgnoreCase(memberID)){
+                members.remove(i);
                 saveToFile();
                 return true;
             }
@@ -125,7 +120,6 @@ public class MemberRepository{
     }
     
     private void loadFromFile(){
-        size = 0;
         
         try{
             BufferedReader reader = FileUtility.openReader(FilePath.MEMBER_FILE);
@@ -140,13 +134,13 @@ public class MemberRepository{
                 Member member = convertToMember(line);
                 
                 if(member != null){
-                    members[size++] = member;
+                    members.add(member);
                 }
             }
             
             reader.close();
         } catch(IOException e){
-            System.out.println("Error loading Mmeber.txt");
+            System.out.println("Error loading Member.txt");
         }
     }
     
@@ -154,8 +148,8 @@ public class MemberRepository{
         try{
             BufferedWriter writer = FileUtility.openWriter(FilePath.MEMBER_FILE);
             
-            for(int i = 0; i < size; i++){
-                writer.write(convertToString(members[i]));
+            for(int i = 0; i < members.getNumberOfEntries(); i++){
+                writer.write(convertToString(members.get(i)));
                 writer.newLine();
             }
             writer.close();
@@ -174,12 +168,12 @@ public class MemberRepository{
 
         return new Member(
 
-                data[0],
-                data[1],
-                MemberLevel.valueOf(data[2]),
-                Integer.parseInt(data[3]),
-                LocalDate.parse(data[4]),
-                MembershipStatus.valueOf(data[5])
+                data[0],                           // Member ID
+                data[1],                           // Confirmation Number
+                MemberLevel.valueOf(data[2]),      // Member Level
+                Integer.parseInt(data[3]),         // Reward Point
+                LocalDate.parse(data[4]),          // Join Date
+                MembershipStatus.valueOf(data[5])  // Membership Status
 
         );
     }

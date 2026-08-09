@@ -5,6 +5,7 @@
     package mhotelreservationsystem.control;
 
 
+    import java.time.LocalDate;
     import mhotelreservationsystem.entity.*;
     import mhotelreservationsystem.repository.*; 
     /**
@@ -17,12 +18,35 @@
         private BookingRepository bookingRepository;
         private RoomRepository roomRepository;
         private MemberRepository memberRepository;
+        private CommentRepository commentRepository;
 
         public FrontDeskControl(){
             guestRepository = new GuestRepository(); 
             bookingRepository = new BookingRepository(); 
             roomRepository = new RoomRepository(); 
             memberRepository = new MemberRepository(); 
+            commentRepository = new CommentRepository();
+        }
+
+        // Accessors for repositories (used by FrontDeskReport to avoid duplicate instances)
+        public GuestRepository getGuestRepository(){
+            return guestRepository;
+        }
+
+        public BookingRepository getBookingRepository(){
+            return bookingRepository;
+        }
+
+        public RoomRepository getRoomRepository(){
+            return roomRepository;
+        }
+
+        public MemberRepository getMemberRepository(){
+            return memberRepository;
+        }
+
+        public CommentRepository getCommentRepository(){
+            return commentRepository;
         }
 
         // Search Methods (Return Object)
@@ -185,6 +209,10 @@
 
             Guest guest = searchGuest(confirmationNumber);
 
+            if(notFound(guest, "Guest not found.")){
+                return;
+            }
+
             Booking booking = searchBooking(guest.getBookingID());
             Room room = searchRoom(guest.getRoomNumber());
             Member member = searchMember(confirmationNumber);
@@ -287,5 +315,31 @@
                     System.out.println(member);
                 }
             }
+        }
+
+        // === Comment / Complaint Methods ===
+        public void searchCommentByDate(LocalDate date){
+            System.out.println();
+            System.out.println("========== Comments on " + date + " ==========");
+            System.out.printf("%-12s %-8s %-12s %-6s %-10s %-10s %s%n",
+                    "Date", "ID", "Confirm", "Room", "Type", "Status", "Description");
+            System.out.println("---------------------------------------------------------------------------");
+
+            boolean found = false;
+            for(int i = 0; i < commentRepository.getTotalComment(); i++){
+                Comment c = commentRepository.getComment(i);
+                if(c.getDate().equals(date)){
+                    System.out.println(c);
+                    found = true;
+                }
+            }
+
+            if(!found){
+                System.out.println("No comments found on this date.");
+            }
+        }
+
+        public void displayAllComments(){
+            commentRepository.displayAllComments();
         }
     }

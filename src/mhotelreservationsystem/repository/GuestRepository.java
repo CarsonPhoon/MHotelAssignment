@@ -9,6 +9,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import mhotelreservationsystem.adt.GuestBST;
+import mhotelreservationsystem.adt.GuestBSTNode;
 import mhotelreservationsystem.entity.Guest;
 import mhotelreservationsystem.entity.GuestStatus;
 import mhotelreservationsystem.utility.FileUtility;
@@ -107,6 +108,23 @@ public class GuestRepository {
         return guestBST;
     }
     
+    public Guest[] getAllGuests(){
+        int size = guestBST.getSize();
+        Guest[] arr = new Guest[size];
+        int[] index = {0};
+        collectInorder(guestBST.getRoot(), arr, index);
+        return arr;
+    }
+    
+    // Helper: collect BST nodes into array via inorder traversal
+    private void collectInorder(mhotelreservationsystem.adt.GuestBSTNode node, Guest[] arr, int[] index){
+        if(node == null) return;
+        collectInorder(node.getLeft(), arr, index);
+        arr[index[0]] = node.getData();
+        index[0]++;
+        collectInorder(node.getRight(), arr, index);
+    }
+    
     public int displayGuestByStatus(GuestStatus status){
         return guestBST.displayGuestByStatus(status);
     }
@@ -163,15 +181,15 @@ public class GuestRepository {
         String[] data = line.split("\\|");
 
         return new Guest(
-                data[0],
-                data[1],
-                data[2],
-                data[3],
-                data[4],
-                Integer.parseInt(data[5]),
-                LocalDate.parse(data[6]),
-                LocalDate.parse(data[7]),
-                GuestStatus.valueOf(data[8])
+                data[0],                      // Confirmation Number
+                data[1],                      // Guest Name
+                data[2],                      // Phone Number
+                data[3],                      // Email
+                data[4],                      // Booking ID
+                Integer.parseInt(data[5]),    // Room Number
+                LocalDate.parse(data[6]),     // Check-In Date
+                LocalDate.parse(data[7]),     // Check-Out Date
+                GuestStatus.valueOf(data[8])  // Guest Status
         );
     }
 }

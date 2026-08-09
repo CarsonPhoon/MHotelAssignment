@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.time.LocalDate;
+import mhotelreservationsystem.adt.ArrayListADT;
 import mhotelreservationsystem.entity.Booking;
 import mhotelreservationsystem.entity.BookingStatus;
 import mhotelreservationsystem.entity.RoomType;
@@ -19,14 +20,11 @@ import mhotelreservationsystem.utility.FilePath;
  */
 public class BookingRepository {
 
-    private Booking[] bookings;
-
-    private int size;
+    private ArrayListADT<Booking> bookings;
 
     public BookingRepository() {
 
-        bookings = new Booking[100];
-        size = 0;
+        bookings = new ArrayListADT<Booking>();
 
         if (FileUtility.fileExists(FilePath.BOOKING_FILE)) {
             loadFromFile();
@@ -37,28 +35,22 @@ public class BookingRepository {
     // CRUD operation
     public boolean addBooking(Booking booking){
 
-        if(size >= bookings.length){
-            return false;
+        boolean success = bookings.add(booking);
+
+        if(success){
+            saveToFile();
         }
 
-        bookings[size++] = booking;
-
-        saveToFile();
-
-        return true;
+        return success;
     }
 
     public Booking getBooking(int index){
 
-        if(index < 0 || index >= size){
-            return null;
-        }
-
-        return bookings[index];
+        return bookings.get(index);
     }
 
     public int getTotalBooking(){
-        return size;
+        return bookings.getNumberOfEntries();
     }
 
     public void displayAllBookings(){
@@ -74,20 +66,22 @@ public class BookingRepository {
                 "Status");
         System.out.println("==============================================================");
 
-        for(int i = 0; i < size; i++){
-            System.out.println(bookings[i]);
+        for(int i = 0; i < bookings.getNumberOfEntries(); i++){
+            System.out.println(bookings.get(i));
         }
 
         System.out.println("==============================================================");
-        System.out.println("Total Booking : " + size);
+        System.out.println("Total Booking : " + bookings.getNumberOfEntries());
     }
     
     public Booking searchBooking(String bookingID){
 
-        for(int i = 0; i < size; i++){
+        for(int i = 0; i < bookings.getNumberOfEntries(); i++){
 
-            if(bookings[i].getBookingID().equalsIgnoreCase(bookingID)){
-                return bookings[i];
+            Booking b = bookings.get(i);
+
+            if(b.getBookingID().equalsIgnoreCase(bookingID)){
+                return b;
             }
 
         }
@@ -97,11 +91,13 @@ public class BookingRepository {
 
     public boolean updateBooking(Booking booking){
 
-        for(int i = 0; i < size; i++){
+        for(int i = 0; i < bookings.getNumberOfEntries(); i++){
 
-            if(bookings[i].getBookingID().equalsIgnoreCase(booking.getBookingID())){
+            Booking b = bookings.get(i);
 
-                bookings[i] = booking;
+            if(b.getBookingID().equalsIgnoreCase(booking.getBookingID())){
+
+                bookings.replace(i, booking);
 
                 saveToFile();
 
@@ -115,19 +111,13 @@ public class BookingRepository {
     
     public boolean removeBooking(String bookingID){
 
-        for(int i = 0; i < size; i++){
+        for(int i = 0; i < bookings.getNumberOfEntries(); i++){
 
-            if(bookings[i].getBookingID().equalsIgnoreCase(bookingID)){
+            Booking b = bookings.get(i);
 
-                for(int j = i; j < size - 1; j++){
+            if(b.getBookingID().equalsIgnoreCase(bookingID)){
 
-                    bookings[j] = bookings[j + 1];
-
-                }
-
-                bookings[size - 1] = null;
-
-                size--;
+                bookings.remove(i);
 
                 saveToFile();
 
@@ -140,8 +130,6 @@ public class BookingRepository {
     }
     
     private void loadFromFile(){
-
-        size = 0;
 
         try{
 
@@ -159,7 +147,7 @@ public class BookingRepository {
                 Booking booking = convertToBooking(line);
 
                 if(booking != null){
-                    bookings[size++] = booking;
+                    bookings.add(booking);
                 }
 
             }
@@ -181,9 +169,9 @@ public class BookingRepository {
             BufferedWriter writer =
                     FileUtility.openWriter(FilePath.BOOKING_FILE);
 
-            for(int i = 0; i < size; i++){
+            for(int i = 0; i < bookings.getNumberOfEntries(); i++){
 
-                writer.write(convertToString(bookings[i]));
+                writer.write(convertToString(bookings.get(i)));
 
                 writer.newLine();
 

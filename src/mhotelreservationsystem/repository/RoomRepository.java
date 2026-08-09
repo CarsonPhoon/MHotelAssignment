@@ -7,6 +7,7 @@ package mhotelreservationsystem.repository;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import mhotelreservationsystem.adt.ArrayListADT;
 import mhotelreservationsystem.entity.Room;
 import mhotelreservationsystem.entity.RoomStatus;
 import mhotelreservationsystem.entity.RoomType;
@@ -17,14 +18,12 @@ import mhotelreservationsystem.utility.FileUtility;
  * @author phoon
  */
 public class RoomRepository{
-    private static final int MAX_ROOM = 100;
-    private Room[] rooms;
-    private int size;
+
+    private ArrayListADT<Room> rooms;
     
     public RoomRepository() {
         
-        rooms = new Room[MAX_ROOM];
-        size = 0;
+        rooms = new ArrayListADT<Room>();
         
         if(FileUtility.fileExists(FilePath.ROOM_FILE)){
             loadFromFile();
@@ -34,42 +33,40 @@ public class RoomRepository{
         
         // CRUD Operation
         public boolean addRoom(Room room){
-            if(size >= MAX_ROOM){
-                return false;
+
+            boolean success = rooms.add(room);
+
+            if(success){
+                saveToFile();
             }
-            
-            rooms[size++] = room;
-            
-            saveToFile();
-            
-            return true;
+
+            return success;
         }
         
         public Room getRoom(int index){
-            if(index < 0 || index >= size){
-                return null;
-            }
-            
-            return rooms[index];
+
+            return rooms.get(index);
         }
         
         public int getTotalRoom(){
-            return size;
+            return rooms.getNumberOfEntries();
         }
         
         public Room searchRoom(int roomNumber){
-            for(int i = 0; i< size; i++){
-                if(rooms[i].getRoomNumber() == roomNumber){
-                    return rooms[i];
+            for(int i = 0; i < rooms.getNumberOfEntries(); i++){
+                Room r = rooms.get(i);
+                if(r.getRoomNumber() == roomNumber){
+                    return r;
                 }
             }
             return null;
         }
         
         public boolean updateRoom(Room room){
-            for(int i =0; i < size; i++){
-                if(rooms[i].getRoomNumber() == room.getRoomNumber()){
-                    rooms[i] = room;
+            for(int i = 0; i < rooms.getNumberOfEntries(); i++){
+                Room r = rooms.get(i);
+                if(r.getRoomNumber() == room.getRoomNumber()){
+                    rooms.replace(i, room);
                     saveToFile();
                     return true;
                 }
@@ -78,14 +75,10 @@ public class RoomRepository{
         }
         
         public boolean removeRoom(int roomNumber){
-            for (int i = 0; i < size; i++){
-                if(rooms[i].getRoomNumber() == roomNumber){
-                    for(int j = i; j < size - 1; j++){
-                        rooms[j] = rooms[j+1];
-                    }
-                    
-                    rooms[size - 1 ] = null;
-                    size--;
+            for(int i = 0; i < rooms.getNumberOfEntries(); i++){
+                Room r = rooms.get(i);
+                if(r.getRoomNumber() == roomNumber){
+                    rooms.remove(i);
                     saveToFile();
                     return true;
                 }
@@ -106,18 +99,17 @@ public class RoomRepository{
                     "Status");
             System.out.println("============================================================================");
 
-            for(int i = 0; i < size; i++){
+            for(int i = 0; i < rooms.getNumberOfEntries(); i++){
 
-                System.out.println(rooms[i]);
+                System.out.println(rooms.get(i));
 
             }
 
             System.out.println("============================================================================");
-            System.out.println("Total Rooms : " + size);
+            System.out.println("Total Rooms : " + rooms.getNumberOfEntries());
         }
         
         private void loadFromFile(){
-            size = 0;
             
             try{
                 BufferedReader reader = FileUtility.openReader(FilePath.ROOM_FILE);
@@ -132,7 +124,7 @@ public class RoomRepository{
                     Room room = convertToRoom(line);
                     
                     if(room != null) {
-                        rooms[size++] = room;
+                        rooms.add(room);
                     }
                 }
             
@@ -146,8 +138,8 @@ public class RoomRepository{
             try{
                 BufferedWriter writer = FileUtility.openWriter(FilePath.ROOM_FILE);
                 
-                for(int i = 0; i < size; i++){
-                    writer.write(convertToString(rooms[i]));
+                for(int i = 0; i < rooms.getNumberOfEntries(); i++){
+                    writer.write(convertToString(rooms.get(i)));
                     
                     writer.newLine();
                 }
@@ -168,12 +160,12 @@ public class RoomRepository{
 
             return new Room(
 
-                    Integer.parseInt(data[0]),
-                    RoomType.valueOf(data[1]),
-                    Integer.parseInt(data[2]),
-                    Integer.parseInt(data[3]),
-                    Double.parseDouble(data[4]),
-                    RoomStatus.valueOf(data[5])
+                    Integer.parseInt(data[0]),     // Room No
+                    RoomType.valueOf(data[1]),     // Room Type
+                    Integer.parseInt(data[2]),     // Floor
+                    Integer.parseInt(data[3]),     // Capacity
+                    Double.parseDouble(data[4]),   // Room Price
+                    RoomStatus.valueOf(data[5])    // Room Status
             );
         }
         

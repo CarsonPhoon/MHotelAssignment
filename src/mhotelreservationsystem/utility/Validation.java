@@ -101,7 +101,7 @@ public class Validation {
     }
     
     // YesNo confirmation 
-    public static boolean comfirmYesNo(String message){
+    public static boolean confirmYesNo(String message){
     
         while(true){
             System.out.println(message + " (Y/N): ");

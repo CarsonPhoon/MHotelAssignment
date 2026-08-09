@@ -167,6 +167,10 @@ public class GuestBST implements GuestBSTInterface {
         return size;
     }
     
+    public GuestBSTNode getRoot(){
+        return root;
+    }
+    
     @Override
     public void saveToFile(BufferedWriter writer) throws IOException {
 
