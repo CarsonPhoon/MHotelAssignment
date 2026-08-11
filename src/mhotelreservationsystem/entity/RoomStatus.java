@@ -26,5 +26,14 @@ public enum RoomStatus {
     public String toString(){
         return displayName;
     }
+    
+    public static RoomStatus fromDisplayName(String displayName) {
+        for (RoomStatus status : RoomStatus.values()) {
+            if (status.displayName.equalsIgnoreCase(displayName)) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("Unknown RoomStatus: " + displayName);
+    }
 
 }

@@ -53,6 +53,14 @@ public class BookingRepository {
         return bookings.getNumberOfEntries();
     }
 
+    public Booking[] getAllBookings(){
+        Booking[] result = new Booking[bookings.getNumberOfEntries()];
+        for (int i = 0; i < bookings.getNumberOfEntries(); i++) {
+            result[i] = bookings.get(i);
+        }
+        return result;
+    }
+
     public void displayAllBookings(){
 
         System.out.println();
@@ -199,13 +207,13 @@ public class BookingRepository {
                 data[0],                                // BookingID
                 data[1],                                // Confirmation Number
                 Integer.parseInt(data[2]),              // Room Number
-                RoomType.valueOf(data[3]),              // Room Type
+                RoomType.fromDisplayName(data[3]),      // Room Type
                 Integer.parseInt(data[4]),              // Number Of Guests
                 LocalDate.parse(data[5]),               // Booking Date
                 LocalDate.parse(data[6]),               // Check In
                 LocalDate.parse(data[7]),               // Check Out
                 Double.parseDouble(data[8]),            // Total Amount
-                BookingStatus.valueOf(data[9])          // Booking Status
+                BookingStatus.fromDisplayName(data[9])  // Booking Status
         );
 
     }

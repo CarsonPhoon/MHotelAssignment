@@ -24,4 +24,13 @@ public enum GuestStatus {
     public String toString() {
         return displayName;
     }
+    
+    public static GuestStatus fromDisplayName(String displayName) {
+        for (GuestStatus status : GuestStatus.values()) {
+            if (status.displayName.equalsIgnoreCase(displayName)) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("Unknown GuestStatus: " + displayName);
+    }
 }

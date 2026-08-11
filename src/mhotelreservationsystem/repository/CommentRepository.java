@@ -152,9 +152,9 @@ public class CommentRepository {
                 data[0],
                 data[1],
                 Integer.parseInt(data[2]),
-                CommentType.valueOf(data[3]),
+                CommentType.fromDisplayName(data[3]),
                 data[4],
-                CommentStatus.valueOf(data[5]),
+                CommentStatus.fromDisplayName(data[5]),
                 LocalDate.parse(data[6])
         );
     }

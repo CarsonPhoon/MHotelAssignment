@@ -27,4 +27,13 @@ public enum RoomType {
     public String toString() {
         return displayName;
     }
+    
+    public static RoomType fromDisplayName(String displayName) {
+        for (RoomType type : RoomType.values()) {
+            if (type.displayName.equalsIgnoreCase(displayName)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unknown RoomType: " + displayName);
+    }
 }

@@ -26,4 +26,13 @@ public enum BookingStatus {
     public String toString() {
         return displayName;
     }
+    
+    public static BookingStatus fromDisplayName(String displayName) {
+        for (BookingStatus status : BookingStatus.values()) {
+            if (status.displayName.equalsIgnoreCase(displayName)) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("Unknown BookingStatus: " + displayName);
+    }
 }

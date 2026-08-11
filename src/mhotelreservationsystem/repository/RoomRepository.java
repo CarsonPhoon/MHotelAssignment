@@ -161,11 +161,11 @@ public class RoomRepository{
             return new Room(
 
                     Integer.parseInt(data[0]),     // Room No
-                    RoomType.valueOf(data[1]),     // Room Type
+                    RoomType.fromDisplayName(data[1]),     // Room Type
                     Integer.parseInt(data[2]),     // Floor
                     Integer.parseInt(data[3]),     // Capacity
                     Double.parseDouble(data[4]),   // Room Price
-                    RoomStatus.valueOf(data[5])    // Room Status
+                    RoomStatus.fromDisplayName(data[5])    // Room Status
             );
         }
         

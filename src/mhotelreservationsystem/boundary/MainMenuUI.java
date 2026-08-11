@@ -39,8 +39,8 @@ public class MainMenuUI {
             switch (mainMenuChoice){
             
                 case 1:
-                    System.out.println("\nWalk-In Registration & Booking Module");
-                    Validation.pressEnterToContinue();
+                    WalkInUI walkInUI = new WalkInUI();
+                    walkInUI.start();
                     break;
                 case 2:
                     System.out.println("\nVIP Room Allocation Module");

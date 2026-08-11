@@ -23,4 +23,13 @@ public enum CommentStatus {
     public String toString() {
         return displayName;
     }
+    
+    public static CommentStatus fromDisplayName(String displayName) {
+        for (CommentStatus status : CommentStatus.values()) {
+            if (status.displayName.equalsIgnoreCase(displayName)) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("Unknown CommentStatus: " + displayName);
+    }
 }

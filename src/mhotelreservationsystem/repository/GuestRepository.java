@@ -189,7 +189,7 @@ public class GuestRepository {
                 Integer.parseInt(data[5]),    // Room Number
                 LocalDate.parse(data[6]),     // Check-In Date
                 LocalDate.parse(data[7]),     // Check-Out Date
-                GuestStatus.valueOf(data[8])  // Guest Status
+                GuestStatus.fromDisplayName(data[8])  // Guest Status
         );
     }
 }

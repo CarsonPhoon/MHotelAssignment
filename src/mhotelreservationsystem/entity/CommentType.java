@@ -22,4 +22,13 @@ public enum CommentType {
     public String toString() {
         return displayName;
     }
+    
+    public static CommentType fromDisplayName(String displayName) {
+        for (CommentType type : CommentType.values()) {
+            if (type.displayName.equalsIgnoreCase(displayName)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unknown CommentType: " + displayName);
+    }
 }
