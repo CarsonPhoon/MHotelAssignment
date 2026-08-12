@@ -44,7 +44,8 @@ public class MainMenuUI {
                     break;
                 case 2:
                     System.out.println("\nVIP Room Allocation Module");
-                    Validation.pressEnterToContinue();
+                    VIPRoomUI vipUI = new VIPRoomUI();
+                    vipUI.startUI();
                     break;
                 case 3:
                     System.out.println("\nHousekeeping & Task Log Module");
