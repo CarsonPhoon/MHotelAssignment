@@ -7,12 +7,10 @@ package mhotelreservationsystem.control;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.time.LocalDate;
-
 import mhotelreservationsystem.adt.VipBST;
 import mhotelreservationsystem.entity.Member;
 import mhotelreservationsystem.entity.MemberLevel;
 import mhotelreservationsystem.entity.MembershipStatus;
-import mhotelreservationsystem.report.VIPQueueReport;
 
 /**
  * 
@@ -48,8 +46,6 @@ public class VIPRoomControl {
                     if (status == mhotelreservationsystem.entity.MembershipStatus.ACTIVE) {
                         vipQueue.insert(member); 
                     }
-                                        
-                    vipQueue.insert(member); 
                 }
             }
             System.out.println("[System] Successfully loaded default VIP data from Member.txt!");
@@ -71,7 +67,6 @@ public class VIPRoomControl {
 
     private void appendVipToFile(Member member) {
         String filepath = "data/Member.txt";
-        // 'true' turns on Append Mode, so it doesn't overwrite existing data
         try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(filepath, true))) {
             String line = member.getMemberID() + "|" + 
                           member.getConfirmationNumber() + "|" + 
@@ -85,6 +80,51 @@ public class VIPRoomControl {
             System.out.println("[System Error] Failed to save VIP to Member.txt");
         }
     }
+
+    public boolean verifyGuestExists(String confirmNum) {
+        String walkInFilePath = "data/Guest.txt";
+        
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(walkInFilePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+                if (data.length > 0 && data[0].trim().equals(confirmNum)) {
+                    return true;
+                }
+            }
+        } catch (java.io.IOException e) {
+            System.out.println("Could not find in Walk-In text file.");
+        }
+        return false;
+    }
+
+  public String generateNextMemberId() {
+        int maxId = 0;
+        String filePath = "data/Member.txt"; 
+        
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) continue;
+                
+                String[] data = line.split("\\|");
+                if (data.length > 0 && data[0].startsWith("MB")) {
+                    try {
+                        int currentId = Integer.parseInt(data[0].substring(2));
+                        if (currentId > maxId) {
+                            maxId = currentId;
+                        }
+                    } catch (NumberFormatException ignored) {}
+                }
+            }
+        } catch (java.io.IOException e) {
+            System.out.println("[System Warning] Could not read Member.txt to generate ID. Starting from MB0001.");
+        }
+        
+        return String.format("MB%04d", maxId + 1);
+    }
+
 
     public Member assignRoomToNextVip() {
         if (vipQueue.isEmpty()) return null;

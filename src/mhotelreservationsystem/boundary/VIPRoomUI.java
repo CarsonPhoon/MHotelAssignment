@@ -46,13 +46,43 @@ public class VIPRoomUI {
             }
 
             switch (choice) {
-                case 1:
+                case 1: { 
                     System.out.println("\n--- Register New VIP ---");
-                    System.out.print("Enter Member ID (e.g., M005): ");
-                    String memId = scanner.nextLine().trim();
                     
-                    System.out.print("Enter Confirmation Number (e.g., C1005): ");
-                    String confirmNum = scanner.nextLine().trim();
+                    String memId = vipControl.generateNextMemberId();
+                    System.out.println("[System] Generated New Member ID: " + memId);
+                    
+                    String confirmNum = "";
+                    boolean isCancelled = false; // 用来标记用户是否中途放弃了
+                    
+                    // ==========================================
+                    // 新增：Confirmation Number 的无限重试与退出循环
+                    // ==========================================
+                    while (true) {
+                        System.out.print("Enter Confirmation Number (or enter 0 to cancel): ");
+                        confirmNum = scanner.nextLine().trim();
+                        
+                        if (confirmNum.equals("0")) {
+                            System.out.println("[System] Registration cancelled. Returning to menu...");
+                            isCancelled = true;
+                            break; // 只要按了0，就跳出这个 while 循环
+                        }
+                        
+                        if (vipControl.verifyGuestExists(confirmNum)) {
+                            System.out.println("[System] Booking Record Verified!");
+                            break; // 验证成功，跳出这个 while 循环，继续往下填等级
+                        } else {
+                            System.out.println("\n[Error] Booking Record Not Found!");
+                            System.out.println("-> The confirmation number '" + confirmNum + "' does not exist in the Walk-In database.");
+                            System.out.println("-> Please try again.\n");
+                        }
+                    }
+                    
+                    // 如果用户刚才按了 0，这里就会直接 break 跳出整个 case 1，安全回到主菜单
+                    if (isCancelled) {
+                        break; 
+                    }
+                    // ==========================================
                     
                     System.out.print("Enter Member Level (BRONZE/SILVER/GOLD/PLATINUM): ");
                     String levelStr = scanner.nextLine().toUpperCase().trim();
@@ -87,8 +117,7 @@ public class VIPRoomUI {
                     if (points < minRequired) {
                         System.out.println("\n[Registration Failed] Insufficient Points!");
                         System.out.println("-> A " + level + " member must have at least " + minRequired + " points.");
-                        System.out.println("-> Points entered: " + points);
-                        break;
+                        break; 
                     }
 
                     mhotelreservationsystem.entity.Member newVip = new mhotelreservationsystem.entity.Member(
@@ -101,12 +130,14 @@ public class VIPRoomUI {
                     );
                     
                     if (vipControl.addVipToQueue(newVip)) {
-                        System.out.println("VIP successfully added to the waiting queue!");
+                        System.out.println("\n[Success] VIP successfully added to the waiting queue!");
+                        System.out.println("[System] VIP record successfully saved to database.");
                     } else {
-                        System.out.println("Failed to add VIP to the queue.");
+                        System.out.println("\n[Error] Failed to add VIP to the queue.");
                     }
                     break;
-                case 2:
+                }
+                case 2: {
                     System.out.println("\n--- Assign Room ---");
                     mhotelreservationsystem.entity.Member assignedVip = vipControl.assignRoomToNextVip();
                     
@@ -120,12 +151,11 @@ public class VIPRoomUI {
                             System.out.println("Guest points exceed 10,000! Eligible for special perks.");
                             System.out.println("Please offer: 1. Breakfast  2. Spa  3. Late Check-out");
                         }
-                        // ==========================================
-
                     } else {
                         System.out.println("The waiting queue is currently empty. No VIPs waiting.");
                     }
                     break;
+                }
                 case 3:
                     System.out.println("\n[System] Generating waiting list...\n");
                     vipControl.displayAllWaitingVips();
