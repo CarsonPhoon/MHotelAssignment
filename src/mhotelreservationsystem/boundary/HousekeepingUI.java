@@ -12,13 +12,28 @@ package mhotelreservationsystem.boundary;
  */
 public class HousekeepingUI {
     
-        public void menu(){
-            System.out.println(" ---------------------------- ");
-            System.out.println("|                            |");
-            System.out.println("|        HOUSEKEEPING        |");
-            System.out.println("|                            |");
-            System.out.println(" ---------------------------- ");
-            System.out.println("\n1. ");
+
+    public HousekeepingUI(){
+
+    }
+
+    public void startModule(){
+        menu();
+
+
+    }
+
+    public void menu(){
+        System.out.println(" ---------------------------- ");
+        System.out.println("|                            |");
+        System.out.println("|        HOUSEKEEPING        |");
+        System.out.println("|                            |");
+        System.out.println(" ---------------------------- ");
+        System.out.println("\n1. Update Cleaning Status");
+        System.out.println("2. View Room Status");
+        System.out.println("3. View Cleaning Task Log");
+        System.out.println("The options choosed: ");
+
     }
    
 }

@@ -47,8 +47,8 @@ public class MainMenuUI {
                     Validation.pressEnterToContinue();
                     break;
                 case 3:
-                    System.out.println("\nHousekeeping & Task Log Module");
-                    Validation.pressEnterToContinue();
+                    HousekeepingUI housekeepingUI = new HousekeepingUI();
+                    housekeepingUI.startModule();
                     break;
                 case 4:
                     FrontDeskUI frontDeskUI = new FrontDeskUI();

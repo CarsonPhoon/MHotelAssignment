@@ -9,5 +9,19 @@ package mhotelreservationsystem.entity;
  * @author user
  */
 public enum RoomCleaningStatus {
-    
+   
+    DIRTY("Dirty"),
+    INPROGRESS("Cleaning In Progress"),
+    INSPECTED("Checked"),
+    READYFORCHECKIN("Ready for Check-In");
+
+    private final String displayName;
+
+    RoomCleaningStatus(String displayName){
+        this.displayName = displayName;
+    }
+
+    public String getLabel(){
+        return displayName;
+    }
 }
