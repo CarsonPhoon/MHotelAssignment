@@ -10,4 +10,4 @@
 502|VIP|5|2|350.0|Occupied
 403|Deluxe|4|3|680.0|Reserved
 404|Deluxe|4|3|680.0|Occupied
-405|Deluxe|4|3|680.0|Available
+405|Deluxe|4|3|680.0|Reserved
