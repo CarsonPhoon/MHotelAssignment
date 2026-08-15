@@ -93,7 +93,7 @@ public class VIPRoomControl {
                 }
             }
         } catch (java.io.IOException e) {
-            System.out.println("Could not find in Walk-In text file.");
+            System.out.println("Could not find in Guest text file.");
         }
         return false;
     }
@@ -125,6 +125,24 @@ public class VIPRoomControl {
         return String.format("MB%04d", maxId + 1);
     }
 
+    public boolean isVipAlreadyRegistered(String confirmNum) {
+        String filePath = "data/Member.txt";
+        
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) continue;
+                
+                String[] parts = line.split("\\|");
+                if (parts.length >= 2 && parts[1].trim().equals(confirmNum)) {
+                    return true;
+                }
+            }
+        } catch (java.io.IOException e) {
+        }
+        return false; 
+    }
 
     public Member assignRoomToNextVip() {
         if (vipQueue.isEmpty()) return null;

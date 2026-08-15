@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package mhotelreservationsystem.boundary;
 
 import java.util.Scanner;
@@ -53,11 +49,9 @@ public class VIPRoomUI {
                     System.out.println("[System] Generated New Member ID: " + memId);
                     
                     String confirmNum = "";
-                    boolean isCancelled = false; // 用来标记用户是否中途放弃了
+                    boolean isCancelled = false; 
                     
-                    // ==========================================
-                    // 新增：Confirmation Number 的无限重试与退出循环
-                    // ==========================================
+                    // 1. 无限重试：验证 Confirmation Number
                     while (true) {
                         System.out.print("Enter Confirmation Number (or enter 0 to cancel): ");
                         confirmNum = scanner.nextLine().trim();
@@ -65,12 +59,19 @@ public class VIPRoomUI {
                         if (confirmNum.equals("0")) {
                             System.out.println("[System] Registration cancelled. Returning to menu...");
                             isCancelled = true;
-                            break; // 只要按了0，就跳出这个 while 循环
+                            break; 
+                        }
+                        
+                        if (vipControl.isVipAlreadyRegistered(confirmNum)) {
+                            System.out.println("\n[Error] Duplicate Registration!");
+                            System.out.println("-> The confirmation number '" + confirmNum + "' is already registered as a VIP.");
+                            System.out.println("-> Please enter a different number.\n");
+                            continue;
                         }
                         
                         if (vipControl.verifyGuestExists(confirmNum)) {
                             System.out.println("[System] Booking Record Verified!");
-                            break; // 验证成功，跳出这个 while 循环，继续往下填等级
+                            break; 
                         } else {
                             System.out.println("\n[Error] Booking Record Not Found!");
                             System.out.println("-> The confirmation number '" + confirmNum + "' does not exist in the Walk-In database.");
@@ -78,48 +79,83 @@ public class VIPRoomUI {
                         }
                     }
                     
-                    // 如果用户刚才按了 0，这里就会直接 break 跳出整个 case 1，安全回到主菜单
                     if (isCancelled) {
                         break; 
                     }
-                    // ==========================================
                     
-                    System.out.print("Enter Member Level (BRONZE/SILVER/GOLD/PLATINUM): ");
-                    String levelStr = scanner.nextLine().toUpperCase().trim();
+                    // 2. 打印计分规则
+                    System.out.println("\n--- Level & Points Guidelines ---");
+                    System.out.println("BRONZE   : 500  - 1499 pts");
+                    System.out.println("SILVER   : 1500 - 2999 pts");
+                    System.out.println("GOLD     : 3000 - 4999 pts");
+                    System.out.println("PLATINUM : 5000+ pts");
+                    System.out.println("---------------------------------");
                     
-                    mhotelreservationsystem.entity.MemberLevel level;
-                    try {
-                        level = mhotelreservationsystem.entity.MemberLevel.valueOf(levelStr);
-                    } catch (IllegalArgumentException e) {
-                        System.out.println("Invalid level entered! Defaulting to BRONZE.");
-                        level = mhotelreservationsystem.entity.MemberLevel.BRONZE;
+                    // 3. 无限重试：输入并验证等级
+                    mhotelreservationsystem.entity.MemberLevel level = null;
+                    while (true) {
+                        System.out.print("Enter Member Level (BRONZE/SILVER/GOLD/PLATINUM): ");
+                        String levelStr = scanner.nextLine().toUpperCase().trim();
+                        
+                        try {
+                            level = mhotelreservationsystem.entity.MemberLevel.valueOf(levelStr);
+                            break; 
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("\n[Error] Invalid member level!");
+                            System.out.println("-> Please type exactly: BRONZE, SILVER, GOLD, or PLATINUM.\n");
+                        }
                     }
                     
-                    System.out.print("Enter Reward Points: ");
-                    int points = 0;
-                    if (scanner.hasNextInt()) {
-                        points = scanner.nextInt();
-                        scanner.nextLine(); 
-                    } else {
-                        System.out.println("Invalid points entered! Registration cancelled.");
-                        scanner.nextLine(); 
-                        break; 
-                    }
-                    
+                    // 提前设定好该等级的积分区间
                     int minRequired = 0;
-                    switch (level) {
-                        case BRONZE: minRequired = 500; break;
-                        case SILVER: minRequired = 1500; break;
-                        case GOLD: minRequired = 3000; break;
-                        case PLATINUM: minRequired = 5000; break;
-                    }
+                    int maxAllowed = Integer.MAX_VALUE; 
                     
-                    if (points < minRequired) {
-                        System.out.println("\n[Registration Failed] Insufficient Points!");
-                        System.out.println("-> A " + level + " member must have at least " + minRequired + " points.");
-                        break; 
+                    switch (level) {
+                        case BRONZE: 
+                            minRequired = 500; 
+                            maxAllowed = 1499; 
+                            break;
+                        case SILVER: 
+                            minRequired = 1500; 
+                            maxAllowed = 2999; 
+                            break;
+                        case GOLD: 
+                            minRequired = 3000; 
+                            maxAllowed = 4999; 
+                            break;
+                        case PLATINUM: 
+                            minRequired = 5000; 
+                            maxAllowed = Integer.MAX_VALUE; 
+                            break;
                     }
 
+                    // 4. 无限重试：输入分数并验证是否在区间内
+                    int points = 0;
+                    while (true) {
+                        System.out.print("Enter Reward Points: ");
+                        if (scanner.hasNextInt()) {
+                            points = scanner.nextInt();
+                            scanner.nextLine();
+                            
+                            if (points < minRequired || points > maxAllowed) {
+                                System.out.println("\n[Error] Points do not match the Member Level!");
+                                if (level == mhotelreservationsystem.entity.MemberLevel.PLATINUM) {
+                                    System.out.println("-> " + level + " tier requires at least " + minRequired + " points.");
+                                } else {
+                                    System.out.println("-> " + level + " tier points must be between " + minRequired + " and " + maxAllowed + ".");
+                                }
+                                System.out.println("-> Please try again.\n");
+                                continue;
+                            }
+                            break;
+                        } else {
+                            System.out.println("\n[Error] Invalid points entered!");
+                            System.out.println("-> Please enter a valid number (e.g., 500).\n");
+                            scanner.nextLine();
+                        }
+                    }
+
+                    // 5. 生成对象并存入等待队列
                     mhotelreservationsystem.entity.Member newVip = new mhotelreservationsystem.entity.Member(
                         memId, 
                         confirmNum, 
