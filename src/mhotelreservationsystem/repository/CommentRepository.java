@@ -30,6 +30,7 @@ public class CommentRepository {
         }
     }
     
+    // CRUD operation
     public boolean addComment(Comment comment){
         boolean success = comments.add(comment);
         if(success){
@@ -56,6 +57,17 @@ public class CommentRepository {
         return null;
     }
     
+    public ArrayListADT<Comment> searchByConfirmation(String confirmationNumber){
+        ArrayListADT<Comment> result = new ArrayListADT<Comment>();
+        for(int i = 0; i < comments.getNumberOfEntries(); i++){
+            Comment c = comments.get(i);
+            if(c.getConfirmationNumber().equalsIgnoreCase(confirmationNumber)){
+                result.add(c);
+            }
+        }
+        return result;
+    }
+    
     public boolean updateComment(Comment comment){
         for(int i = 0; i < comments.getNumberOfEntries(); i++){
             Comment c = comments.get(i);
@@ -80,7 +92,7 @@ public class CommentRepository {
         return false;
     }
     
-    // Bubble Sort: sort comments by date descending (newest first)
+    // Bubble Sort - sort comments by date descending (newest first)
     private void bubbleSortByDateDesc(Comment[] arr, int size){
         for(int i = 0; i < size - 1; i++){
             for(int j = 0; j < size - 1 - i; j++){
@@ -115,6 +127,7 @@ public class CommentRepository {
         System.out.println("Total Comments : " + size);
     }
     
+    // Load data from txt file
     private void loadFromFile(){
         try{
             BufferedReader reader = FileUtility.openReader(FilePath.COMMENT_FILE);
@@ -132,6 +145,7 @@ public class CommentRepository {
         }
     }
     
+    // Save data to txt file
     public void saveToFile(){
         try{
             BufferedWriter writer = FileUtility.openWriter(FilePath.COMMENT_FILE);
@@ -149,13 +163,13 @@ public class CommentRepository {
         String[] data = line.split("\\|");
         if(data.length != 7) return null;
         return new Comment(
-                data[0],
-                data[1],
-                Integer.parseInt(data[2]),
-                CommentType.fromDisplayName(data[3]),
-                data[4],
-                CommentStatus.fromDisplayName(data[5]),
-                LocalDate.parse(data[6])
+                data[0],                                  // Comment ID
+                data[1],                                  // Confirmation Number
+                Integer.parseInt(data[2]),                // Room No
+                CommentType.fromDisplayName(data[3]),     // Comment Type
+                data[4],                                  // Comment
+                CommentStatus.fromDisplayName(data[5]),   // Comment Status
+                LocalDate.parse(data[6])                  // Comment Date
         );
     }
     

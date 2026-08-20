@@ -25,4 +25,14 @@ public enum MembershipStatus {
         return displayName;
     }
 
+    // Method of Ignore case matching
+    public static MembershipStatus fromDisplayName(String displayName) {
+        for (MembershipStatus status : MembershipStatus.values()) {
+            if (status.displayName.equalsIgnoreCase(displayName)) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("Unknown MembershipStatus: " + displayName);
+    }
+
 }

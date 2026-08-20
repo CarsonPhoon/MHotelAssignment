@@ -30,19 +30,7 @@ public class RoomRepository{
         }
        }
 
-        
-        // CRUD Operation
-        public boolean addRoom(Room room){
-
-            boolean success = rooms.add(room);
-
-            if(success){
-                saveToFile();
-            }
-
-            return success;
-        }
-        
+        // RU operation
         public Room getRoom(int index){
 
             return rooms.get(index);
@@ -74,46 +62,11 @@ public class RoomRepository{
             return false;
         }
         
-        public boolean removeRoom(int roomNumber){
-            for(int i = 0; i < rooms.getNumberOfEntries(); i++){
-                Room r = rooms.get(i);
-                if(r.getRoomNumber() == roomNumber){
-                    rooms.remove(i);
-                    saveToFile();
-                    return true;
-                }
-            }
-            return false;
-        }
-        
-        public void displayAllRooms(){
-
-            System.out.println();
-            System.out.println("============================================================================");
-            System.out.printf("%-8s %-10s %-6s %-8s %-10s %-15s%n",
-                    "Room",
-                    "Type",
-                    "Floor",
-                    "Capacity",
-                    "Rate",
-                    "Status");
-            System.out.println("============================================================================");
-
-            for(int i = 0; i < rooms.getNumberOfEntries(); i++){
-
-                System.out.println(rooms.get(i));
-
-            }
-
-            System.out.println("============================================================================");
-            System.out.println("Total Rooms : " + rooms.getNumberOfEntries());
-        }
-        
+        // Load data from txt file
         private void loadFromFile(){
             
             try{
                 BufferedReader reader = FileUtility.openReader(FilePath.ROOM_FILE);
-                
                 String line;
                 
                 while((line = reader.readLine()) != null){
@@ -127,14 +80,15 @@ public class RoomRepository{
                         rooms.add(room);
                     }
                 }
-            
                 reader.close();
             } catch(IOException e){
                 System.out.println("Error loading Room.txt");
             }
         }
         
+         // Save data to txt file
         private void saveToFile(){
+            
             try{
                 BufferedWriter writer = FileUtility.openWriter(FilePath.ROOM_FILE);
                 
@@ -151,7 +105,6 @@ public class RoomRepository{
         }
         
         private Room convertToRoom(String line){
-
             String[] data = line.split("\\|");
 
             if(data.length != 6){
@@ -160,17 +113,16 @@ public class RoomRepository{
 
             return new Room(
 
-                    Integer.parseInt(data[0]),     // Room No
+                    Integer.parseInt(data[0]),             // Room No
                     RoomType.fromDisplayName(data[1]),     // Room Type
-                    Integer.parseInt(data[2]),     // Floor
-                    Integer.parseInt(data[3]),     // Capacity
-                    Double.parseDouble(data[4]),   // Room Price
+                    Integer.parseInt(data[2]),             // Floor
+                    Integer.parseInt(data[3]),             // Capacity
+                    Double.parseDouble(data[4]),           // Room Price
                     RoomStatus.fromDisplayName(data[5])    // Room Status
             );
         }
         
         private String convertToString(Room room){
-
             return room.getRoomNumber() + "|" +
                    room.getRoomType() + "|" +
                    room.getFloor() + "|" +

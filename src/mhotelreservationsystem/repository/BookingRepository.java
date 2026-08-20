@@ -61,33 +61,10 @@ public class BookingRepository {
         return result;
     }
 
-    public void displayAllBookings(){
-
-        System.out.println();
-        System.out.println("==============================================================");
-        System.out.printf("%-8s %-10s %-10s %-5s %-10s %-15s\n",
-                "Book ID",
-                "Confirm",
-                "Room",
-                "Guest",
-                "Amount",
-                "Status");
-        System.out.println("==============================================================");
-
-        for(int i = 0; i < bookings.getNumberOfEntries(); i++){
-            System.out.println(bookings.get(i));
-        }
-
-        System.out.println("==============================================================");
-        System.out.println("Total Booking : " + bookings.getNumberOfEntries());
-    }
-    
     public Booking searchBooking(String bookingID){
 
         for(int i = 0; i < bookings.getNumberOfEntries(); i++){
-
             Booking b = bookings.get(i);
-
             if(b.getBookingID().equalsIgnoreCase(bookingID)){
                 return b;
             }
@@ -100,49 +77,21 @@ public class BookingRepository {
     public boolean updateBooking(Booking booking){
 
         for(int i = 0; i < bookings.getNumberOfEntries(); i++){
-
             Booking b = bookings.get(i);
-
             if(b.getBookingID().equalsIgnoreCase(booking.getBookingID())){
-
                 bookings.replace(i, booking);
-
                 saveToFile();
-
                 return true;
             }
-
         }
-
         return false;
     }
-    
-    public boolean removeBooking(String bookingID){
-
-        for(int i = 0; i < bookings.getNumberOfEntries(); i++){
-
-            Booking b = bookings.get(i);
-
-            if(b.getBookingID().equalsIgnoreCase(bookingID)){
-
-                bookings.remove(i);
-
-                saveToFile();
-
-                return true;
-            }
-
-        }
-
-        return false;
-    }
-    
+   
+    // Load data from txt file
     private void loadFromFile(){
 
         try{
-
-            BufferedReader reader =
-                    FileUtility.openReader(FilePath.BOOKING_FILE);
+            BufferedReader reader = FileUtility.openReader(FilePath.BOOKING_FILE);
 
             String line;
 
@@ -151,52 +100,36 @@ public class BookingRepository {
                 if(line.trim().isEmpty()){
                     continue;
                 }
-
+                
                 Booking booking = convertToBooking(line);
-
+                
                 if(booking != null){
                     bookings.add(booking);
                 }
-
             }
-
             reader.close();
-
         }catch(IOException e){
-
             System.out.println("Error loading Booking.txt");
 
         }
-
     }
     
+    // Save data to txt file
     public void saveToFile(){
 
         try{
-
-            BufferedWriter writer =
-                    FileUtility.openWriter(FilePath.BOOKING_FILE);
-
+            BufferedWriter writer = FileUtility.openWriter(FilePath.BOOKING_FILE);
             for(int i = 0; i < bookings.getNumberOfEntries(); i++){
-
                 writer.write(convertToString(bookings.get(i)));
-
                 writer.newLine();
-
             }
-
             writer.close();
-
         }catch(IOException e){
-
             System.out.println("Error saving Booking.txt");
-
         }
-
     }
     
     private Booking convertToBooking(String line){
-
         String[] data = line.split("\\|");
 
         if(data.length != 10){
@@ -215,11 +148,9 @@ public class BookingRepository {
                 Double.parseDouble(data[8]),            // Total Amount
                 BookingStatus.fromDisplayName(data[9])  // Booking Status
         );
-
     }
     
     private String convertToString(Booking booking){
-
         return booking.getBookingID() + "|" +
                booking.getConfirmationNumber() + "|" +
                booking.getRoomNumber() + "|" +
@@ -230,6 +161,5 @@ public class BookingRepository {
                booking.getCheckOutDate() + "|" +
                booking.getTotalAmount() + "|" +
                booking.getBookingStatus();
-
     }
 }

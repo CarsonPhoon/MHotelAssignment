@@ -12,7 +12,8 @@ import mhotelreservationsystem.entity.GuestStatus;
  *
  * @author phoon 
  */
-public class GuestBST implements GuestBSTInterface {
+//ADT: Binary Search Tree for Guest records
+public class GuestBST implements BSTInterface<Guest, String>, GuestBSTInterface {
 
     private GuestBSTNode root;
     private int size;
@@ -22,6 +23,7 @@ public class GuestBST implements GuestBSTInterface {
         size = 0;
     }
 
+    //Recursive helper to insert a Guest into the sub tree rooted at current     
     private GuestBSTNode insertNode(GuestBSTNode current, Guest guest) {
 
         if (current == null) {
@@ -38,6 +40,7 @@ public class GuestBST implements GuestBSTInterface {
         return current;
     }
 
+    // Insert guest with returns false if confirmationNumber already exists
     @Override
     public boolean insert(Guest guest) {
 
@@ -48,11 +51,13 @@ public class GuestBST implements GuestBSTInterface {
         return true;
     }
     
+    // Search by confirmationNumber with returns the Guest or null if not found
     @Override
     public Guest search(String confirmationNumber) {
         return searchNode(root, confirmationNumber);
     }
     
+    // Recursive helper to search the sub tree rooted at current
     private Guest searchNode(GuestBSTNode current, String confirmationNumber) {
 
         if (current == null) {
@@ -71,6 +76,7 @@ public class GuestBST implements GuestBSTInterface {
         }
     }
 
+    // Remove a guest by confirmationNumber with returns false if not found
     @Override
     public boolean remove(String confirmationNumber) {
 
@@ -84,6 +90,14 @@ public class GuestBST implements GuestBSTInterface {
 
     }
     
+    /**
+     * Recursive helper to remove a node from the sub tree rooted at current
+     * Handles 4 situation:
+     *   Situation 1: No child (leaf)       -> it will return null
+     *   Situation 2: Only left child       -> it will replace with left sub tree
+     *   Situation 3: Only right child      -> it will replace with right sub tree
+     *   Situation 4: Two children          -> it will copy in-order successor and delete successor
+     */
     private GuestBSTNode removeNode(GuestBSTNode current,
                                     String confirmationNumber) {
 
@@ -98,22 +112,22 @@ public class GuestBST implements GuestBSTInterface {
         } else if (compare > 0) {
             current.setRight(removeNode(current.getRight(), confirmationNumber));
         } else {
-            // Case 1：No child
+            // Situation 1
             if (current.getLeft() == null && current.getRight() == null) {
                 return null;
             }
-
-            // Case 2：Only right child
-            if (current.getLeft() == null) {
-                return current.getRight();
-            }
-
-            // Case 3：Only left child
+            
+            // Situation 2
             if (current.getRight() == null) {
                 return current.getLeft();
             }
 
-            // Case 4：Two children
+            // Situation 3
+            if (current.getLeft() == null) {
+                return current.getRight();
+            }
+            
+            // Situation 4
             Guest successor = findMin(current.getRight());
 
             current.setData(successor);
@@ -124,6 +138,7 @@ public class GuestBST implements GuestBSTInterface {
         return current;
     }
     
+    // Find the node with the smallest confirmationNumber in the subtree
     private Guest findMin(GuestBSTNode current) {
         
         while (current.getLeft() != null) {
@@ -133,6 +148,7 @@ public class GuestBST implements GuestBSTInterface {
         return current.getData();
     }
     
+    // Print all guests in ascending order of confirmationNumber (in-order traversal)
     @Override
     public void inorderTraversal() {
         
@@ -171,6 +187,7 @@ public class GuestBST implements GuestBSTInterface {
         return root;
     }
     
+    // Save all guests to file in sorted order using in-order traversal
     @Override
     public void saveToFile(BufferedWriter writer) throws IOException {
 
@@ -207,6 +224,7 @@ public class GuestBST implements GuestBSTInterface {
 
     }
     
+    // Display and count all guests matching the given status (in-order with filter)
     @Override
     public int displayGuestByStatus(GuestStatus status){
         return displayGuestByStatus(root,status);

@@ -6,7 +6,7 @@ package mhotelreservationsystem;
 import mhotelreservationsystem.boundary.MainMenuUI;
 
 /**
- *
+ *4
  * @author phoon
  */
 public class Main {

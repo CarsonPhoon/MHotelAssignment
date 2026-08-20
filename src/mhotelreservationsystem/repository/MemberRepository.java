@@ -51,40 +51,6 @@ public class MemberRepository{
         return members.getNumberOfEntries();
     }
     
-    public void displayAllMembers(){
-
-        System.out.println();
-        System.out.println("==================================================================================");
-        System.out.printf("%-8s %-10s %-10s %-8s %-12s %-10s%n",
-                "Member",
-                "Confirm",
-                "Level",
-                "Points",
-                "Join Date",
-                "Status");
-        System.out.println("==================================================================================");
-
-        for(int i = 0; i < members.getNumberOfEntries(); i++){
-
-            System.out.println(members.get(i));
-
-        }
-
-        System.out.println("==================================================================================");
-        System.out.println("Total Members : " + members.getNumberOfEntries());
-
-    }
-    
-    public Member searchMember(String memberID){
-        for(int i = 0; i < members.getNumberOfEntries(); i++){
-            Member m = members.get(i);
-            if(m.getMemberID().equalsIgnoreCase(memberID)){
-                return m;
-            }
-        }
-        return null;
-    }
-    
     public Member searchByConfirmation(String confirmationNumber){
         for(int i = 0; i < members.getNumberOfEntries(); i++){
             Member m = members.get(i);
@@ -94,31 +60,18 @@ public class MemberRepository{
         }
         return null;
     }
-    
-    public boolean updateMember(Member member){
-        for(int i = 0; i < members.getNumberOfEntries(); i++){
-            Member m = members.get(i);
-            if(m.getMemberID().equalsIgnoreCase(member.getMemberID())){
-                members.replace(i, member);
-                saveToFile();
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    public boolean removeMember(String memberID){
+
+    public Member searchByMemberID(String memberID){
         for(int i = 0; i < members.getNumberOfEntries(); i++){
             Member m = members.get(i);
             if(m.getMemberID().equalsIgnoreCase(memberID)){
-                members.remove(i);
-                saveToFile();
-                return true;
+                return m;
             }
         }
-        return false;
+        return null;
     }
     
+    // Load data from txt file
     private void loadFromFile(){
         
         try{
@@ -137,13 +90,13 @@ public class MemberRepository{
                     members.add(member);
                 }
             }
-            
             reader.close();
         } catch(IOException e){
             System.out.println("Error loading Member.txt");
         }
     }
     
+    // Save data to txt file
     public void saveToFile(){
         try{
             BufferedWriter writer = FileUtility.openWriter(FilePath.MEMBER_FILE);
@@ -168,12 +121,12 @@ public class MemberRepository{
 
         return new Member(
 
-                data[0],                           // Member ID
-                data[1],                           // Confirmation Number
-                MemberLevel.valueOf(data[2]),      // Member Level
-                Integer.parseInt(data[3]),         // Reward Point
-                LocalDate.parse(data[4]),          // Join Date
-                MembershipStatus.valueOf(data[5])  // Membership Status
+                data[0],                               // Member ID
+                data[1],                               // Confirmation Number
+                MemberLevel.fromDisplayName(data[2]),  // Member Level
+                Integer.parseInt(data[3]),             // Reward Point
+                LocalDate.parse(data[4]),              // Join Date
+                MembershipStatus.fromDisplayName(data[5])  // Membership Status
 
         );
     }

@@ -4,6 +4,8 @@
  */
 package mhotelreservationsystem.adt;
 
+import java.util.Iterator;
+
 /**
  *
  * @author phoon
@@ -129,11 +131,18 @@ public class ArrayListADT<T> implements ListInterface<T> {
         }
     }
    
+    // Returns a copy of the internal array (up to numberOfEntries)
+    @SuppressWarnings("unchecked")
     public T[] toArray() {
 
-        return array;
+        T[] copy = (T[]) new Object[numberOfEntries];
+        for (int i = 0; i < numberOfEntries; i++) {
+            copy[i] = array[i];
+        }
+        return copy;
     }
     
+    // Doubles the array capacity when the array is full and copies all existing elements to a new array of double the size. 
     @SuppressWarnings("unchecked")
     private void ensureCapacity() {
 
@@ -144,6 +153,28 @@ public class ArrayListADT<T> implements ListInterface<T> {
                 newArray[i] = array[i];
             }
             array = newArray;
+        }
+    }
+    
+    @Override
+    public Iterator<T> getIterator() {
+        return new ArrayListIterator();
+    }
+    
+    private class ArrayListIterator implements Iterator<T> {
+        private int currentIndex = 0;
+
+        @Override
+        public boolean hasNext() {
+            return currentIndex < numberOfEntries;
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) return null;
+            T element = array[currentIndex];
+            currentIndex++;
+            return element;
         }
     }
 }

@@ -10,7 +10,7 @@ package mhotelreservationsystem.utility;
  */
 public class MessageUI {
 
-    // Main Header UI
+    // Main M Hotel Header UI
     public static void displayMainHeader() {
 
     System.out.println(" ---------                                                               --------- ");

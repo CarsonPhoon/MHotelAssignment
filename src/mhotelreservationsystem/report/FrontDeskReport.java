@@ -20,10 +20,7 @@ public class FrontDeskReport {
     private RoomRepository roomRepository;
     private MemberRepository memberRepository;
     
-    public FrontDeskReport(GuestRepository guestRepository,
-                           BookingRepository bookingRepository,
-                           RoomRepository roomRepository,
-                           MemberRepository memberRepository){
+    public FrontDeskReport(GuestRepository guestRepository, BookingRepository bookingRepository, RoomRepository roomRepository, MemberRepository memberRepository){
         this.guestRepository = guestRepository;
         this.bookingRepository = bookingRepository;
         this.roomRepository = roomRepository;
@@ -31,33 +28,65 @@ public class FrontDeskReport {
     }
     
 
-    //  Bubble Sort: Sort Room array by roomRate in descending order
-    private void bubbleSortRoomsByRate(Room[] arr, int size){
-        for(int i = 0; i < size - 1; i++){
-            for(int j = 0; j < size - 1 - i; j++){
-                if(arr[j].getRoomRate() < arr[j + 1].getRoomRate()){
-                    Room temp = arr[j];
-                    arr[j] = arr[j + 1];
-                    arr[j + 1] = temp;
-                }
-            }
+    //  Quick Sort - Sort Room array by roomRate in descending order
+    private void quickSortRoomsByRate(Room[] arr, int low, int high){
+        if(low < high){
+            int pivotIndex = partitionRoomsByRate(arr, low, high);
+            quickSortRoomsByRate(arr, low, pivotIndex - 1);
+            quickSortRoomsByRate(arr, pivotIndex + 1, high);
         }
     }
-    
-    //  Bubble Sort: Sort Guest array by guestName in ascending order
-    private void bubbleSortGuestsByName(Guest[] arr, int size){
-        for(int i = 0; i < size - 1; i++){
-            for(int j = 0; j < size - 1 - i; j++){
-                if(arr[j].getGuestName().compareTo(arr[j + 1].getGuestName()) > 0){
-                    Guest temp = arr[j];
-                    arr[j] = arr[j + 1];
-                    arr[j + 1] = temp;
-                }
+
+    private int partitionRoomsByRate(Room[] arr, int low, int high){
+        Room pivot = arr[high];
+        int i = low - 1;
+
+        for(int j = low; j < high; j++){
+            if(arr[j].getRoomRate() >= pivot.getRoomRate()){
+                i++;
+                Room temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
             }
         }
+
+        Room temp = arr[i + 1];
+        arr[i + 1] = arr[high];
+        arr[high] = temp;
+
+        return i + 1;
     }
     
-    //  REPORT 1: Daily Room Occupancy Report
+    //  Quick Sort - Sort Guest array by guestName in ascending order
+    private void quickSortGuestsByName(Guest[] arr, int low, int high){
+        if(low < high){
+            int pivotIndex = partitionGuestsByName(arr, low, high);
+            quickSortGuestsByName(arr, low, pivotIndex - 1);
+            quickSortGuestsByName(arr, pivotIndex + 1, high);
+        }
+    }
+
+    private int partitionGuestsByName(Guest[] arr, int low, int high){
+        Guest pivot = arr[high];
+        int i = low - 1;
+
+        for(int j = low; j < high; j++){
+            if(arr[j].getGuestName().compareTo(pivot.getGuestName()) <= 0){
+                i++;
+                Guest temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+        }
+
+        Guest temp = arr[i + 1];
+        arr[i + 1] = arr[high];
+        arr[high] = temp;
+
+        return i + 1;
+    }
+    
+    //  Report 1 - Daily Room Occupancy Report
     public void generateRoomOccupancyReport(){
         
         int totalRoom = roomRepository.getTotalRoom();
@@ -69,7 +98,7 @@ public class FrontDeskReport {
         }
         
         // Sort all rooms by rate descending before filtering
-        bubbleSortRoomsByRate(allRooms, totalRoom);
+        quickSortRoomsByRate(allRooms, 0, totalRoom - 1);
         
         int availableCount = 0;
         int occupiedCount = 0;
@@ -136,15 +165,15 @@ public class FrontDeskReport {
     }
     
     
-    //  REPORT 2: Guest Check-In / Check-Out Report
+    //  Report 2 - Daily Guest Check-In / Check-Out Report
     public void generateGuestCheckInOutReport(){
         
         // Collect all guests from BST into array (inorder traversal)
         Guest[] allGuests = guestRepository.getAllGuests();
         int totalGuest = allGuests.length;
         
-        // Sort all guests by name ascending (A to Z)
-        bubbleSortGuestsByName(allGuests, totalGuest);
+        // Sort all guests by name ascending 
+        quickSortGuestsByName(allGuests, 0, totalGuest - 1);
         
         int checkedInCount = 0;
         int checkedOutCount = 0;

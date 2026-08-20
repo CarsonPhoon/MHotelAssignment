@@ -26,4 +26,14 @@ public enum MemberLevel {
         return displayName;
     }
 
+    // Method of Ignore case matching
+    public static MemberLevel fromDisplayName(String displayName) {
+        for (MemberLevel level : MemberLevel.values()) {
+            if (level.displayName.equalsIgnoreCase(displayName)) {
+                return level;
+            }
+        }
+        throw new IllegalArgumentException("Unknown MemberLevel: " + displayName);
+    }
+
 }

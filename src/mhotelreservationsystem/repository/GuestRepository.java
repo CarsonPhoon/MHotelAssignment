@@ -31,6 +31,7 @@ public class GuestRepository {
         }
     }
 
+    // CRUD operation
     public boolean addGuest(Guest guest) {
 
         boolean success = guestBST.insert(guest);
@@ -38,7 +39,6 @@ public class GuestRepository {
         if (success) {
             saveToFile();
         }
-
         return success;
     }
 
@@ -53,7 +53,6 @@ public class GuestRepository {
         if(success){
             saveToFile();
         }
-
         return success;
     }
     
@@ -81,11 +80,8 @@ public class GuestRepository {
         }
 
         guestBST.remove(guest.getConfirmationNumber());
-
         guestBST.insert(guest);
-
         saveToFile();
-
         return true;
     }
     
@@ -97,17 +93,6 @@ public class GuestRepository {
         return guestBST.getSize();
     }
 
-    public void clearAllGuests() {
-
-        guestBST.clear();
-
-        saveToFile();
-    }
-    
-    public GuestBST getGuestBST() {
-        return guestBST;
-    }
-    
     public Guest[] getAllGuests(){
         int size = guestBST.getSize();
         Guest[] arr = new Guest[size];
@@ -116,7 +101,7 @@ public class GuestRepository {
         return arr;
     }
     
-    // Helper: collect BST nodes into array via inorder traversal
+    // Helper - collect BST nodes into array via inorder traversal
     private void collectInorder(mhotelreservationsystem.adt.GuestBSTNode node, Guest[] arr, int[] index){
         if(node == null) return;
         collectInorder(node.getLeft(), arr, index);
@@ -125,59 +110,40 @@ public class GuestRepository {
         collectInorder(node.getRight(), arr, index);
     }
     
-    public int displayGuestByStatus(GuestStatus status){
-        return guestBST.displayGuestByStatus(status);
-    }
-
-    // Load data from txt 
+    // Load data from txt file
     private void loadFromFile() {
-        
         guestBST.clear();
 
         try {
-            BufferedReader reader =
-                    FileUtility.openReader(FilePath.GUEST_FILE);
-
+            BufferedReader reader = FileUtility.openReader(FilePath.GUEST_FILE);
             String line;
 
             while ((line = reader.readLine()) != null) {
-
                 if (line.trim().isEmpty()) {
                     continue;
                 }
-
                 Guest guest = convertToGuest(line);
                 guestBST.insert(guest);
             }
-
             reader.close();
-
         } catch (IOException e) {
             System.out.println("Error loading Guest.txt");
         }
     }
     
+    // Save data to txt file
     public void saveToFile() {
 
         try {
-
-            BufferedWriter writer =
-                    FileUtility.openWriter(FilePath.GUEST_FILE);
-
+            BufferedWriter writer = FileUtility.openWriter(FilePath.GUEST_FILE);
             guestBST.saveToFile(writer);
-
             writer.close();
-
         } catch (IOException e) {
-
             System.out.println("Error saving Guest.txt");
-
         }
-
     }
 
     private Guest convertToGuest(String line){
-
         String[] data = line.split("\\|");
 
         return new Guest(

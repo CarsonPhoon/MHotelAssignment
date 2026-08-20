@@ -31,10 +31,9 @@ public class MainMenuUI {
             System.out.println("2. VIP Room Allocation");
             System.out.println("3. Housekeeping & Task Log");
             System.out.println("4. Front Desk Service");
-            System.out.println("5. Loyalty & Rewards");
             System.out.println("0. Exit");
                 
-           mainMenuChoice = Validation.getIntOrReturn("\nEnter your choice (0-5): ",0,5);
+           mainMenuChoice = Validation.getIntOrReturn("\nEnter your choice (0-4): ",0,4);
             
             switch (mainMenuChoice){
             
@@ -55,10 +54,6 @@ public class MainMenuUI {
                     FrontDeskUI frontDeskUI = new FrontDeskUI();
                     frontDeskUI.start();
                     break;
-                case 5:
-                    System.out.println("\nLoyalty & Rewards Module");
-                    Validation.pressEnterToContinue();
-                    break;
                 case 0:
                     System.out.println("\n\t\tExiting the M Hotel System ...");
                     try{
@@ -71,7 +66,7 @@ public class MainMenuUI {
                     System.out.println("\t\tThank you, have a nice day ^-^");
                     return;
                 default:
-                    System.out.println("\nInvalid choice, pls enter again (0 - 5 only)");
+                    System.out.println("\nInvalid choice, pls enter again (0 - 4 only)");
                     Validation.pressEnterToContinue();
             }   
         } while (mainMenuChoice != 0);
