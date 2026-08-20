@@ -1,5 +1,12 @@
-CM0001|10000001|101|COMPLAINT|Air conditioner not working|PENDING|2026-07-02
-CM0002|10000002|102|COMMENT|Excellent room service|RESOLVED|2026-07-03
-CM0004|10000001|101|COMMENT|Bed is very comfortable|RESOLVED|2026-07-06
-CM0003|10000003|103|COMPLAINT|Noisy neighbors at night|PENDING|2026-07-04
-CM0005|10000004|104|COMPLAINT|WiFi connection slow|IGNORED|2026-07-09
+CM0001|10000001|101|Complaint|Air conditioner not working|Pending|2026-07-02
+CM0002|10000002|102|Comment|Excellent room service|Resolved|2026-07-03
+CM0004|10000001|101|Comment|Bed is very comfortable|Resolved|2026-07-06
+CM0003|10000003|103|Complaint|Noisy neighbors at night|Pending|2026-07-04
+CM0005|10000004|104|Complaint|WiFi connection slow|Ignored|2026-07-09
+CM0006|10000012|201|Complaint|Late checkout process|Pending|2026-08-21
+CM0007|10000014|405|Comment|abcd|Pending|2026-08-21
+CM0008|10000015|404|Comment|lkkjh|Pending|2026-08-21
+CM0009|10000015|404|Comment|srgbvjksbg|Pending|2026-08-21
+CM0010|10000011|301|Complaint|gnwrklghawknfelWGNJw|Pending|2026-08-21
+CM0011|10000016|404|Comment|lkmjgv|Pending|2026-08-21
+CM0012|10000018|302|Comment|dvewtjn|Pending|2026-08-21

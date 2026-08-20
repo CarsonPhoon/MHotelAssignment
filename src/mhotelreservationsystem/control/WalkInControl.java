@@ -19,6 +19,7 @@ public class WalkInControl {
     private BookingRepository bookingRepository;
     private RoomRepository roomRepository;
     private MemberRepository memberRepository;
+    private CommentRepository commentRepository;
     
     // Queue for pending walk-in bookings (using ArrayListADT as queue)
     private ArrayListADT<Booking> pendingBookings;
@@ -28,6 +29,7 @@ public class WalkInControl {
         bookingRepository = new BookingRepository();
         roomRepository = new RoomRepository();
         memberRepository = new MemberRepository();
+        commentRepository = new CommentRepository();
         pendingBookings = new ArrayListADT<>();
         syncPendingQueueFromRepository();
     }
@@ -86,6 +88,33 @@ public class WalkInControl {
             }
         }
         return Long.toString(max + 1);
+    }
+
+    private String generateNextCommentID(){
+        int max = 0;
+        for (int i = 0; i < commentRepository.getTotalComment(); i++) {
+            Comment c = commentRepository.getComment(i);
+            String id = c.getCommentID();
+            if (id != null && id.startsWith("CM") && id.length() > 2) {
+                try {
+                    int num = Integer.parseInt(id.substring(2));
+                    if (num > max) max = num;
+                } catch (NumberFormatException e) {
+                    // ignore malformed ids
+                }
+            }
+        }
+        return String.format("CM%04d", max + 1);
+    }
+
+    private Booking findBookingByConfirmation(String confirmationNumber){
+        for (int i = 0; i < bookingRepository.getTotalBooking(); i++) {
+            Booking booking = bookingRepository.getBooking(i);
+            if (booking.getConfirmationNumber().equalsIgnoreCase(confirmationNumber)) {
+                return booking;
+            }
+        }
+        return null;
     }
 
     // Register a walk-in: save to repository as pending and reserve the room.
@@ -170,6 +199,11 @@ public class WalkInControl {
 
         Booking booking = pendingBookings.get(queueIndex);
 
+        if (LocalDate.now().isBefore(booking.getCheckInDate())) {
+            System.out.println("Cannot check in before check-in date: " + booking.getCheckInDate());
+            return false;
+        }
+
         Room room = roomRepository.searchRoom(booking.getRoomNumber());
         if(room == null){
             System.out.println("Room not found in system.");
@@ -198,6 +232,49 @@ public class WalkInControl {
         }
 
         System.out.println("Failed to confirm booking.");
+        return false;
+    }
+
+    public boolean checkOutGuest(String confirmationNumber){
+        Booking booking = findBookingByConfirmation(confirmationNumber);
+        if (booking == null) {
+            System.out.println("Booking not found.");
+            return false;
+        }
+
+        Guest guest = guestRepository.searchGuest(confirmationNumber);
+        if (guest == null) {
+            System.out.println("Guest not found.");
+            return false;
+        }
+
+        if (booking.getBookingStatus() != BookingStatus.CHECKED_IN) {
+            System.out.println("Only checked-in bookings can be checked out.");
+            return false;
+        }
+
+        Room room = roomRepository.searchRoom(booking.getRoomNumber());
+        if (room == null) {
+            System.out.println("Room not found.");
+            return false;
+        }
+
+        booking.setBookingStatus(BookingStatus.CHECKED_OUT);
+        booking.setCheckOutDate(LocalDate.now());
+        guest.setStatus(GuestStatus.CHECKED_OUT);
+        guest.setCheckOutDate(LocalDate.now());
+        room.setStatus(RoomStatus.AVAILABLE);
+
+        boolean ok1 = bookingRepository.updateBooking(booking);
+        boolean ok2 = guestRepository.updateGuest(guest);
+        boolean ok3 = roomRepository.updateRoom(room);
+
+        if (ok1 && ok2 && ok3) {
+            System.out.println("Guest checked out successfully.");
+            return true;
+        }
+
+        System.out.println("Failed to check out guest.");
         return false;
     }
 
@@ -231,6 +308,147 @@ public class WalkInControl {
 
         System.out.println("==============================================================");
         System.out.println("Total Pending: " + total);
+    }
+
+    public void displayCheckedInBookings(){
+        boolean found = false;
+        System.out.println();
+        System.out.println("=======================================================================");
+        System.out.printf("%-3s %-8s %-10s %-20s %-5s %-10s %s%n",
+                "No", "Book ID", "Confirm", "Guest", "Room", "Check-Out", "Status");
+        System.out.println("=======================================================================");
+
+        int no = 1;
+        for (int i = 0; i < bookingRepository.getTotalBooking(); i++) {
+            Booking booking = bookingRepository.getBooking(i);
+            if (booking.getBookingStatus() == BookingStatus.CHECKED_IN) {
+                Guest guest = guestRepository.searchGuest(booking.getConfirmationNumber());
+                String name = guest != null ? guest.getGuestName() : "Unknown";
+                System.out.printf("%-3d %-8s %-10s %-20s %-5d %-10s %s%n",
+                        no++,
+                        booking.getBookingID(),
+                        booking.getConfirmationNumber(),
+                        name,
+                        booking.getRoomNumber(),
+                        booking.getCheckOutDate(),
+                        booking.getBookingStatus());
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println("No checked-in bookings found.");
+        }
+
+        System.out.println("=======================================================================");
+    }
+
+    public int getCheckedInCount(){
+        int count = 0;
+        for (int i = 0; i < bookingRepository.getTotalBooking(); i++) {
+            Booking booking = bookingRepository.getBooking(i);
+            if (booking.getBookingStatus() == BookingStatus.CHECKED_IN) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public String getCheckedInConfirmationByDisplayIndex(int index){
+        int current = 0;
+        for (int i = 0; i < bookingRepository.getTotalBooking(); i++) {
+            Booking booking = bookingRepository.getBooking(i);
+            if (booking.getBookingStatus() == BookingStatus.CHECKED_IN) {
+                current++;
+                if (current == index) {
+                    return booking.getConfirmationNumber();
+                }
+            }
+        }
+        return null;
+    }
+
+    public void displayRoomStatus(){
+        int available = 0;
+        int reserved = 0;
+        int occupied = 0;
+        int maintenance = 0;
+        int cleaning = 0;
+
+        System.out.println();
+        System.out.println("====================================================================");
+        System.out.printf("%-8s %-10s %-6s %-8s %-10s %-12s%n",
+                "Room", "Type", "Floor", "Cap", "Rate", "Status");
+        System.out.println("====================================================================");
+
+        for (int i = 0; i < roomRepository.getTotalRoom(); i++) {
+            Room room = roomRepository.getRoom(i);
+            System.out.printf("%-8d %-10s %-6d %-8d RM%-9.2f %-12s%n",
+                    room.getRoomNumber(),
+                    room.getRoomType(),
+                    room.getFloor(),
+                    room.getCapacity(),
+                    room.getRoomRate(),
+                    room.getStatus());
+
+            switch (room.getStatus()) {
+                case AVAILABLE:
+                    available++;
+                    break;
+                case RESERVED:
+                    reserved++;
+                    break;
+                case OCCUPIED:
+                    occupied++;
+                    break;
+                case MAINTENANCE:
+                    maintenance++;
+                    break;
+                case CLEANING:
+                    cleaning++;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        System.out.println("====================================================================");
+        System.out.println("Available: " + available +
+                " | Reserved: " + reserved +
+                " | Occupied: " + occupied +
+                " | Cleaning: " + cleaning +
+                " | Maintenance: " + maintenance);
+    }
+
+    public boolean addGuestComment(String confirmationNumber, CommentType type, String description){
+        Guest guest = guestRepository.searchGuest(confirmationNumber);
+        if (guest == null) {
+            System.out.println("Confirmation number not found.");
+            return false;
+        }
+
+        String commentID = generateNextCommentID();
+        Comment comment = new Comment(
+                commentID,
+                confirmationNumber,
+                guest.getRoomNumber(),
+                type,
+                description,
+                CommentStatus.PENDING,
+                LocalDate.now()
+        );
+
+        boolean success = commentRepository.addComment(comment);
+        if (success) {
+            System.out.println("Comment/complaint submitted successfully. ID: " + commentID);
+        } else {
+            System.out.println("Failed to submit comment/complaint.");
+        }
+        return success;
+    }
+
+    public boolean hasGuestByConfirmation(String confirmationNumber){
+        return guestRepository.searchGuest(confirmationNumber) != null;
     }
 
     // Accessor methods for reports

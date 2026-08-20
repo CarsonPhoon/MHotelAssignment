@@ -35,7 +35,7 @@ public class WalkInUI {
 
         do{
             displayMenu();
-            choice = Validation.getIntOrReturn("Enter your choice: ", 0, 5);
+            choice = Validation.getIntOrReturn("Enter your choice: ", 0, 9);
 
             switch(choice){
                 case 1:
@@ -48,10 +48,22 @@ public class WalkInUI {
                     confirmPendingBooking();
                     break;
                 case 4:
-                    report.generateDailyWalkInReport();
+                    checkOutGuest();
                     break;
                 case 5:
+                    control.displayRoomStatus();
+                    break;
+                case 6:
+                    report.generateDailyWalkInReport();
+                    break;
+                case 7:
                     report.generateWalkInRevenueAnalysis();
+                    break;
+                case 8:
+                    report.generateDailyCheckOutReport();
+                    break;
+                case 9:
+                    addCommentOrComplain();
                     break;
                 case 0:
                     System.out.println("Returning...");
@@ -72,9 +84,13 @@ public class WalkInUI {
         System.out.println("========================================");
         System.out.println("1. Register Walk-In");
         System.out.println("2. View Pending Bookings");
-        System.out.println("3. Confirm Pending Booking");
-        System.out.println("4. Daily Walk-In Report");
-        System.out.println("5. Revenue Analysis Report");
+        System.out.println("3. Confirm Pending Booking (Check-In)");
+        System.out.println("4. Check-Out Guest");
+        System.out.println("5. View Room Status");
+        System.out.println("6. Daily Walk-In Report");
+        System.out.println("7. Revenue Analysis Report");
+        System.out.println("8. Daily Check-Out Report");
+        System.out.println("9. Add Comment/Complain");
         System.out.println("0. Back");
         System.out.println("========================================");
     }
@@ -197,6 +213,10 @@ public class WalkInUI {
             System.out.println("Booking added to pending queue. Please wait for confirmation.");
             System.out.println("Booking ID: " + booking.getBookingID());
             System.out.println("Confirmation Number: " + booking.getConfirmationNumber());
+
+            if (Validation.confirmYesNo("Submit comment/complaint now?")) {
+                addCommentByConfirmation(booking.getConfirmationNumber());
+            }
         } else {
             System.out.println("Failed to register booking. Please try again.");
         }
@@ -224,6 +244,73 @@ public class WalkInUI {
             System.out.println("Booking confirmed successfully.");
         } else {
             System.out.println("Failed to confirm booking.");
+        }
+    }
+
+    private void checkOutGuest(){
+        control.displayCheckedInBookings();
+
+        if (control.getCheckedInCount() == 0) {
+            return;
+        }
+
+        String confirmation = Validation.getStringOrReturn("Enter No. OR confirmation number to check out (0 to cancel): ");
+        if (confirmation.equals("0")) {
+            return;
+        }
+
+        // If user enters displayed row number, map it to confirmation number.
+        if (confirmation.matches("\\d+")) {
+            try {
+                int no = Integer.parseInt(confirmation);
+                String mapped = control.getCheckedInConfirmationByDisplayIndex(no);
+                if (mapped != null) {
+                    confirmation = mapped;
+                }
+            } catch (NumberFormatException e) {
+                // keep original input as confirmation number
+            }
+        }
+
+        if (control.checkOutGuest(confirmation)) {
+            System.out.println("Check-out completed.");
+            if (Validation.confirmYesNo("Submit comment/complaint during check-out?")) {
+                addCommentByConfirmation(confirmation);
+            }
+        } else {
+            System.out.println("Check-out failed.");
+        }
+    }
+
+    private void addCommentOrComplain(){
+        String confirmation = Validation.getStringOrReturn("Enter confirmation number (0 to cancel): ");
+        if (confirmation.equals("0")) {
+            return;
+        }
+
+        if (!control.hasGuestByConfirmation(confirmation)) {
+            System.out.println("Confirmation number not found.");
+            return;
+        }
+
+        addCommentByConfirmation(confirmation);
+    }
+
+    private void addCommentByConfirmation(String confirmation){
+        int typeChoice = Validation.getIntOrReturn("Select type (1=Comment, 2=Complain, 0=Cancel): ", 1, 2);
+        if (typeChoice == 0) {
+            return;
+        }
+
+        String description = Validation.getStringOrReturn("Enter description (0 to cancel): ");
+        if (description.equals("0")) {
+            return;
+        }
+
+        if (typeChoice == 1) {
+            control.addGuestComment(confirmation, mhotelreservationsystem.entity.CommentType.COMMENT, description);
+        } else {
+            control.addGuestComment(confirmation, mhotelreservationsystem.entity.CommentType.COMPLAINT, description);
         }
     }
 

@@ -43,9 +43,9 @@ public class WalkInReport {
         for(int i = 0; i < bookingRepository.getTotalBooking(); i++){
             Booking b = bookingRepository.getBooking(i);
             
-            // Assume walk-in bookings have status CHECKED_IN (made today)
             if(b.getBookingDate().equals(today) && 
-               b.getBookingStatus() == BookingStatus.CHECKED_IN){
+               (b.getBookingStatus() == BookingStatus.CHECKED_IN ||
+                b.getBookingStatus() == BookingStatus.CHECKED_OUT)){
                 totalRegistrations++;
                 totalRevenue += b.getTotalAmount();
                 avgGuests += b.getNumberOfGuests();
@@ -81,8 +81,9 @@ public class WalkInReport {
         for(int i = 0; i < bookingRepository.getTotalBooking(); i++){
             Booking b = bookingRepository.getBooking(i);
             
-            if(b.getBookingDate().equals(today) && 
-               b.getBookingStatus() == BookingStatus.CHECKED_IN){
+                if(b.getBookingDate().equals(today) && 
+                    (b.getBookingStatus() == BookingStatus.CHECKED_IN ||
+                     b.getBookingStatus() == BookingStatus.CHECKED_OUT)){
                 System.out.printf("%-8s %-10s %-5d %-6d %-10s RM%-9.2f%n",
                         b.getBookingID(),
                         b.getConfirmationNumber(),
@@ -108,8 +109,9 @@ public class WalkInReport {
         for(int i = 0; i < bookingRepository.getTotalBooking(); i++){
             Booking b = bookingRepository.getBooking(i);
             
-            if(b.getBookingDate().equals(today) && 
-               b.getBookingStatus() == BookingStatus.CHECKED_IN){
+                if(b.getBookingDate().equals(today) && 
+                    (b.getBookingStatus() == BookingStatus.CHECKED_IN ||
+                     b.getBookingStatus() == BookingStatus.CHECKED_OUT)){
                 
                 RoomType type = b.getRoomType();
                 revenueByType.put(type, revenueByType.getOrDefault(type, 0.0) + b.getTotalAmount());
@@ -158,6 +160,48 @@ public class WalkInReport {
                     totalRevenue / totalCount);
         }
         
+        System.out.println("========================================================");
+    }
+
+    public void generateDailyCheckOutReport(){
+        LocalDate today = LocalDate.now();
+        int totalCheckOut = 0;
+        double totalRevenue = 0;
+
+        System.out.println();
+        System.out.println("========================================================");
+        System.out.println("              DAILY CHECK-OUT REPORT");
+        System.out.println("  Date: " + today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        System.out.println("========================================================");
+
+        System.out.println();
+        System.out.println("Check-Out Details:");
+        System.out.println("----------------------------------------------------------------");
+        System.out.printf("%-8s %-10s %-5s %-10s %-10s %-10s%n",
+                "Book ID", "Confirm", "Room", "Check-In", "Check-Out", "Amount");
+        System.out.println("----------------------------------------------------------------");
+
+        for (int i = 0; i < bookingRepository.getTotalBooking(); i++) {
+            Booking b = bookingRepository.getBooking(i);
+            if (b.getBookingStatus() == BookingStatus.CHECKED_OUT && b.getCheckOutDate().equals(today)) {
+                System.out.printf("%-8s %-10s %-5d %-10s %-10s RM%-9.2f%n",
+                        b.getBookingID(),
+                        b.getConfirmationNumber(),
+                        b.getRoomNumber(),
+                        b.getCheckInDate(),
+                        b.getCheckOutDate(),
+                        b.getTotalAmount());
+                totalCheckOut++;
+                totalRevenue += b.getTotalAmount();
+            }
+        }
+
+        System.out.println("----------------------------------------------------------------");
+        System.out.println("Total Check-Out Today : " + totalCheckOut);
+        System.out.println("Total Realized Revenue: RM " + String.format("%.2f", totalRevenue));
+        if (totalCheckOut > 0) {
+            System.out.println("Average Revenue/Stay  : RM " + String.format("%.2f", totalRevenue / totalCheckOut));
+        }
         System.out.println("========================================================");
     }
     
