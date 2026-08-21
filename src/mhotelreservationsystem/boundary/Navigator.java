@@ -1,0 +1,45 @@
+package mhotelreservationsystem.boundary;
+
+import mhotelreservationsystem.adt.LinkedStack;
+import mhotelreservationsystem.utility.Validation;
+
+public class Navigator {
+
+    private LinkedStack<Navigable> navStack;
+
+    public Navigator() {
+        navStack = new LinkedStack<>();
+    }
+
+    public void navigateTo(Navigable page) {
+        navStack.push(page);
+        page.display();
+    }
+
+    public void goBack() {
+        navStack.pop();
+        if (!navStack.isEmpty()) {
+            navStack.peek().display();
+        }
+    }
+
+    public void run() {
+        while (!navStack.isEmpty()) {
+            Navigable currentPage = navStack.peek();
+            int maxChoice = currentPage.getMaxChoice();
+            int choice = Validation.getIntOrReturn("Enter your choice: ", 0, maxChoice);
+
+            if (choice == 0) {
+                goBack();
+                continue;
+            }
+
+            Navigable nextPage = currentPage.handleChoice(choice);
+            if (nextPage != null) {
+                navigateTo(nextPage);
+            } else {
+                currentPage.display();
+            }
+        }
+    }
+}

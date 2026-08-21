@@ -4,23 +4,28 @@
  */
 package mhotelreservationsystem.boundary;
 
-import java.io.IOException;
+import mhotelreservationsystem.boundary.frontdeskmodule.FrontDeskUI;
 import mhotelreservationsystem.utility.MessageUI;
-import mhotelreservationsystem.utility.ScannerUtility;
 import mhotelreservationsystem.utility.Validation;
+
 /**
  *
  * @author phoon
  */
 public class MainMenuUI {
-    
+
+    private Navigator navigator;
+
+    public MainMenuUI() {
+        this.navigator = new Navigator();
+    }
+
     public void start() {
         int mainMenuChoice;
-        
-        
-        do{
+
+        do {
             MessageUI.displayMainHeader();
-            
+
             System.out.println();
             System.out.println("\n\t\t------------------------------------------------------");
             System.out.println("\n\t\t\t\t  Welcome to M Hotel");
@@ -32,17 +37,15 @@ public class MainMenuUI {
             System.out.println("3. Housekeeping & Task Log");
             System.out.println("4. Front Desk Service");
             System.out.println("0. Exit");
-                
-           mainMenuChoice = Validation.getIntOrReturn("\nEnter your choice (0-4): ",0,4);
-            
-            switch (mainMenuChoice){
-            
+
+            mainMenuChoice = Validation.getIntOrReturn("\nEnter your choice (0-4): ", 0, 4);
+
+            switch (mainMenuChoice) {
                 case 1:
                     WalkInUI walkInUI = new WalkInUI();
                     walkInUI.start();
                     break;
                 case 2:
-                    System.out.println("\nVIP Room Allocation Module");
                     VIPRoomUI vipUI = new VIPRoomUI();
                     vipUI.startUI();
                     break;
@@ -51,25 +54,23 @@ public class MainMenuUI {
                     housekeepingUI.startModule();
                     break;
                 case 4:
-                    FrontDeskUI frontDeskUI = new FrontDeskUI();
-                    frontDeskUI.start();
+                    navigator.navigateTo(new FrontDeskUI());
+                    navigator.run();
                     break;
                 case 0:
-                    System.out.println("\n\t\tExiting the M Hotel System ...");
-                    try{
-                        // Pause for 1000 miliseconds (1 second)
-                        Thread.sleep(1000);
-                    }catch(InterruptedException e){
-                        // This help block execute if the interrupted by another thread
-                        e.printStackTrace();
-                    }
-                    System.out.println("\t\tThank you, have a nice day ^-^");
-                    return;
+                    break;
                 default:
                     System.out.println("\nInvalid choice, pls enter again (0 - 4 only)");
                     Validation.pressEnterToContinue();
-            }   
+            }
         } while (mainMenuChoice != 0);
+
+        System.out.println("\n\t\tExiting the M Hotel System ...");
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("\t\tThank you, have a nice day ^-^");
     }
-  
 }

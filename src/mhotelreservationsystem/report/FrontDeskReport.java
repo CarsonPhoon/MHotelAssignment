@@ -14,6 +14,9 @@ import mhotelreservationsystem.repository.*;
  * @author phoon
  */
 public class FrontDeskReport {
+
+    private static final String Y = "\033[33m";
+    private static final String R = "\033[0m";
     
     private GuestRepository guestRepository;
     private BookingRepository bookingRepository;
@@ -106,8 +109,8 @@ public class FrontDeskReport {
 
         System.out.println();
         System.out.println("========================================================");
-        System.out.println("              DAILY ROOM OCCUPANCY REPORT");
-        System.out.println("  Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        System.out.println("              "+Y+"DAILY ROOM OCCUPANCY REPORT"+R);
+        System.out.println("                    Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         System.out.println("========================================================");
 
         // Available Room (filtered + sorted)
@@ -181,8 +184,8 @@ public class FrontDeskReport {
 
         System.out.println();
         System.out.println("========================================================");
-        System.out.println("      DAILY GUEST CHECK-IN / CHECK-OUT / RESERVED REPORT");
-        System.out.println("  Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        System.out.println("      "+Y+"DAILY GUEST CHECK-IN / CHECK-OUT / RESERVED REPORT"+R);
+        System.out.println("                   Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         System.out.println("========================================================");
 
         // Checked-In Guests (filtered + sorted)
