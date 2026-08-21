@@ -1,6 +1,6 @@
 101|Single|1|2|350.0|Occupied
 102|Double|1|2|420.0|Reserved
-201|Deluxe|2|3|680.0|Available
+201|Deluxe|2|3|680.0|Occupied
 202|Family|2|3|680.0|Occupied
 301|Suite|3|4|1200.0|Available
 302|Single|3|2|350.0|Reserved

@@ -142,33 +142,9 @@ public class WalkInUI {
             break;
         }
 
-        // Get check-in date with validation
-        LocalDate checkIn = null;
-        while(checkIn == null) {
-            System.out.print("Enter check-in date (yyyy-MM-dd) (0 to return back): ");
-            String in = ScannerUtility.scanner.nextLine().trim();
-            
-            if(in.equals("0")) return;
-            
-            if(in.isEmpty()) {
-                System.out.println("Date cannot be empty.");
-                continue;
-            }
-            
-            try {
-                checkIn = LocalDate.parse(in);
-                
-                // Check if check-in date is not in the past
-                if(checkIn.isBefore(LocalDate.now())) {
-                    System.out.println("Check-in date cannot be in the past.");
-                    checkIn = null;
-                    continue;
-                }
-            }catch(DateTimeParseException e){
-                System.out.println("Invalid date format. Use yyyy-MM-dd.");
-                continue;
-            }
-        }
+        // Walk-in check-in date is always today
+        LocalDate checkIn = LocalDate.now();
+        System.out.println("Check-in date (auto): " + checkIn);
 
         // Get check-out date with validation
         LocalDate checkOut = null;
@@ -207,7 +183,7 @@ public class WalkInUI {
         }
 
         // Register the booking
-        Booking booking = control.registerWalkInPending(name, phone, email, roomNumber, numGuests, checkIn, checkOut);
+        Booking booking = control.registerWalkInPending(name, phone, email, roomNumber, numGuests, checkOut);
 
         if(booking != null){
             System.out.println("Booking added to pending queue. Please wait for confirmation.");

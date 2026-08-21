@@ -118,7 +118,9 @@ public class WalkInControl {
     }
 
     // Register a walk-in: save to repository as pending and reserve the room.
-    public Booking registerWalkInPending(String guestName, String phone, String email, int roomNumber, int numberOfGuests, LocalDate checkIn, LocalDate checkOut){
+    public Booking registerWalkInPending(String guestName, String phone, String email, int roomNumber, int numberOfGuests, LocalDate checkOut){
+
+        LocalDate checkIn = LocalDate.now();
 
         Room room = roomRepository.searchRoom(roomNumber);
 
