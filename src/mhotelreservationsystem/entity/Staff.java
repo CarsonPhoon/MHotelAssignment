@@ -11,10 +11,14 @@ package mhotelreservationsystem.entity;
 public class Staff {
     private String staffID;
     private String staffName;
+    private boolean available;
+    private int assignedRoom;
     
     public Staff(String staffID, String staffName){
         this.staffID = staffID;
         this.staffName = staffName;
+        this.available = true;
+        this.assignedRoom = -1; // -1 means not currently assigned
     }
 
     public String getStaffID(){
@@ -31,5 +35,23 @@ public class Staff {
 
     public void setStaffName(String staffName){
         this.staffName = staffName;
+    }
+
+    public boolean isAvailable(){
+        return this.available;
+    }
+
+    public int getAssignedRoom(){
+        return this.assignedRoom;
+    }
+
+    public void assignToRoom(int roomNumber){
+        this.assignedRoom = roomNumber;
+        this.available = false;
+    }
+
+    public void completeCleaningTask(){
+        this.assignedRoom = -1;
+        this.available = true;
     }
 }

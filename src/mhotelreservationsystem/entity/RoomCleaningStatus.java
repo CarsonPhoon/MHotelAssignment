@@ -24,4 +24,13 @@ public enum RoomCleaningStatus {
     public String getLabel(){
         return displayName;
     }
+
+    public RoomCleaningStatus next(){
+        RoomCleaningStatus[] values = RoomCleaningStatus.values();
+        int nextIndex = this.ordinal() + 1;
+        if (nextIndex >= values.length){
+            return null;
+        }
+        return values[nextIndex];
+    }
 }

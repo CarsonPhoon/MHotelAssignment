@@ -45,6 +45,25 @@ public class CleaningTaskLog {
         return stack.peek();
     }
 
+    public void getRoomStatusHistories(int roomNumber){
+        StackInterface<RoomCleaningStatus> stack = roomHistories.get(roomNumber);
+        if(stack == null || stack.isEmpty()){
+            System.out.println("No history recorded for room " + roomNumber);
+            return;
+        }
+
+        StackInterface<RoomCleaningStatus> tempStore = new LinkedStack();
+        while(!stack.isEmpty()){
+            RoomCleaningStatus status = stack.pop();
+            System.out.println("- " + status.getLabel());
+            tempStore.push(status);
+        }
+
+        while(!tempStore.isEmpty()){
+            stack.push(tempStore.pop());
+        }
+    }
+
     public boolean hasRoom(int roomNumber){
         return roomHistories.containsKey(roomNumber); // 
     }
