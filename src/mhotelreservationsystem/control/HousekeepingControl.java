@@ -8,8 +8,10 @@ import java.util.HashMap;
 import java.util.Map;
 import mhotelreservationsystem.entity.CleaningTaskLog;
 import mhotelreservationsystem.entity.RoomCleaningStatus;
+import mhotelreservationsystem.entity.RoomStatus;
 import mhotelreservationsystem.entity.Staff;
 import mhotelreservationsystem.entity.StaffRoomAssignment;
+import mhotelreservationsystem.repository.RoomRepository;
 
 /**
  *
@@ -21,8 +23,10 @@ public class HousekeepingControl {
     private CleaningTaskLog taskLog;
     private StaffRoomAssignment staffAssign;
     private Map<Integer, Staff> roomAssign;
+    private RoomRepository roomRepository;
 
-    public HousekeepingControl(){
+    public HousekeepingControl(RoomRepository roomRepository){
+        this.roomRepository = roomRepository;
         this.taskLog = new CleaningTaskLog();
         this.staffAssign = new StaffRoomAssignment();
         this.roomAssign = new HashMap<>();
@@ -57,6 +61,9 @@ public class HousekeepingControl {
         taskLog.logStatusChange(roomNumber, nextStatus);
         System.out.println("Room " + roomNumber + " status advanced to " + nextStatus.getLabel());
 
+        // Sync Room.status in RoomRepository based on cleaning status
+        syncRoomStatus(roomNumber, nextStatus);
+
         if (isDirty){
             Staff assigned = staffAssign.assignNextStaff(roomNumber);
             if (assigned != null){
@@ -87,8 +94,37 @@ public class HousekeepingControl {
             System.out.println("Room " + roomNumber + " rolled back. No previous status remains (room has no history now).");
         } else {
             System.out.println("Room " + roomNumber + " rolled back to: " + current.getLabel());
+            // Sync Room.status in RoomRepository based on rolled back cleaning status
+            syncRoomStatus(roomNumber, current);
         }
         return true;
+    }
+
+    // Sync Room.status in RoomRepository based on RoomCleaningStatus
+    private void syncRoomStatus(int roomNumber, RoomCleaningStatus cleaningStatus){
+        mhotelreservationsystem.entity.Room room = roomRepository.searchRoom(roomNumber);
+        if (room == null) return;
+
+        RoomStatus newRoomStatus;
+        switch (cleaningStatus){
+            case DIRTY:
+            case INPROGRESS:
+                newRoomStatus = RoomStatus.CLEANING;
+                break;
+            case READYFORCHECKIN:
+                newRoomStatus = RoomStatus.AVAILABLE;
+                break;
+            case INSPECTED:
+                newRoomStatus = RoomStatus.CLEANING;
+                break;
+            default:
+                return;
+        }
+
+        if (room.getStatus() != newRoomStatus){
+            room.setStatus(newRoomStatus);
+            roomRepository.updateRoom(room);
+        }
     }
 
     public void viewTaskLog(int roomNumber){

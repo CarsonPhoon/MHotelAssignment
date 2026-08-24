@@ -105,6 +105,8 @@ public class FrontDeskReport {
         
         int availableCount = 0;
         int occupiedCount = 0;
+        int reservedCount = 0;
+        int cleaningCount = 0;
         int maintenanceCount = 0;
 
         System.out.println();
@@ -143,6 +145,36 @@ public class FrontDeskReport {
             }
         }
 
+        // Reserved Room (filtered + sorted)
+        System.out.println();
+        System.out.println("RESERVED ROOM");
+        System.out.println("--------------------------------------------------------");
+        System.out.printf("%-8s %-10s %-6s %-8s %-10s %-15s%n",
+                "Room", "Type", "Floor", "Capacity", "Rate", "Status");
+        System.out.println("--------------------------------------------------------");
+
+        for(int i = 0; i < totalRoom; i++){
+            if(allRooms[i].getStatus() == RoomStatus.RESERVED){
+                System.out.println(allRooms[i]);
+                reservedCount++;
+            }
+        }
+
+        // Cleaning Room (filtered + sorted)
+        System.out.println();
+        System.out.println("CLEANING ROOM");
+        System.out.println("--------------------------------------------------------");
+        System.out.printf("%-8s %-10s %-6s %-8s %-10s %-15s%n",
+                "Room", "Type", "Floor", "Capacity", "Rate", "Status");
+        System.out.println("--------------------------------------------------------");
+
+        for(int i = 0; i < totalRoom; i++){
+            if(allRooms[i].getStatus() == RoomStatus.CLEANING){
+                System.out.println(allRooms[i]);
+                cleaningCount++;
+            }
+        }
+
         // Maintenance Room (filtered + sorted)
         System.out.println();
         System.out.println("MAINTENANCE ROOM");
@@ -162,6 +194,8 @@ public class FrontDeskReport {
         System.out.println("========================================================");
         System.out.println("Available   : " + availableCount);
         System.out.println("Occupied    : " + occupiedCount);
+        System.out.println("Reserved    : " + reservedCount);
+        System.out.println("Cleaning    : " + cleaningCount);
         System.out.println("Maintenance : " + maintenanceCount);
         System.out.println("Total Room  : " + totalRoom);
         System.out.println("========================================================");

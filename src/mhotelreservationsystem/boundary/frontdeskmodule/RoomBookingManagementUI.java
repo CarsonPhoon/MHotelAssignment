@@ -14,6 +14,7 @@ import mhotelreservationsystem.boundary.Navigable;
 import mhotelreservationsystem.control.FrontDeskControl;
 import mhotelreservationsystem.entity.Booking;
 import mhotelreservationsystem.entity.Room;
+import mhotelreservationsystem.repository.*;
 import mhotelreservationsystem.utility.ScannerUtility;
 import mhotelreservationsystem.utility.Validation;
 
@@ -24,8 +25,11 @@ public class RoomBookingManagementUI implements Navigable {
 
     private FrontDeskControl control;
 
-    public RoomBookingManagementUI() {
-        control = new FrontDeskControl();
+    public RoomBookingManagementUI(GuestRepository guestRepository, BookingRepository bookingRepository,
+                                   RoomRepository roomRepository, MemberRepository memberRepository,
+                                   CommentRepository commentRepository) {
+        control = new FrontDeskControl(guestRepository, bookingRepository, roomRepository,
+                                       memberRepository, commentRepository);
     }
 
     @Override

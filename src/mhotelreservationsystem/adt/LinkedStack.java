@@ -1,3 +1,6 @@
+/*
+ * LinkedStack - Adapted from course materials (TARUMT DSA)
+ */
 package mhotelreservationsystem.adt;
 
 public class LinkedStack<T> implements StackInterface<T>{

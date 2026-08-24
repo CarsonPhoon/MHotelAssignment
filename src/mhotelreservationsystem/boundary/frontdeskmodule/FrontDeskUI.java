@@ -5,6 +5,7 @@
 package mhotelreservationsystem.boundary.frontdeskmodule;
 
 import mhotelreservationsystem.boundary.Navigable;
+import mhotelreservationsystem.repository.*;
 
 /**
  *
@@ -14,6 +15,22 @@ public class FrontDeskUI implements Navigable {
 
     private static final String Y = "\033[33m";
     private static final String R = "\033[0m";
+
+    private GuestRepository guestRepository;
+    private BookingRepository bookingRepository;
+    private RoomRepository roomRepository;
+    private MemberRepository memberRepository;
+    private CommentRepository commentRepository;
+
+    public FrontDeskUI(GuestRepository guestRepository, BookingRepository bookingRepository,
+                       RoomRepository roomRepository, MemberRepository memberRepository,
+                       CommentRepository commentRepository){
+        this.guestRepository = guestRepository;
+        this.bookingRepository = bookingRepository;
+        this.roomRepository = roomRepository;
+        this.memberRepository = memberRepository;
+        this.commentRepository = commentRepository;
+    }
 
     @Override
     public void display() {
@@ -32,10 +49,10 @@ public class FrontDeskUI implements Navigable {
     @Override
     public Navigable handleChoice(int choice) {
         switch (choice) {
-            case 1: return new GuestManagementUI();
-            case 2: return new RoomBookingManagementUI();
-            case 3: return new CommentManagementUI();
-            case 4: return new ReportManagementUI();
+            case 1: return new GuestManagementUI(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
+            case 2: return new RoomBookingManagementUI(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
+            case 3: return new CommentManagementUI(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
+            case 4: return new ReportManagementUI(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
             default: return null;
         }
     }

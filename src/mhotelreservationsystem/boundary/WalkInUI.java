@@ -9,27 +9,33 @@ import java.time.format.DateTimeParseException;
 import mhotelreservationsystem.control.WalkInControl;
 import mhotelreservationsystem.entity.Booking;
 import mhotelreservationsystem.report.WalkInReport;
+import mhotelreservationsystem.repository.*;
 import mhotelreservationsystem.utility.ScannerUtility;
 import mhotelreservationsystem.utility.Validation;
 
 /**
  * Walk-In UI: Register walk-in guests, manage pending bookings, and generate reports.
  */
-public class WalkInUI {
+public class WalkInUI implements Navigable {
 
     private WalkInControl control;
     private WalkInReport report;
 
-    public WalkInUI(){
-        control = new WalkInControl();
+    public WalkInUI(GuestRepository guestRepository, BookingRepository bookingRepository,
+                    RoomRepository roomRepository, MemberRepository memberRepository,
+                    CommentRepository commentRepository){
+        control = new WalkInControl(guestRepository, bookingRepository, roomRepository,
+                                    memberRepository, commentRepository);
         report = new WalkInReport(
-            control.getGuestRepository(),
-            control.getBookingRepository(),
-            control.getRoomRepository(),
+            guestRepository,
+            bookingRepository,
+            roomRepository,
             control.getPendingBookings()
         );
     }
 
+    // OLD: do-while + switch navigation pattern 
+    /*
     public void start(){
         int choice;
 
@@ -93,6 +99,51 @@ public class WalkInUI {
         System.out.println("9. Add Comment/Complain");
         System.out.println("0. Back");
         System.out.println("========================================");
+    }
+    */
+
+    // Stack navigation: display menu for Navigator
+    @Override
+    public void display() {
+        System.out.println();
+        System.out.println("========================================");
+        System.out.println("         WALK-IN REGISTRATION");
+        System.out.println("========================================");
+        System.out.println("1. Register Walk-In");
+        System.out.println("2. View Pending Bookings");
+        System.out.println("3. Confirm Pending Booking (Check-In)");
+        System.out.println("4. Check-Out Guest");
+        System.out.println("5. View Room Status");
+        System.out.println("6. Daily Walk-In Report");
+        System.out.println("7. Revenue Analysis Report");
+        System.out.println("8. Daily Check-Out Report");
+        System.out.println("9. Add Comment/Complain");
+        System.out.println("0. Back");
+        System.out.println("========================================");
+    }
+
+    // Stack navigation - route choice to action, return null to stay on this page
+    @Override
+    public Navigable handleChoice(int choice) {
+        switch (choice) {
+            case 1: registerWalkIn(); break;
+            case 2: viewPendingBookings(); break;
+            case 3: confirmPendingBooking(); break;
+            case 4: checkOutGuest(); break;
+            case 5: control.displayRoomStatus(); break;
+            case 6: report.generateDailyWalkInReport(); break;
+            case 7: report.generateWalkInRevenueAnalysis(); break;
+            case 8: report.generateDailyCheckOutReport(); break;
+            case 9: addCommentOrComplain(); break;
+            default: break;
+        }
+        return null;
+    }
+
+    // Stack navigation: max selectable option (0 is handled by Navigator)
+    @Override
+    public int getMaxChoice() {
+        return 9;
     }
 
     private void registerWalkIn(){

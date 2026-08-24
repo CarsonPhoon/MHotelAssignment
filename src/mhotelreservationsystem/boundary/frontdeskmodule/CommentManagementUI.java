@@ -15,6 +15,7 @@ import mhotelreservationsystem.boundary.Navigable;
 import mhotelreservationsystem.adt.ArrayListADT;
 import mhotelreservationsystem.control.FrontDeskControl;
 import mhotelreservationsystem.entity.Comment;
+import mhotelreservationsystem.repository.*;
 import mhotelreservationsystem.utility.ScannerUtility;
 import mhotelreservationsystem.utility.Validation;
 
@@ -25,8 +26,11 @@ public class CommentManagementUI implements Navigable {
 
     private FrontDeskControl control;
 
-    public CommentManagementUI() {
-        control = new FrontDeskControl();
+    public CommentManagementUI(GuestRepository guestRepository, BookingRepository bookingRepository,
+                               RoomRepository roomRepository, MemberRepository memberRepository,
+                               CommentRepository commentRepository) {
+        control = new FrontDeskControl(guestRepository, bookingRepository, roomRepository,
+                                       memberRepository, commentRepository);
     }
 
     @Override

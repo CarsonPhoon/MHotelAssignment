@@ -5,6 +5,7 @@
 package mhotelreservationsystem.boundary;
 
 import mhotelreservationsystem.boundary.frontdeskmodule.FrontDeskUI;
+import mhotelreservationsystem.repository.*;
 import mhotelreservationsystem.utility.MessageUI;
 import mhotelreservationsystem.utility.Validation;
 
@@ -16,8 +17,20 @@ public class MainMenuUI {
 
     private Navigator navigator;
 
+    // Shared repository instances (single source of truth for all modules)
+    private GuestRepository guestRepository;
+    private BookingRepository bookingRepository;
+    private RoomRepository roomRepository;
+    private MemberRepository memberRepository;
+    private CommentRepository commentRepository;
+
     public MainMenuUI() {
         this.navigator = new Navigator();
+        this.guestRepository = new GuestRepository();
+        this.bookingRepository = new BookingRepository();
+        this.roomRepository = new RoomRepository();
+        this.memberRepository = new MemberRepository();
+        this.commentRepository = new CommentRepository();
     }
 
     public void start() {
@@ -42,19 +55,21 @@ public class MainMenuUI {
 
             switch (mainMenuChoice) {
                 case 1:
-                    WalkInUI walkInUI = new WalkInUI();
-                    walkInUI.start();
+                    navigator.navigateTo(new WalkInUI(guestRepository, bookingRepository,
+                                                      roomRepository, memberRepository, commentRepository));
+                    navigator.run();
                     break;
                 case 2:
-                    VIPRoomUI vipUI = new VIPRoomUI();
-                    vipUI.startUI();
+                    navigator.navigateTo(new VIPRoomUI(memberRepository, guestRepository));
+                    navigator.run();
                     break;
                 case 3:
-                    HousekeepingUI housekeepingUI = new HousekeepingUI();
-                    housekeepingUI.startModule();
+                    navigator.navigateTo(new HousekeepingUI(roomRepository));
+                    navigator.run();
                     break;
                 case 4:
-                    navigator.navigateTo(new FrontDeskUI());
+                    navigator.navigateTo(new FrontDeskUI(guestRepository, bookingRepository,
+                                                         roomRepository, memberRepository, commentRepository));
                     navigator.run();
                     break;
                 case 0:
@@ -65,12 +80,12 @@ public class MainMenuUI {
             }
         } while (mainMenuChoice != 0);
 
-        System.out.println("\n\t\tExiting the M Hotel System ...");
+        System.out.println("\n\t\t\033[33mExiting the M Hotel System ...\033[0m");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("\t\tThank you, have a nice day ^-^");
+        System.out.println("\t\t\033[33mThank you, have a nice day ^-^\033[0m");
     }
 }

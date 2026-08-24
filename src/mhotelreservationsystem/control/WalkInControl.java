@@ -24,13 +24,15 @@ public class WalkInControl {
     // Queue for pending walk-in bookings (using ArrayListADT as queue)
     private ArrayListADT<Booking> pendingBookings;
 
-    public WalkInControl(){
-        guestRepository = new GuestRepository();
-        bookingRepository = new BookingRepository();
-        roomRepository = new RoomRepository();
-        memberRepository = new MemberRepository();
-        commentRepository = new CommentRepository();
-        pendingBookings = new ArrayListADT<>();
+    public WalkInControl(GuestRepository guestRepository, BookingRepository bookingRepository,
+                         RoomRepository roomRepository, MemberRepository memberRepository,
+                         CommentRepository commentRepository){
+        this.guestRepository = guestRepository;
+        this.bookingRepository = bookingRepository;
+        this.roomRepository = roomRepository;
+        this.memberRepository = memberRepository;
+        this.commentRepository = commentRepository;
+        this.pendingBookings = new ArrayListADT<>();
         syncPendingQueueFromRepository();
     }
 

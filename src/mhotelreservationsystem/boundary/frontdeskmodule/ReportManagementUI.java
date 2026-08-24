@@ -13,6 +13,7 @@ package mhotelreservationsystem.boundary.frontdeskmodule;
 import mhotelreservationsystem.boundary.Navigable;
 import mhotelreservationsystem.control.FrontDeskControl;
 import mhotelreservationsystem.report.FrontDeskReport;
+import mhotelreservationsystem.repository.*;
 import mhotelreservationsystem.utility.ScannerUtility;
 
 public class ReportManagementUI implements Navigable {
@@ -23,13 +24,16 @@ public class ReportManagementUI implements Navigable {
     private FrontDeskControl control;
     private FrontDeskReport report;
 
-    public ReportManagementUI() {
-        control = new FrontDeskControl();
+    public ReportManagementUI(GuestRepository guestRepository, BookingRepository bookingRepository,
+                              RoomRepository roomRepository, MemberRepository memberRepository,
+                              CommentRepository commentRepository) {
+        control = new FrontDeskControl(guestRepository, bookingRepository, roomRepository,
+                                       memberRepository, commentRepository);
         report = new FrontDeskReport(
-            control.getGuestRepository(),
-            control.getBookingRepository(),
-            control.getRoomRepository(),
-            control.getMemberRepository()
+            guestRepository,
+            bookingRepository,
+            roomRepository,
+            memberRepository
         );
     }
 
