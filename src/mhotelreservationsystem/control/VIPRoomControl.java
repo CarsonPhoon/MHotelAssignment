@@ -4,9 +4,6 @@
  */
 package mhotelreservationsystem.control;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.time.LocalDate;
 import mhotelreservationsystem.adt.VipBST;
 import mhotelreservationsystem.entity.Member;
 import mhotelreservationsystem.entity.MemberLevel;
@@ -19,15 +16,9 @@ import mhotelreservationsystem.repository.MemberRepository;
  * @author zekai
  */
 public class VIPRoomControl {
-    private mhotelreservationsystem.adt.VipBST vipQueue;
-    private java.util.Stack<mhotelreservationsystem.entity.Member> assignedHistoryStack;
-
-    public VIPRoomControl() {
-        this.vipQueue = new mhotelreservationsystem.adt.VipBST();
-        this.assignedHistoryStack = new java.util.Stack<>();
-        loadVipsFromFile();
-
+    
     private VipBST vipQueue;
+    private java.util.Stack<Member> assignedHistoryStack;
     private MemberRepository memberRepository;
     private GuestRepository guestRepository;
 
@@ -35,6 +26,8 @@ public class VIPRoomControl {
         this.memberRepository = memberRepository;
         this.guestRepository = guestRepository;
         this.vipQueue = new VipBST();
+        this.assignedHistoryStack = new java.util.Stack<>(); // 【关键】在这里初始化你的栈
+        
         loadVipsFromRepository(); 
     }
 
@@ -146,7 +139,7 @@ public class VIPRoomControl {
     }
 
     public void updateVipPointsInFile(String memberID, int newPoints) {
-        String filePath = "data/Member.txt"; // 确认你的路径是 data/Member.txt 还是 Member.txt
+        String filePath = "data/Member.txt";
         java.util.List<String> allLines = new java.util.ArrayList<>();
         
         try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(filePath))) {
@@ -155,8 +148,6 @@ public class VIPRoomControl {
                 if (line.trim().isEmpty()) continue;
                 String[] parts = line.split("\\|");
                 
-                // 假设 Member ID 在第 1 列 (索引 0)，积分在第 4 列 (索引 3)
-                // 请核对你的 Member.txt，如果积分不是第 4 列，请把 parts[3] 改成对应的数字
                 if (parts.length > 3 && parts[0].trim().equals(memberID)) {
                     parts[3] = String.valueOf(newPoints); // 更新分数
                     line = String.join("|", parts);
@@ -190,7 +181,7 @@ public class VIPRoomControl {
         }
         
         int newPoints = vip.getRewardPoints() - pointsToDeduct;
-        vip.setRewardPoints(newPoints); // 你的 Member class 需要有 setRewardPoints 方法
+        vip.setRewardPoints(newPoints);
 
         updateVipPointsInFile(vip.getMemberID(), newPoints);
         
