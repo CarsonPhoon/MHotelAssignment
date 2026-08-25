@@ -7,7 +7,6 @@ package mhotelreservationsystem.control;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.time.LocalDate;
-import mhotelreservationsystem.adt.VipBST;
 import mhotelreservationsystem.entity.Member;
 import mhotelreservationsystem.entity.MemberLevel;
 import mhotelreservationsystem.entity.MembershipStatus;
@@ -17,12 +16,13 @@ import mhotelreservationsystem.entity.MembershipStatus;
  * @author zekai
  */
 public class VIPRoomControl {
-
-    private VipBST vipQueue;
+    private mhotelreservationsystem.adt.VipBST vipQueue;
+    private java.util.Stack<mhotelreservationsystem.entity.Member> assignedHistoryStack;
 
     public VIPRoomControl() {
-        this.vipQueue = new VipBST();
-        loadVipsFromFile(); 
+        this.vipQueue = new mhotelreservationsystem.adt.VipBST();
+        this.assignedHistoryStack = new java.util.Stack<>();
+        loadVipsFromFile();
     }
 
     private void loadVipsFromFile() {
@@ -144,9 +144,117 @@ public class VIPRoomControl {
         return false; 
     }
 
-    public Member assignRoomToNextVip() {
-        if (vipQueue.isEmpty()) return null;
-        return vipQueue.getHighestPriorityVip();
+    public boolean updateRoomStatus(String roomNumber, String newStatus) {
+        String filePath = "data/Room.txt"; 
+        java.util.List<String> allLines = new java.util.ArrayList<>();
+        boolean roomFound = false;
+        
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+                
+                String[] parts = line.split("\\|");
+                
+                if (parts.length > 0 && parts[0].trim().equals(roomNumber)) {
+                    parts[parts.length - 1] = newStatus; 
+                    line = String.join("|", parts);
+                    roomFound = true;
+                }
+                allLines.add(line);
+            }
+        } catch (Exception e) {
+            System.out.println("[System Error] Cannot read Room.txt.");
+            return false;
+        }
+        
+        if (roomFound) {
+            try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(filePath, false))) {
+                for (String l : allLines) {
+                    bw.write(l);
+                    bw.newLine();
+                }
+                return true;
+            } catch (Exception e) {
+                System.out.println("[System Error] Failed to update Room.txt.");
+            }
+        }
+        return false;
+    }
+
+    public mhotelreservationsystem.entity.Member assignRoomToNextVip() {
+        mhotelreservationsystem.entity.Member assignedVip = vipQueue.getHighestPriorityVip();
+        if (assignedVip != null) {
+            assignedHistoryStack.push(assignedVip);
+        }
+        return assignedVip;
+    }
+
+    public void displayAssignedHistory() {
+        System.out.println("\n=====================================");
+        System.out.println("   Recent VIP Room Allocations (LIFO)");
+        System.out.println("=====================================");
+        
+        if (assignedHistoryStack.isEmpty()) {
+            System.out.println("No rooms have been assigned yet today.");
+            return;
+        }
+        
+        for (int i = assignedHistoryStack.size() - 1; i >= 0; i--) {
+            System.out.println((assignedHistoryStack.size() - i) + ". " + assignedHistoryStack.get(i).toString());
+        }
+    }
+
+    public void updateVipPointsInFile(String memberID, int newPoints) {
+        String filePath = "data/Member.txt"; // 确认你的路径是 data/Member.txt 还是 Member.txt
+        java.util.List<String> allLines = new java.util.ArrayList<>();
+        
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+                String[] parts = line.split("\\|");
+                
+                // 假设 Member ID 在第 1 列 (索引 0)，积分在第 4 列 (索引 3)
+                // 请核对你的 Member.txt，如果积分不是第 4 列，请把 parts[3] 改成对应的数字
+                if (parts.length > 3 && parts[0].trim().equals(memberID)) {
+                    parts[3] = String.valueOf(newPoints); // 更新分数
+                    line = String.join("|", parts);
+                }
+                allLines.add(line);
+            }
+        } catch (Exception e) {
+            System.out.println("[System Error] Cannot read Member.txt.");
+        }
+        
+        // 覆写文件
+        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(filePath, false))) {
+            for (String l : allLines) {
+                bw.write(l);
+                bw.newLine();
+            }
+        } catch (Exception e) {
+            System.out.println("[System Error] Failed to update points in Member.txt.");
+        }
+    }
+
+    public String redeemPoints(String confirmNum, int pointsToDeduct) {
+        mhotelreservationsystem.entity.Member vip = vipQueue.searchByConfirmationNumber(confirmNum);
+        
+        if (vip == null) {
+            return "NOT_FOUND";
+        }
+        
+        if (vip.getRewardPoints() < pointsToDeduct) {
+            return "INSUFFICIENT";
+        }
+        
+        int newPoints = vip.getRewardPoints() - pointsToDeduct;
+        vip.setRewardPoints(newPoints); // 你的 Member class 需要有 setRewardPoints 方法
+
+        updateVipPointsInFile(vip.getMemberID(), newPoints);
+        
+        return "SUCCESS";
     }
 
     public void displayAllWaitingVips() {
