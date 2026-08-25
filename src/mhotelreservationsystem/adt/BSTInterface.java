@@ -1,6 +1,5 @@
 /*
- * Generic Binary Search Tree Interface
- * Defines the core ADT operations for any BST implementation
+ * BSTInterface - Adapted from course materials (TARUMT DSA)
  */
 package mhotelreservationsystem.adt;
 

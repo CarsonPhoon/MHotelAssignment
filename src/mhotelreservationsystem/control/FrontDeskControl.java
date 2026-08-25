@@ -20,12 +20,14 @@ public class FrontDeskControl {
     private MemberRepository memberRepository;
     private CommentRepository commentRepository;
 
-    public FrontDeskControl(){
-        guestRepository = new GuestRepository(); 
-        bookingRepository = new BookingRepository(); 
-        roomRepository = new RoomRepository(); 
-        memberRepository = new MemberRepository(); 
-        commentRepository = new CommentRepository();
+    public FrontDeskControl(GuestRepository guestRepository, BookingRepository bookingRepository,
+                            RoomRepository roomRepository, MemberRepository memberRepository,
+                            CommentRepository commentRepository){
+        this.guestRepository = guestRepository;
+        this.bookingRepository = bookingRepository;
+        this.roomRepository = roomRepository;
+        this.memberRepository = memberRepository;
+        this.commentRepository = commentRepository;
     }
 
     // Accessors for repositories, it used by FrontDeskReport to avoid duplicate instances

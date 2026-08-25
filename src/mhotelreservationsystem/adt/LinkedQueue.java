@@ -1,3 +1,6 @@
+/*
+ * LinkedQueue - Adapted from course materials (TARUMT DSA)
+ */
 package mhotelreservationsystem.adt;
 
 public class LinkedQueue<T> implements QueueInterface<T> {

@@ -1,3 +1,6 @@
+/*
+ * VipBST - Adapted from course materials (TARUMT DSA)
+ */
 package mhotelreservationsystem.adt;
 
 import mhotelreservationsystem.entity.Member;

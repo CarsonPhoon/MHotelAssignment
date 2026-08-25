@@ -7,20 +7,23 @@ package mhotelreservationsystem.boundary;
 import java.util.Scanner;
 import mhotelreservationsystem.entity.RoomCleaningStatus;
 import mhotelreservationsystem.control.HousekeepingControl;
+import mhotelreservationsystem.repository.RoomRepository;
 
 /**
  *
  * @author phoon
  */
-public class HousekeepingUI {
+public class HousekeepingUI implements Navigable {
     private HousekeepingControl houseKeeping;
     private Scanner scanner;
 
-    public HousekeepingUI(){
-        this.houseKeeping = new HousekeepingControl();
+    public HousekeepingUI(RoomRepository roomRepository){
+        this.houseKeeping = new HousekeepingControl(roomRepository);
         this.scanner = new Scanner(System.in);
     }
 
+    // OLD: do-while + switch navigation pattern 
+    /*
     public void startModule(){
         int choice;
         do{
@@ -53,6 +56,48 @@ public class HousekeepingUI {
         System.out.println("5. Back to Main Menu");
         System.out.print("The options choosed: ");
 
+    }
+    */
+
+    // Stack navigation: display menu for Navigator
+    @Override
+    public void display() {
+        System.out.println("\n");
+        System.out.println(" ---------------------------- ");
+        System.out.println("|                            |");
+        System.out.println("|        HOUSEKEEPING        |");
+        System.out.println("|                            |");
+        System.out.println(" ---------------------------- ");
+        System.out.println("\n1. Update Cleaning Status");
+        System.out.println("2. View Room Status");
+        System.out.println("3. View Cleaning Task Log");
+        System.out.println("4. Roll Back Room Status");
+        System.out.println("0. Back");
+        System.out.println(" ---------------------------- ");
+    }
+
+    // Stack navigation - route choice to action, return null to stay on this page
+    @Override
+    public Navigable handleChoice(int choice) {
+        switch (choice) {
+            case 1: updateCleaningStatus(); 
+                break;
+            case 2: viewRoomStatus(); 
+                break;
+            case 3: viewCleaningTaskLog(); 
+                break;
+            case 4: rollBackStatus(); 
+                break;
+            default: 
+                    break;
+        }
+        return null;
+    }
+
+    // Stack navigation: max selectable option (0 is handled by Navigator)
+    @Override
+    public int getMaxChoice() {
+        return 4;
     }
 
     private int getIntInput(){
