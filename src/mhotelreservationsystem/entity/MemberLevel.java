@@ -10,9 +10,9 @@ package mhotelreservationsystem.entity;
  */
 public enum MemberLevel {
 
-    BRONZE("Bronze"),
-    SILVER("Silver"),
     GOLD("Gold"),
+    ELITE("Elite"),
+    DIAMOND("Diamond"),
     PLATINUM("Platinum");
 
     private final String displayName;
