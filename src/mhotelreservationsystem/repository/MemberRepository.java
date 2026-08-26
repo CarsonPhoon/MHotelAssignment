@@ -20,6 +20,7 @@ import mhotelreservationsystem.utility.FileUtility;
  */
 public class MemberRepository{
     
+    // Use an ArrayList to store member data
     private ArrayListADT<Member> members;
     
     public MemberRepository(){
@@ -43,7 +44,6 @@ public class MemberRepository{
     }
     
     public Member getMember(int index){
-
         return members.get(index);
     }
     
@@ -112,7 +112,6 @@ public class MemberRepository{
     }
     
     private Member convertToMember(String line){
-
         String[] data = line.split("\\|");
 
         if(data.length != 6){
@@ -120,7 +119,6 @@ public class MemberRepository{
         }
 
         return new Member(
-
                 data[0],                               // Member ID
                 data[1],                               // Confirmation Number
                 MemberLevel.fromDisplayName(data[2]),  // Member Level

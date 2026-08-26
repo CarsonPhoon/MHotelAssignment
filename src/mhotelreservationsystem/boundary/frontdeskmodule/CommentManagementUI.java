@@ -26,11 +26,9 @@ public class CommentManagementUI implements Navigable {
 
     private FrontDeskControl control;
 
-    public CommentManagementUI(GuestRepository guestRepository, BookingRepository bookingRepository,
-                               RoomRepository roomRepository, MemberRepository memberRepository,
-                               CommentRepository commentRepository) {
-        control = new FrontDeskControl(guestRepository, bookingRepository, roomRepository,
-                                       memberRepository, commentRepository);
+    // Constructor: Create a Control object
+    public CommentManagementUI(GuestRepository guestRepository, BookingRepository bookingRepository, RoomRepository roomRepository, MemberRepository memberRepository, CommentRepository commentRepository) {
+        control = new FrontDeskControl(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
     }
 
     @Override
@@ -60,14 +58,18 @@ public class CommentManagementUI implements Navigable {
     public int getMaxChoice() {
         return 3;
     }
-
+    
+    // View all comments (sorted using Bubble Sort)
     private void viewAllComments() {
         ArrayListADT<Comment> allComments = control.getAllComments();
 
+        // Convert to an array and sort using Bubble Sort (by date - descending)
         Comment[] arr = new Comment[allComments.getNumberOfEntries()];
         for (int i = 0; i < allComments.getNumberOfEntries(); i++) {
             arr[i] = allComments.get(i);
         }
+        
+        // Bubble Sort
         for (int i = 0; i < arr.length - 1; i++) {
             for (int j = 0; j < arr.length - 1 - i; j++) {
                 if (arr[j].getDate().compareTo(arr[j + 1].getDate()) < 0) {
@@ -84,6 +86,7 @@ public class CommentManagementUI implements Navigable {
                 "Date", "ID", "Confirm", "Room", "Type", "Status", "Description");
         System.out.println("==================================================================================================");
 
+        // Display sorted comments
         for (int i = 0; i < arr.length; i++) {
             System.out.println(arr[i]);
         }
@@ -94,7 +97,8 @@ public class CommentManagementUI implements Navigable {
         System.out.print("\nPress ENTER to return to menu... ");
         ScannerUtility.scanner.nextLine();
     }
-
+    
+    // Search comment by guest
     private void searchCommentsByGuest() {
         while (true) {
             String confirmationNumber = Validation.getStringOrReturn("Enter Confirmation Number (0 to return back): ");
@@ -119,6 +123,7 @@ public class CommentManagementUI implements Navigable {
             if (results.getNumberOfEntries() == 0) {
                 System.out.println("No comments found for this guest.");
             } else {
+                // Display search results
                 for (int i = 0; i < results.getNumberOfEntries(); i++) {
                     System.out.println(results.get(i));
                 }
@@ -140,6 +145,7 @@ public class CommentManagementUI implements Navigable {
         }
     }
 
+    // Search comments by date
     private void searchCommentsByDate() {
         while (true) {
             System.out.print("Enter date (yyyy-MM-dd) (0 to return back): ");
@@ -168,6 +174,7 @@ public class CommentManagementUI implements Navigable {
             if (results.getNumberOfEntries() == 0) {
                 System.out.println("No comments found on this date.");
             } else {
+                // Display search results
                 for (int i = 0; i < results.getNumberOfEntries(); i++) {
                     System.out.println(results.get(i));
                 }

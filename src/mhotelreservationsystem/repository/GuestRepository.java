@@ -20,12 +20,13 @@ import mhotelreservationsystem.utility.FilePath;
  */
 public class GuestRepository {
 
+    // Use a BST to store guest data
     private GuestBST guestBST;
 
     public GuestRepository() {
 
         guestBST = new GuestBST();
-
+        // Load data from a file
         if (FileUtility.fileExists(FilePath.GUEST_FILE)) {
             loadFromFile();
         }
@@ -34,6 +35,7 @@ public class GuestRepository {
     // CRUD operation
     public boolean addGuest(Guest guest) {
 
+        // BST insertion O(log n)
         boolean success = guestBST.insert(guest);
 
         if (success) {
@@ -43,11 +45,12 @@ public class GuestRepository {
     }
 
     public Guest searchGuest(String confirmationNumber) {
+        // BST search O(log n)
         return guestBST.search(confirmationNumber);
     }
   
     public boolean removeGuest(String confirmationNumber){
-
+        // BST Deletion O(log n)
         boolean success = guestBST.remove(confirmationNumber);
 
         if(success){
@@ -101,13 +104,13 @@ public class GuestRepository {
         return arr;
     }
     
-    // Helper - collect BST nodes into array via inorder traversal
+    // Helper - Collect nodes using recursive in-order traversal
     private void collectInorder(mhotelreservationsystem.adt.GuestBSTNode node, Guest[] arr, int[] index){
         if(node == null) return;
-        collectInorder(node.getLeft(), arr, index);
-        arr[index[0]] = node.getData();
-        index[0]++;
-        collectInorder(node.getRight(), arr, index);
+        collectInorder(node.getLeft(), arr, index);  // left
+        arr[index[0]] = node.getData();              // root
+        index[0]++;                       
+        collectInorder(node.getRight(), arr, index); // right
     }
     
     // Load data from txt file

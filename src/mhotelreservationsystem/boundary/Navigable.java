@@ -10,6 +10,7 @@
 
 package mhotelreservationsystem.boundary;
 
+// Navigable Page Interface
 public interface Navigable {
     
     void display();

@@ -20,6 +20,7 @@ import mhotelreservationsystem.utility.FilePath;
  */
 public class BookingRepository {
 
+    // Use an ArrayList to store reservation data
     private ArrayListADT<Booking> bookings;
 
     public BookingRepository() {
@@ -34,8 +35,8 @@ public class BookingRepository {
     
     // CRUD operation
     public boolean addBooking(Booking booking){
-
-        boolean success = bookings.add(booking);
+        // // ArrayList addition O(1)
+        boolean success = bookings.add(booking); 
 
         if(success){
             saveToFile();
@@ -45,7 +46,6 @@ public class BookingRepository {
     }
 
     public Booking getBooking(int index){
-
         return bookings.get(index);
     }
 
@@ -68,9 +68,7 @@ public class BookingRepository {
             if(b.getBookingID().equalsIgnoreCase(bookingID)){
                 return b;
             }
-
         }
-
         return null;
     }
 
@@ -92,7 +90,6 @@ public class BookingRepository {
 
         try{
             BufferedReader reader = FileUtility.openReader(FilePath.BOOKING_FILE);
-
             String line;
 
             while((line = reader.readLine()) != null){

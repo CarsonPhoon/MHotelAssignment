@@ -25,11 +25,9 @@ public class RoomBookingManagementUI implements Navigable {
 
     private FrontDeskControl control;
 
-    public RoomBookingManagementUI(GuestRepository guestRepository, BookingRepository bookingRepository,
-                                   RoomRepository roomRepository, MemberRepository memberRepository,
-                                   CommentRepository commentRepository) {
-        control = new FrontDeskControl(guestRepository, bookingRepository, roomRepository,
-                                       memberRepository, commentRepository);
+    // Constructor: Create a Control object
+    public RoomBookingManagementUI(GuestRepository guestRepository, BookingRepository bookingRepository, RoomRepository roomRepository, MemberRepository memberRepository, CommentRepository commentRepository) {
+        control = new FrontDeskControl(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
     }
 
     @Override
@@ -60,6 +58,7 @@ public class RoomBookingManagementUI implements Navigable {
         return 3;
     }
 
+    // View room details
     private void viewRoomDetails() {
         while (true) {
             int roomNumber = Validation.getIntOrReturn("Enter Room Number (0 to return back): ", 1, 9999);
@@ -97,6 +96,8 @@ public class RoomBookingManagementUI implements Navigable {
         }
     }
 
+    
+    // View booking details
     private void viewBookingDetails() {
         while (true) {
             String bookingID = Validation.getStringOrReturn("Enter Booking ID (0 to return back): ");
@@ -137,7 +138,8 @@ public class RoomBookingManagementUI implements Navigable {
             }
         }
     }
-
+ 
+    // View booking details
     private void viewBilling() {
         while (true) {
             String bookingID = Validation.getStringOrReturn("Enter Booking ID (0 to return back): ");

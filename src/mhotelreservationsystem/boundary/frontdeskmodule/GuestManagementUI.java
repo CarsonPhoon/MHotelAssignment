@@ -25,11 +25,9 @@ public class GuestManagementUI implements Navigable {
 
     private FrontDeskControl control;
 
-    public GuestManagementUI(GuestRepository guestRepository, BookingRepository bookingRepository,
-                             RoomRepository roomRepository, MemberRepository memberRepository,
-                             CommentRepository commentRepository) {
-        control = new FrontDeskControl(guestRepository, bookingRepository, roomRepository,
-                                       memberRepository, commentRepository);
+    // Constructor: Create a Control object
+    public GuestManagementUI(GuestRepository guestRepository, BookingRepository bookingRepository, RoomRepository roomRepository, MemberRepository memberRepository, CommentRepository commentRepository) {
+        control = new FrontDeskControl(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
     }
 
     @Override
@@ -48,9 +46,12 @@ public class GuestManagementUI implements Navigable {
     @Override
     public Navigable handleChoice(int choice) {
         switch (choice) {
-            case 1: searchGuest(); break;
-            case 2: viewCompleteGuestInformation(); break;
-            case 3: viewMemberDetails(); break;
+            case 1: searchGuest(); 
+                break;
+            case 2: viewCompleteGuestInformation(); 
+                break;
+            case 3: viewMemberDetails(); 
+                break;
         }
         return null;
     }
@@ -60,6 +61,7 @@ public class GuestManagementUI implements Navigable {
         return 3;
     }
 
+    // Search guest function
     private void searchGuest() {
         while (true) {
             String confirmationNumber = Validation.getStringOrReturn("Enter Confirmation Number (0 to return back): ");
@@ -99,7 +101,9 @@ public class GuestManagementUI implements Navigable {
             }
         }
     }
-
+    
+    
+    // View full guest information
     private void viewCompleteGuestInformation() {
         while (true) {
             String confirmationNumber = Validation.getStringOrReturn("Enter Confirmation Number (0 to return back): ");
@@ -129,7 +133,8 @@ public class GuestManagementUI implements Navigable {
             }
         }
     }
-
+    
+    // View member information
     private void viewMemberDetails() {
         while (true) {
             String memberID = Validation.getStringOrReturn("Enter Member ID (0 to return back): ");

@@ -20,6 +20,7 @@ import mhotelreservationsystem.utility.FileUtility;
  */
 public class CommentRepository {
     
+    // Use an ArrayList to store comment data
     private ArrayListADT<Comment> comments;
     
     public CommentRepository(){
@@ -62,6 +63,7 @@ public class CommentRepository {
         for(int i = 0; i < comments.getNumberOfEntries(); i++){
             Comment c = comments.get(i);
             if(c.getConfirmationNumber().equalsIgnoreCase(confirmationNumber)){
+                // Add to the result list
                 result.add(c);
             }
         }
@@ -111,6 +113,7 @@ public class CommentRepository {
         for(int i = 0; i < size; i++){
             arr[i] = comments.get(i);
         }
+        // Sort by date in descending order
         bubbleSortByDateDesc(arr, size);
         
         System.out.println();
