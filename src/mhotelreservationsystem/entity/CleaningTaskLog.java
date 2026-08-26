@@ -5,8 +5,8 @@
 package mhotelreservationsystem.entity;
 
 
-import java.util.HashMap;
-import java.util.Map;
+import mhotelreservationsystem.adt.ListInterface;
+import mhotelreservationsystem.adt.ArrayListADT;
 import mhotelreservationsystem.adt.StackInterface;
 import mhotelreservationsystem.adt.LinkedStack;
 
@@ -15,43 +15,46 @@ import mhotelreservationsystem.adt.LinkedStack;
  * @author user
  */
 public class CleaningTaskLog {
-    // private String roomID;
-    // private StackInterface<CleaningTaskLog> statusHistory;
-    private Map<Integer, StackInterface<RoomCleaningStatus>> roomHistories;
+    private ListInterface<RoomHistoryEntry> roomHistories;
 
     public CleaningTaskLog(){
-        this.roomHistories = new HashMap<>();
+        this.roomHistories = new ArrayListADT<>();
     }
 
     public void logStatusChange(int roomNumber, RoomCleaningStatus newStatus){
-        roomHistories.putIfAbsent(roomNumber, new LinkedStack<>());
-        roomHistories.get(roomNumber).push(newStatus);
+        RoomHistoryEntry entry = findEntry(roomNumber);
+        if (entry == null){
+            entry = new RoomHistoryEntry(roomNumber);
+            roomHistories.add(entry);
+        }
+        entry.getHistory().push(newStatus);
     }
 
     public RoomCleaningStatus rollback(int roomNumber){
-        StackInterface<RoomCleaningStatus> stack = roomHistories.get(roomNumber);
-        if (stack == null || stack.isEmpty()){
+        RoomHistoryEntry entry = findEntry(roomNumber);
+        if (entry == null || entry.getHistory().isEmpty()){
             System.out.println("No status history to rollback for the room, " + roomNumber);
             return null;
         }
-        return stack.pop();
+        return entry.getHistory().pop();
     }
 
     public RoomCleaningStatus getCurrentStatus(int roomNumber){
-        StackInterface<RoomCleaningStatus> stack = roomHistories.get(roomNumber);
-        if (stack == null || stack.isEmpty()){
+        RoomHistoryEntry entry = findEntry(roomNumber);
+        if (entry == null || entry.getHistory().isEmpty()){
             return null;
         }
-        return stack.peek();
+        return entry.getHistory().peek();
     }
 
     public void getRoomStatusHistories(int roomNumber){
-        StackInterface<RoomCleaningStatus> stack = roomHistories.get(roomNumber);
-        if(stack == null || stack.isEmpty()){
+        RoomHistoryEntry entry = findEntry(roomNumber);
+        if(entry == null || entry.getHistory().isEmpty()){
             System.out.println("No history recorded for room " + roomNumber);
             return;
         }
 
+        StackInterface<RoomCleaningStatus> stack = entry.getHistory();
         StackInterface<RoomCleaningStatus> tempStore = new LinkedStack();
         while(!stack.isEmpty()){
             RoomCleaningStatus status = stack.pop();
@@ -65,7 +68,17 @@ public class CleaningTaskLog {
     }
 
     public boolean hasRoom(int roomNumber){
-        return roomHistories.containsKey(roomNumber); // 
+        return findEntry(roomNumber) != null; // 
+    }
+
+    private RoomHistoryEntry findEntry(int roomNumber){
+        for (int i = 0; i < roomHistories.getNumberOfEntries(); i++){
+            RoomHistoryEntry entry = roomHistories.get(i);
+            if (entry.getRoomNumber() == roomNumber){
+                return entry;
+            }
+        }
+        return null;
     }
 
 }

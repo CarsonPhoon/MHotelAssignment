@@ -11,7 +11,7 @@ import mhotelreservationsystem.repository.RoomRepository;
 
 /**
  *
- * @author phoon
+ * @author chanzj
  */
 public class HousekeepingUI implements Navigable {
     private HousekeepingControl houseKeeping;

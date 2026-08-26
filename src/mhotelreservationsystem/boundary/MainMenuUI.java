@@ -4,6 +4,7 @@
  */
 package mhotelreservationsystem.boundary;
 
+import mhotelreservationsystem.boundary.Navigator;
 import mhotelreservationsystem.boundary.frontdeskmodule.FrontDeskUI;
 import mhotelreservationsystem.repository.*;
 import mhotelreservationsystem.utility.MessageUI;

@@ -4,8 +4,9 @@
  */
 package mhotelreservationsystem.control;
 
-import java.util.HashMap;
-import java.util.Map;
+import mhotelreservationsystem.adt.ListInterface;
+import mhotelreservationsystem.adt.ArrayListADT;
+import mhotelreservationsystem.entity.RoomAssignmentEntry;
 import mhotelreservationsystem.entity.CleaningTaskLog;
 import mhotelreservationsystem.entity.RoomCleaningStatus;
 import mhotelreservationsystem.entity.RoomStatus;
@@ -22,14 +23,14 @@ import mhotelreservationsystem.repository.RoomRepository;
 public class HousekeepingControl {
     private CleaningTaskLog taskLog;
     private StaffRoomAssignment staffAssign;
-    private Map<Integer, Staff> roomAssign;
+    private ListInterface<RoomAssignmentEntry> roomAssign;
     private RoomRepository roomRepository;
 
     public HousekeepingControl(RoomRepository roomRepository){
         this.roomRepository = roomRepository;
         this.taskLog = new CleaningTaskLog();
         this.staffAssign = new StaffRoomAssignment();
-        this.roomAssign = new HashMap<>();
+        this.roomAssign = new ArrayListADT<>();
 
         staffAssign.addStaff(new Staff("S001", "Sarah"));
         staffAssign.addStaff(new Staff("S002", "Jason"));
@@ -67,16 +68,16 @@ public class HousekeepingControl {
         if (isDirty){
             Staff assigned = staffAssign.assignNextStaff(roomNumber);
             if (assigned != null){
-                roomAssign.put(roomNumber, assigned);
+                putAssignment(roomNumber, assigned);
                 System.out.println(assigned.getStaffName() + " has been auto-assigned to room " + roomNumber);
             }
         }
 
         if (nextStatus == RoomCleaningStatus.READYFORCHECKIN){
-            Staff staff = roomAssign.get(roomNumber);
+            Staff staff = findAssignment(roomNumber) == null ? null : findAssignment(roomNumber).getStaff();
             if (staff != null){
                 staffAssign.completeTaskAndRequeue(staff);
-                roomAssign.remove(roomNumber);
+                removeAssignment(roomNumber);
                 System.out.println(staff.getStaffName() + " is now free");
             }
         }
@@ -98,6 +99,23 @@ public class HousekeepingControl {
             syncRoomStatus(roomNumber, current);
         }
         return true;
+    }
+
+    public void viewTaskLog(int roomNumber){
+        taskLog.getRoomStatusHistories(roomNumber);
+    }
+
+    public void viewRoomCleaningStatus(int roomNumber){
+        RoomCleaningStatus status = taskLog.getCurrentStatus(roomNumber);
+        if (status == null){
+            System.out.println("No status recorded for room" + roomNumber);
+        } else {
+            System.out.println("Room " + roomNumber + ", Status: " + status.getLabel());
+        }
+    }
+
+    public void addStaffToQueue(Staff staff){
+        staffAssign.addStaff(staff);
     }
 
     // Sync Room.status in RoomRepository based on RoomCleaningStatus
@@ -127,20 +145,32 @@ public class HousekeepingControl {
         }
     }
 
-    public void viewTaskLog(int roomNumber){
-        taskLog.getRoomStatusHistories(roomNumber);
-    }
-
-    public void viewRoomCleaningStatus(int roomNumber){
-        RoomCleaningStatus status = taskLog.getCurrentStatus(roomNumber);
-        if (status == null){
-            System.out.println("No status recorded for room" + roomNumber);
-        } else {
-            System.out.println("Room " + roomNumber + ", Status: " + status.getLabel());
+    private RoomAssignmentEntry findAssignment(int roomNumber){
+        for (int i = 0; i < roomAssign.getNumberOfEntries(); i++){
+            RoomAssignmentEntry entry = roomAssign.get(i);
+            if (entry.getRoomNumber() == roomNumber){
+                return entry;
+            }
         }
+        return null;
     }
 
-    public void addStaffToQueue(Staff staff){
-        staffAssign.addStaff(staff);
+    private void putAssignment(int roomNumber, Staff staff){
+        for (int i = 0; i < roomAssign.getNumberOfEntries(); i++){
+            if (roomAssign.get(i).getRoomNumber() == roomNumber){
+                roomAssign.replace(i, new RoomAssignmentEntry(roomNumber, staff));
+                return;
+            }
+        }
+        roomAssign.add(new RoomAssignmentEntry(roomNumber, staff));
+    }
+
+    private void removeAssignment(int roomNumber){
+        for (int i = 0; i < roomAssign.getNumberOfEntries(); i++){
+            if (roomAssign.get(i).getRoomNumber() == roomNumber){
+                roomAssign.remove(i);
+                return;
+            }
+        }
     }
 }
