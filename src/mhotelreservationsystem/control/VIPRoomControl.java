@@ -26,7 +26,7 @@ public class VIPRoomControl {
         this.memberRepository = memberRepository;
         this.guestRepository = guestRepository;
         this.vipQueue = new VipBST();
-        this.assignedHistoryStack = new java.util.Stack<>(); // 【关键】在这里初始化你的栈
+        this.assignedHistoryStack = new java.util.Stack<>();
         
         loadVipsFromRepository(); 
     }
@@ -125,7 +125,7 @@ public class VIPRoomControl {
 
     public void displayAssignedHistory() {
         System.out.println("\n=====================================");
-        System.out.println("   Recent VIP Room Allocations (LIFO)");
+        System.out.println("   Recent VIP Room Allocations   ");
         System.out.println("=====================================");
         
         if (assignedHistoryStack.isEmpty()) {
@@ -149,7 +149,7 @@ public class VIPRoomControl {
                 String[] parts = line.split("\\|");
                 
                 if (parts.length > 3 && parts[0].trim().equals(memberID)) {
-                    parts[3] = String.valueOf(newPoints); // 更新分数
+                    parts[3] = String.valueOf(newPoints); 
                     line = String.join("|", parts);
                 }
                 allLines.add(line);
@@ -158,7 +158,6 @@ public class VIPRoomControl {
             System.out.println("[System Error] Cannot read Member.txt.");
         }
         
-        // 覆写文件
         try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(filePath, false))) {
             for (String l : allLines) {
                 bw.write(l);

@@ -38,7 +38,6 @@ public class VIPRoomUI implements Navigable {
         System.out.println("8. Report: High-Value VIPs");
         System.out.println("0. Back to Main Menu");
         System.out.println("=====================================");
-        System.out.print("Please enter your choice: ");
     }
 
     @Override
@@ -76,22 +75,18 @@ public class VIPRoomUI implements Navigable {
                 break;
             case 0:
                 System.out.println("\nReturning to previous menu...");
-                return null; // 返回 null 退出当前菜单
+                return null;
             default:
                 System.out.println("\nInvalid option, please try again!");
         }
 
-        // 完美保留了你的 DRY 原则：每次执行完停顿一下
         if (choice != 0) {
             System.out.println();
             Validation.pressEnterToContinue();
         }
-        return this; // 继续留在当前菜单
+        return this;
     }
 
-    // ==========================================
-    // 下面全部是你写的、带有完美防呆机制的业务代码！
-    // ==========================================
 
     private void registerVip() {
         System.out.println("\n--- Register New VIP ---");
@@ -120,10 +115,10 @@ public class VIPRoomUI implements Navigable {
                 continue;
             }
             if (vipControl.verifyGuestExists(confirmNum)) {
-                System.out.println("[System] Booking Record Verified!");
+                System.out.println("[System] Confirmation Number Verified!");
                 break; 
             } else {
-                System.out.println("\n[Error] Booking Record Not Found!");
+                System.out.println("\n[Error] Confirmation Number Not Found!");
                 System.out.println("-> The confirmation number '" + confirmNum + "' does not exist in the Walk-In database.\n");
             }
         }
@@ -241,7 +236,7 @@ public class VIPRoomUI implements Navigable {
 
             if (confirmNum.equals("0")) {
                 System.out.println("[System] Operation cancelled.");
-                return; // 直接退出方法
+                return; 
             }
             if (confirmNum.isEmpty()) {
                 System.out.println("[Error] Input cannot be empty! Please try again.\n");

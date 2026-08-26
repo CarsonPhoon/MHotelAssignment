@@ -28,29 +28,35 @@ public class VipBST {
         return true;
     }
 
-    private VipBSTNode insertNode(VipBSTNode current, Member member) {
-        if (current == null) {
-            size++;
-            return new VipBSTNode(member);
+    private VipBSTNode insertNode(VipBSTNode currentNode, mhotelreservationsystem.entity.Member newMember) {
+        if (currentNode == null) {
+            this.size++;
+            return new VipBSTNode(newMember);
         }
 
-     
-        int levelCompare = member.getMemberLevel().compareTo(current.getData().getMemberLevel());
+        int levelCompare = newMember.getMemberLevel().compareTo(currentNode.getData().getMemberLevel());
 
-        if (levelCompare < 0) {
-            current.setLeft(insertNode(current.getLeft(), member));
-        } else if (levelCompare > 0) {
-            current.setRight(insertNode(current.getRight(), member));
-        } else {
-            int idCompare = member.getConfirmationNumber().compareTo(current.getData().getConfirmationNumber());
+        if (levelCompare > 0) {
+            currentNode.setRight(insertNode(currentNode.getRight(), newMember));
+        } 
+        else if (levelCompare < 0) {
+            currentNode.setLeft(insertNode(currentNode.getLeft(), newMember));
+        } 
+        else {
+            int pointsCompare = Integer.compare(newMember.getRewardPoints(), currentNode.getData().getRewardPoints());
             
-            if (idCompare <= 0) {
-                current.setLeft(insertNode(current.getLeft(), member));
-            } else {
-                current.setRight(insertNode(current.getRight(), member));
+            if (pointsCompare > 0) {
+                currentNode.setRight(insertNode(currentNode.getRight(), newMember));
+            } 
+            else if (pointsCompare < 0) {
+                currentNode.setLeft(insertNode(currentNode.getLeft(), newMember));
+            } 
+            else {
+                currentNode.setLeft(insertNode(currentNode.getLeft(), newMember));
             }
         }
-        return current;
+
+        return currentNode;
     }
 
 
