@@ -4,6 +4,8 @@ import mhotelreservationsystem.control.VIPRoomControl;
 import mhotelreservationsystem.report.VIPQueueReport;
 import mhotelreservationsystem.repository.GuestRepository;
 import mhotelreservationsystem.repository.MemberRepository;
+import mhotelreservationsystem.repository.RoomRepository;
+import mhotelreservationsystem.utility.ScannerUtility;
 import mhotelreservationsystem.utility.Validation;
 
 /**
@@ -292,12 +294,12 @@ public class VIPRoomUI implements Navigable {
         System.out.print("Select item to redeem: ");
         
         int redeemChoice = -1;
-        if (scanner.hasNextInt()) {
-            redeemChoice = scanner.nextInt();
-            scanner.nextLine();
+        if (ScannerUtility.scanner.hasNextInt()) {
+            redeemChoice = ScannerUtility.scanner.nextInt();
+            ScannerUtility.scanner.nextLine();
         } else {
             System.out.println("[Error] Invalid input.");
-            scanner.nextLine();
+            ScannerUtility.scanner.nextLine();
             return;
         }
         

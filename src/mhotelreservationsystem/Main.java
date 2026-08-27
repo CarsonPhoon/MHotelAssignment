@@ -8,7 +8,7 @@ import mhotelreservationsystem.boundary.MainMenuUI;
 /**
  *
  * @author phoon
- */
+ */22
 public class Main {
     
     public static void main(String [] args){
