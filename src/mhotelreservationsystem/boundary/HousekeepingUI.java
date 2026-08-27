@@ -4,10 +4,10 @@
  */
 package mhotelreservationsystem.boundary;
 
-import java.util.Scanner;
 import mhotelreservationsystem.entity.RoomCleaningStatus;
 import mhotelreservationsystem.control.HousekeepingControl;
 import mhotelreservationsystem.repository.RoomRepository;
+import mhotelreservationsystem.utility.ScannerUtility;
 
 /**
  *
@@ -15,11 +15,9 @@ import mhotelreservationsystem.repository.RoomRepository;
  */
 public class HousekeepingUI implements Navigable {
     private HousekeepingControl houseKeeping;
-    private Scanner scanner;
 
     public HousekeepingUI(RoomRepository roomRepository){
         this.houseKeeping = new HousekeepingControl(roomRepository);
-        this.scanner = new Scanner(System.in);
     }
 
     // OLD: do-while + switch navigation pattern 
@@ -101,13 +99,13 @@ public class HousekeepingUI implements Navigable {
     }
 
     private int getIntInput(){
-        while (!scanner.hasNextInt()){
+        while (!ScannerUtility.scanner.hasNextInt()){
             System.out.println("Invalid input. Please enter a number.");
-            scanner.next();
+            ScannerUtility.scanner.next();
             System.out.print("The option chosen: ");
         }
-        int input = scanner.nextInt();
-        scanner.nextLine();
+        int input = ScannerUtility.scanner.nextInt();
+        ScannerUtility.scanner.nextLine();
         return input;
     }
 

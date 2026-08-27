@@ -21,11 +21,13 @@ public class Navigator {
         navStack = new LinkedStack<>();
     }
 
+    // // Navigate to a new page
     public void navigateTo(Navigable page) {
         navStack.push(page);
         page.display();
     }
 
+    // Return to the previous page
     public void goBack() {
         navStack.pop();
         if (!navStack.isEmpty()) {
@@ -43,7 +45,8 @@ public class Navigator {
                 goBack();
                 continue;
             }
-
+            
+            // // Handle user selection
             Navigable nextPage = currentPage.handleChoice(choice);
             if (nextPage != null && nextPage != currentPage) {
                 navigateTo(nextPage);

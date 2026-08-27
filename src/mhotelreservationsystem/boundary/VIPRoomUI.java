@@ -1,11 +1,9 @@
 package mhotelreservationsystem.boundary;
 
-import java.util.Scanner;
 import mhotelreservationsystem.control.VIPRoomControl;
 import mhotelreservationsystem.report.VIPQueueReport;
 import mhotelreservationsystem.repository.GuestRepository;
 import mhotelreservationsystem.repository.MemberRepository;
-import mhotelreservationsystem.repository.RoomRepository;
 import mhotelreservationsystem.utility.Validation;
 
 /**
@@ -16,7 +14,6 @@ public class VIPRoomUI implements Navigable {
 
     private VIPRoomControl vipControl;
     private VIPQueueReport reportGenerator;
-    private Scanner scanner = new Scanner(System.in);
 
     public VIPRoomUI(MemberRepository memberRepo, GuestRepository guestRepo, RoomRepository roomRepo) {
         this.vipControl = new VIPRoomControl(memberRepo, guestRepo, roomRepo); // 传 3 个进去
@@ -98,7 +95,7 @@ public class VIPRoomUI implements Navigable {
         
         while (true) {
             System.out.print("Enter Confirmation Number (or enter 0 to cancel): ");
-            confirmNum = scanner.nextLine().trim();
+            confirmNum = ScannerUtility.scanner.nextLine().trim();
             
             if (confirmNum.equals("0")) {
                 System.out.println("[System] Registration cancelled.");
@@ -126,39 +123,39 @@ public class VIPRoomUI implements Navigable {
         if (isCancelled) return; 
         
         System.out.println("\n--- Level & Points Guidelines ---");
-        System.out.println("BRONZE   : 500  - 1499 pts");
-        System.out.println("SILVER   : 1500 - 2999 pts");
-        System.out.println("GOLD     : 3000 - 4999 pts");
-        System.out.println("PLATINUM : 5000+ pts");
+        System.out.println("GOLD     : 500  - 2999 pts");
+        System.out.println("ELITE    : 3000 - 5999 pts");
+        System.out.println("DIAMOND  : 6000 - 9999 pts");
+        System.out.println("PLATINUM : 10000+ pts");
         System.out.println("---------------------------------");
         
         mhotelreservationsystem.entity.MemberLevel level = null;
         while (true) {
-            System.out.print("Enter Member Level (BRONZE/SILVER/GOLD/PLATINUM): ");
-            String levelStr = scanner.nextLine().toUpperCase().trim();
+            System.out.print("Enter Member Level (GOLD/ELITE/DIAMOND/PLATINUM): ");
+            String levelStr = ScannerUtility.scanner.nextLine().toUpperCase().trim();
             try {
                 level = mhotelreservationsystem.entity.MemberLevel.valueOf(levelStr);
                 break; 
             } catch (IllegalArgumentException e) {
-                System.out.println("\n[Error] Invalid member level! Please type exactly: BRONZE, SILVER, GOLD, or PLATINUM.\n");
+                System.out.println("\n[Error] Invalid member level! Please type exactly: GOLD, ELITE, DIAMOND, or PLATINUM.\n");
             }
         }
         
         int minRequired = 0;
         int maxAllowed = Integer.MAX_VALUE; 
         switch (level) {
-            case BRONZE: minRequired = 500; maxAllowed = 1499; break;
-            case SILVER: minRequired = 1500; maxAllowed = 2999; break;
-            case GOLD: minRequired = 3000; maxAllowed = 4999; break;
-            case PLATINUM: minRequired = 5000; maxAllowed = Integer.MAX_VALUE; break;
+            case GOLD: minRequired = 500; maxAllowed = 2999; break;
+            case ELITE: minRequired = 3000; maxAllowed = 5999; break;
+            case DIAMOND: minRequired = 6000; maxAllowed = 9999; break;
+            case PLATINUM: minRequired = 10000; maxAllowed = Integer.MAX_VALUE; break;
         }
 
         int points = 0;
         while (true) {
             System.out.print("Enter Reward Points: ");
-            if (scanner.hasNextInt()) {
-                points = scanner.nextInt();
-                scanner.nextLine();
+            if (ScannerUtility.scanner.hasNextInt()) {
+                points = ScannerUtility.scanner.nextInt();
+                ScannerUtility.scanner.nextLine();
                 if (points < minRequired || points > maxAllowed) {
                     System.out.println("\n[Error] Points do not match the Member Level!");
                     System.out.println("-> Please enter points between " + minRequired + " and " + maxAllowed + ".\n");
@@ -167,7 +164,7 @@ public class VIPRoomUI implements Navigable {
                 break;
             } else {
                 System.out.println("\n[Error] Invalid points entered! Please enter a valid number (e.g., 500).\n");
-                scanner.nextLine();
+                ScannerUtility.scanner.nextLine();
             }
         }
 
@@ -196,7 +193,7 @@ public class VIPRoomUI implements Navigable {
             System.out.println("\n--- Update Room Status ---");
             while (true) {
                 System.out.print("Enter Room Number to assign (or enter 0 to skip): ");
-                String roomNum = scanner.nextLine().trim();
+                String roomNum = ScannerUtility.scanner.nextLine().trim();
                 
                 if (roomNum.equals("0")) {
                     System.out.println("[System] Room status update skipped.");
@@ -232,7 +229,7 @@ public class VIPRoomUI implements Navigable {
 
         while (true) {
             System.out.print("Enter Confirmation Number (or enter 0 to cancel): ");
-            confirmNum = scanner.nextLine().trim();
+            confirmNum = ScannerUtility.scanner.nextLine().trim();
 
             if (confirmNum.equals("0")) {
                 System.out.println("[System] Operation cancelled.");
@@ -263,7 +260,7 @@ public class VIPRoomUI implements Navigable {
 
         while (true) {
             System.out.print("Enter Confirmation Number (or enter 0 to cancel): ");
-            confirmNum = scanner.nextLine().trim();
+            confirmNum = ScannerUtility.scanner.nextLine().trim();
 
             if (confirmNum.equals("0")) {
                 System.out.println("[System] Operation cancelled.");
@@ -286,47 +283,34 @@ public class VIPRoomUI implements Navigable {
         System.out.println("Current Level  : " + vip.getMemberLevel());
         System.out.println("Current Points : " + vip.getRewardPoints());
         
+        System.out.println("\n--- Rewards Catalog ---");
+        System.out.println("1. Welcome Drink          (200 pts)");
+        System.out.println("2. Free Breakfast         (600 pts)");
+        System.out.println("3. Late Check-out         (1000 pts)");
+        System.out.println("4. Free Room Upgrade      (2500 pts)");
+        System.out.println("0. Cancel");
+        System.out.print("Select item to redeem: ");
+        
+        int redeemChoice = -1;
+        if (scanner.hasNextInt()) {
+            redeemChoice = scanner.nextInt();
+            scanner.nextLine();
+        } else {
+            System.out.println("[Error] Invalid input.");
+            scanner.nextLine();
+            return;
+        }
+        
         int pointsCost = 0;
         String itemName = "";
-        int redeemChoice = -1;
-
-        while (true) {
-            System.out.println("\n--- Rewards Catalog ---");
-            System.out.println("1. Welcome Drink          (200 pts)");
-            System.out.println("2. Free Breakfast         (600 pts)");
-            System.out.println("3. Late Check-out         (1000 pts)");
-            System.out.println("4. Free Room Upgrade      (2500 pts)");
-            System.out.println("0. Cancel");
-            System.out.print("Select item to redeem: ");
-            
-            String inputChoice = scanner.nextLine().trim();
-            
-            if (inputChoice.isEmpty()) {
-                System.out.println("\n[Error] Input cannot be empty or just spaces! Please try again.");
-                continue;
-            }
-
-            try {
-                redeemChoice = Integer.parseInt(inputChoice);
-            } catch (NumberFormatException e) {
-                System.out.println("\n[Error] Invalid input! Please enter a valid number (0-4).");
-                continue;
-            }
-
-            if (redeemChoice == 0) {
-                System.out.println("[System] Redemption cancelled.");
-                return;
-            } else if (redeemChoice == 1) {
-                pointsCost = 200; itemName = "Welcome Drink"; break;
-            } else if (redeemChoice == 2) {
-                pointsCost = 600; itemName = "Free Breakfast"; break;
-            } else if (redeemChoice == 3) {
-                pointsCost = 1000; itemName = "Late Check-out"; break;
-            } else if (redeemChoice == 4) {
-                pointsCost = 2500; itemName = "Free Room Upgrade"; break;
-            } else {
-                System.out.println("\n[Error] Invalid choice! Please select an option between 0 and 4.");
-            }
+        
+        switch(redeemChoice) {
+            case 1: pointsCost = 200; itemName = "Welcome Drink"; break;
+            case 2: pointsCost = 600; itemName = "Free Breakfast"; break;
+            case 3: pointsCost = 1000; itemName = "Late Check-out"; break;
+            case 4: pointsCost = 2500; itemName = "Free Room Upgrade"; break;
+            case 0: System.out.println("Redemption cancelled."); return;
+            default: System.out.println("Invalid choice."); return;
         }
         
         if (pointsCost > 0) {
@@ -340,7 +324,7 @@ public class VIPRoomUI implements Navigable {
                     System.out.println("\n*** Room Upgrade Selection ***");
                     while (true) {
                         System.out.print("Please enter the Premium Room Number to upgrade to (or enter 0 to skip): ");
-                        String upgradeRoom = scanner.nextLine().trim();
+                        String upgradeRoom = ScannerUtility.scanner.nextLine().trim();
                         
                         if (upgradeRoom.equals("0")) {
                             System.out.println("[System] Room upgrade selection skipped.");
