@@ -9,6 +9,7 @@ import mhotelreservationsystem.entity.Guest;
  * @author phoon
  */
 
+
 public class GuestBSTNode {
 
     private Guest data;

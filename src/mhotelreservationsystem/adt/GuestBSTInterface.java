@@ -5,6 +5,7 @@ package mhotelreservationsystem.adt;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.Iterator;
 import mhotelreservationsystem.entity.Guest;
 import mhotelreservationsystem.entity.GuestStatus;
 /**
@@ -30,6 +31,6 @@ public interface GuestBSTInterface {
     void saveToFile(BufferedWriter writer) throws IOException;
     
     int displayGuestByStatus(GuestStatus status);
+    
+    Iterator<Guest> getIterator();
 }
-
-  

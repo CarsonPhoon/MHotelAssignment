@@ -5,6 +5,8 @@ package mhotelreservationsystem.adt;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import mhotelreservationsystem.entity.Guest;
 import mhotelreservationsystem.entity.GuestStatus;
 /**
@@ -245,5 +247,51 @@ public class GuestBST implements BSTInterface<Guest, String>, GuestBSTInterface 
         }
         count += displayGuestByStatus(current.getRight(), status);
         return count;
+    }
+    
+    
+   // 
+    @Override
+    public Iterator<Guest> getIterator() {
+        return new GuestBSTIterator();
+    }
+    
+    private class GuestBSTIterator implements Iterator<Guest> {
+        
+        private GuestBSTNode current;  // Pointer to the current node
+        private java.util.Stack<GuestBSTNode> stack; // Auxiliary stack used to track the traversal path
+        
+        public GuestBSTIterator() {
+            stack = new java.util.Stack<>();
+            current = root;
+            // During construction, push the entire path from the root node to the leftmost node onto the stack
+            pushLeft(current);  
+        }
+        
+        private void pushLeft(GuestBSTNode node) {
+            while (node != null) {
+                stack.push(node);  // Push the current node onto the stack
+                node = node.getLeft();  // Move left
+            }
+        }
+        
+        @Override
+        public boolean hasNext() {
+            // Stack is not empty = there are still unvisited elements
+            return !stack.isEmpty();
+        }
+        
+        @Override
+        public Guest next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException("No more elements in the tree.");
+            }
+            // Step 1 - Pop the top of the stack = current minimum node (the "root" in the "left → root" sequence of an in-order traversal)
+            GuestBSTNode node = stack.pop();
+            // Step 2: If the node has a right subtree, push the entire leftmost path of the right subtree onto the stack
+            pushLeft(node.getRight());
+            // Step 3: Return the data for that node.
+            return node.getData();
+        }
     }
 }

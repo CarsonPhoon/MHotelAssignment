@@ -1,12 +1,21 @@
-CM0001|10000001|101|Complaint|Air conditioner not working|Pending|2026-07-02
-CM0002|10000002|102|Comment|Excellent room service|Resolved|2026-07-03
-CM0004|10000001|101|Comment|Bed is very comfortable|Resolved|2026-07-06
-CM0003|10000003|103|Complaint|Noisy neighbors at night|Pending|2026-07-04
-CM0005|10000004|104|Complaint|WiFi connection slow|Ignored|2026-07-09
-CM0006|10000012|201|Complaint|Late checkout process|Pending|2026-08-21
-CM0007|10000014|405|Comment|abcd|Pending|2026-08-21
-CM0008|10000015|404|Comment|lkkjh|Pending|2026-08-21
-CM0009|10000015|404|Comment|srgbvjksbg|Pending|2026-08-21
-CM0010|10000011|301|Complaint|gnwrklghawknfelWGNJw|Pending|2026-08-21
-CM0011|10000016|404|Comment|lkmjgv|Pending|2026-08-21
-CM0012|10000018|302|Comment|dvewtjn|Pending|2026-08-21
+CM0001|10000001|101|Complaint|Air conditioner not working properly|Pending|2026-07-01
+CM0002|10000001|101|Comment|Room is clean and comfortable|Resolved|2026-07-02
+CM0003|10000003|201|Complaint|Noisy neighbors at night|Pending|2026-07-06
+CM0004|10000004|202|Comment|Excellent room service and view|Resolved|2026-07-07
+CM0005|10000006|302|Complaint|WiFi connection is slow|Ignored|2026-07-09
+CM0006|10000008|402|Comment|Very spacious family room|Resolved|2026-07-11
+CM0007|10000009|501|Complaint|Minibar was empty on arrival|Pending|2026-07-12
+CM0008|10000010|502|Comment|Beautiful suite with great amenities|Resolved|2026-07-13
+CM0009|10000011|601|Complaint|Late checkout process took too long|Pending|2026-07-17
+CM0010|10000012|103|Comment|Friendly staff and quick check-in|Resolved|2026-07-19
+CM0011|10000013|203|Complaint|Water pressure is too low|Pending|2026-07-21
+CM0012|10000016|104|Comment|Great location near the city center|Resolved|2026-07-29
+CM0013|10000017|204|Comment|Kids enjoyed the family facilities|Pending|2026-08-01
+CM0014|10000002|102|Complaint|TV remote control not working|Pending|2026-07-03
+CM0015|10000005|301|Comment|Deluxe room exceeded expectations|Resolved|2026-07-08
+CM0016|10000007|401|Complaint|Bathroom shower head leaking|Pending|2026-07-10
+CM0017|10000014|303|Comment|Quiet and peaceful room environment|Resolved|2026-07-23
+CM0018|10000015|403|Complaint|Room temperature too cold|Pending|2026-07-26
+CM0019|10000018|304|Comment|Premium deluxe room with city view|Resolved|2026-08-02
+CM0020|10000019|404|Comment|VIP service was outstanding|Resolved|2026-08-05
+CM0021|10000002|102|Complaint|The bathroom is dirty !!!|Pending|2026-08-27
