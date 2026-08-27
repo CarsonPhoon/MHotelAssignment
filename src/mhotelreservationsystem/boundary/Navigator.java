@@ -45,7 +45,7 @@ public class Navigator {
             }
 
             Navigable nextPage = currentPage.handleChoice(choice);
-            if (nextPage != null) {
+            if (nextPage != null && nextPage != currentPage) {
                 navigateTo(nextPage);
             } else {
                 currentPage.display();

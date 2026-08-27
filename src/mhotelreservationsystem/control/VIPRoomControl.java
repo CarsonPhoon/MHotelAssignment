@@ -1,32 +1,33 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package mhotelreservationsystem.control;
 
-import mhotelreservationsystem.adt.VipBST;
+import mhotelreservationsystem.adt.LinkedStack;
+import mhotelreservationsystem.adt.VipBST; // 🟡 HIGHLIGHT YELLOW: Import Custom ADT
 import mhotelreservationsystem.entity.Member;
 import mhotelreservationsystem.entity.MemberLevel;
 import mhotelreservationsystem.entity.MembershipStatus;
 import mhotelreservationsystem.repository.GuestRepository;
 import mhotelreservationsystem.repository.MemberRepository;
+import mhotelreservationsystem.repository.RoomRepository;
 
 /**
- * 
+ * Control class for managing VIP Room operations and queue.
  * @author zekai
  */
 public class VIPRoomControl {
     
-    private VipBST vipQueue;
-    private java.util.Stack<Member> assignedHistoryStack;
+    private VipBST vipQueue; // 🟡 HIGHLIGHT YELLOW (Declaration of ADT)
+    private LinkedStack<Member> assignedHistoryStack; // 🟡 HIGHLIGHT YELLOW (Declaration of CUSTOM LinkedStack ADT, solving Issue 3)
     private MemberRepository memberRepository;
     private GuestRepository guestRepository;
+    private RoomRepository roomRepository; // 🟡 新增：为了不直接写文件，引入 RoomRepo
 
-    public VIPRoomControl(MemberRepository memberRepository, GuestRepository guestRepository) {
-        this.memberRepository = memberRepository;
-        this.guestRepository = guestRepository;
-        this.vipQueue = new VipBST();
-        this.assignedHistoryStack = new java.util.Stack<>();
+    public VIPRoomControl(MemberRepository memberRepo, GuestRepository guestRepo, RoomRepository roomRepo) {
+        this.memberRepository = memberRepo;
+        this.guestRepository = guestRepo;
+        this.roomRepository = roomRepo;
+        
+        this.vipQueue = new VipBST(); // 🟡 HIGHLIGHT YELLOW (Creation)
+        this.assignedHistoryStack = new LinkedStack<>(); // 🟡 HIGHLIGHT YELLOW (Creation of CUSTOM LinkedStack)
         
         loadVipsFromRepository(); 
     }
@@ -35,7 +36,8 @@ public class VIPRoomControl {
         for (int i = 0; i < memberRepository.getTotalMember(); i++) {
             Member member = memberRepository.getMember(i);
             if (member.getMembershipStatus() == MembershipStatus.ACTIVE) {
-                vipQueue.insert(member);
+                // 🟡 呼叫你在 VipBST 里新改的 enqueue 方法 (满足 PriorityQueueInterface)
+                vipQueue.enqueue(member); // 🟡 HIGHLIGHT YELLOW
             }
         }
         System.out.println("[System] Successfully loaded VIP data from MemberRepository!");
@@ -44,12 +46,10 @@ public class VIPRoomControl {
     public boolean addVipToQueue(Member vipMember) {
         if (vipMember == null) return false;
         
-        boolean isAdded = vipQueue.insert(vipMember);
-        
-        if (isAdded) {
-            memberRepository.addMember(vipMember);
-        }
-        return isAdded;
+        // 🟡 呼叫你在 VipBST 里新改的 enqueue 方法 (如果你还没把 insert 改名，就暂时写回 insert)
+        vipQueue.enqueue(vipMember); // 🟡 HIGHLIGHT YELLOW
+        memberRepository.addMember(vipMember);
+        return true;
     }
 
     public boolean verifyGuestExists(String confirmNum) {
@@ -77,99 +77,53 @@ public class VIPRoomControl {
         return memberRepository.searchByConfirmation(confirmNum) != null;
     }
 
-    public boolean updateRoomStatus(String roomNumber, String newStatus) {
-        String filePath = "data/Room.txt"; 
-        java.util.List<String> allLines = new java.util.ArrayList<>();
-        boolean roomFound = false;
-        
-        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(filePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-                
-                String[] parts = line.split("\\|");
-                
-                if (parts.length > 0 && parts[0].trim().equals(roomNumber)) {
-                    parts[parts.length - 1] = newStatus; 
-                    line = String.join("|", parts);
-                    roomFound = true;
-                }
-                allLines.add(line);
-            }
-        } catch (Exception e) {
-            System.out.println("[System Error] Cannot read Room.txt.");
-            return false;
-        }
-        
-        if (roomFound) {
-            try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(filePath, false))) {
-                for (String l : allLines) {
-                    bw.write(l);
-                    bw.newLine();
-                }
-                return true;
-            } catch (Exception e) {
-                System.out.println("[System Error] Failed to update Room.txt.");
-            }
-        }
-        return false;
+
+    public String updateRoomStatus(String roomNumber, mhotelreservationsystem.entity.RoomStatus newStatus) {
+        return roomRepository.updateStatus(roomNumber, newStatus);
     }
 
-    public mhotelreservationsystem.entity.Member assignRoomToNextVip() {
-        mhotelreservationsystem.entity.Member assignedVip = vipQueue.getHighestPriorityVip();
+    public void updateVipPointsInFile(String memberID, int newPoints) {
+        memberRepository.updatePoints(memberID, newPoints);
+    }
+
+    public Member assignRoomToNextVip() {
+        // 🟡 呼叫你在 VipBST 里新改的 dequeue 方法 (满足 PriorityQueueInterface)
+        Member assignedVip = vipQueue.dequeue(); // 🟡 HIGHLIGHT YELLOW
         if (assignedVip != null) {
-            assignedHistoryStack.push(assignedVip);
+            assignedHistoryStack.push(assignedVip); // 🟡 HIGHLIGHT YELLOW (Invocation of CUSTOM LinkedStack method)
         }
         return assignedVip;
     }
 
     public void displayAssignedHistory() {
         System.out.println("\n=====================================");
-        System.out.println("   Recent VIP Room Allocations   ");
+        System.out.println("   Recent VIP Room Allocations (LIFO)");
         System.out.println("=====================================");
         
-        if (assignedHistoryStack.isEmpty()) {
+        if (assignedHistoryStack.isEmpty()) { // 🟡 HIGHLIGHT YELLOW
             System.out.println("No rooms have been assigned yet today.");
             return;
         }
         
-        for (int i = assignedHistoryStack.size() - 1; i >= 0; i--) {
-            System.out.println((assignedHistoryStack.size() - i) + ". " + assignedHistoryStack.get(i).toString());
-        }
-    }
-
-    public void updateVipPointsInFile(String memberID, int newPoints) {
-        String filePath = "data/Member.txt";
-        java.util.List<String> allLines = new java.util.ArrayList<>();
+        // 由于你的 LinkedStack 可能没有 get(i) 方法，为了显示历史，我们用一个临时栈来倒腾数据
+        LinkedStack<Member> tempStack = new LinkedStack<>(); // 🟡 HIGHLIGHT YELLOW
+        int count = 1;
         
-        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(filePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-                String[] parts = line.split("\\|");
-                
-                if (parts.length > 3 && parts[0].trim().equals(memberID)) {
-                    parts[3] = String.valueOf(newPoints); 
-                    line = String.join("|", parts);
-                }
-                allLines.add(line);
-            }
-        } catch (Exception e) {
-            System.out.println("[System Error] Cannot read Member.txt.");
+        // 倒出来打印 (保证 LIFO 后进先出)
+        while (!assignedHistoryStack.isEmpty()) {
+            Member m = assignedHistoryStack.pop(); // 🟡 HIGHLIGHT YELLOW
+            System.out.println((count++) + ". " + m.toString());
+            tempStack.push(m); // 🟡 HIGHLIGHT YELLOW
         }
         
-        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(filePath, false))) {
-            for (String l : allLines) {
-                bw.write(l);
-                bw.newLine();
-            }
-        } catch (Exception e) {
-            System.out.println("[System Error] Failed to update points in Member.txt.");
+        // 装回去恢复原样
+        while (!tempStack.isEmpty()) {
+            assignedHistoryStack.push(tempStack.pop()); // 🟡 HIGHLIGHT YELLOW
         }
     }
 
     public String redeemPoints(String confirmNum, int pointsToDeduct) {
-        mhotelreservationsystem.entity.Member vip = vipQueue.searchByConfirmationNumber(confirmNum);
+        Member vip = vipQueue.searchByConfirmationNumber(confirmNum); // 🟡 HIGHLIGHT YELLOW
         
         if (vip == null) {
             return "NOT_FOUND";
@@ -182,32 +136,33 @@ public class VIPRoomControl {
         int newPoints = vip.getRewardPoints() - pointsToDeduct;
         vip.setRewardPoints(newPoints);
 
+        // 呼叫改写后的架构标准方法
         updateVipPointsInFile(vip.getMemberID(), newPoints);
         
         return "SUCCESS";
     }
 
     public void displayAllWaitingVips() {
-        vipQueue.displayAll();
+        vipQueue.displayAll(); // 🟡 HIGHLIGHT YELLOW
     }
 
     public Member searchVip(String confirmNum) {
-        return vipQueue.searchByConfirmationNumber(confirmNum);
+        return vipQueue.searchByConfirmationNumber(confirmNum); // 🟡 HIGHLIGHT YELLOW
     }
 
     public int getVipCountByLevel(MemberLevel level) {
-        return vipQueue.getCountByLevel(level);
+        return vipQueue.getCountByLevel(level); // 🟡 HIGHLIGHT YELLOW
     }
 
     public int getTotalWaitingCount() {
-        return vipQueue.getSize();
+        return vipQueue.getNumberOfElements(); // 🟡 HIGHLIGHT YELLOW (改成 Interface 里定义的名字)
     }
 
     public String getHighValueVipsData(int minPoints) {
-        return vipQueue.getHighValueVipsData(minPoints);
+        return vipQueue.getHighValueVipsData(minPoints); // 🟡 HIGHLIGHT YELLOW
     }
 
     public int getHighValueVipsCount(int minPoints) {
-        return vipQueue.getHighValueVipsCount(minPoints);
+        return vipQueue.getHighValueVipsCount(minPoints); // 🟡 HIGHLIGHT YELLOW
     }
 }

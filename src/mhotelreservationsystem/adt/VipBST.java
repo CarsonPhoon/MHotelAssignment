@@ -9,7 +9,7 @@ import mhotelreservationsystem.entity.Member;
  * 
  * @author zekai
  */
-public class VipBST {
+public class VipBST implements PriorityQueueInterface<mhotelreservationsystem.entity.Member> {
 
     private VipBSTNode root;
     private int size;
@@ -122,27 +122,27 @@ public class VipBST {
         displayReverseInOrder(current.getLeft());
     }
 
-    public Member searchByConfirmationNumber(String confirmNum) {
-        return searchRecursive(root, confirmNum);
+    public mhotelreservationsystem.entity.Member searchByConfirmationNumber(String confirmNum) {
+        return searchRecursive(this.root, confirmNum);
     }
 
-    private Member searchRecursive(VipBSTNode current, String confirmNum) {
-        if (current == null) {
+    private mhotelreservationsystem.entity.Member searchRecursive(VipBSTNode node, String confirmNum) {
+        if (node == null) {
             return null;
         }
-        
-        if (current.getData().getConfirmationNumber().equalsIgnoreCase(confirmNum)) {
-            return current.getData();
-        }
-        
-        Member leftResult = searchRecursive(current.getLeft(), confirmNum);
-        if (leftResult != null) {
-            return leftResult;
-        }
-        
-        return searchRecursive(current.getRight(), confirmNum);
-    }
 
+        if (node.getData().getConfirmationNumber().equalsIgnoreCase(confirmNum)) {
+            return node.getData();
+        }
+
+        mhotelreservationsystem.entity.Member foundInLeft = searchRecursive(node.getLeft(), confirmNum);
+        
+        if (foundInLeft != null) {
+            return foundInLeft; 
+        }
+
+        return searchRecursive(node.getRight(), confirmNum);
+    }
 
     public int getCountByLevel(mhotelreservationsystem.entity.MemberLevel level) {
         return countByLevelRecursive(root, level);
@@ -182,5 +182,25 @@ public class VipBST {
         if (current == null) return 0;
         int count = (current.getData().getRewardPoints() > minPoints) ? 1 : 0;
         return count + countHighValueRecursive(current.getLeft(), minPoints) + countHighValueRecursive(current.getRight(), minPoints);
+    }
+
+    @Override
+    public void enqueue(mhotelreservationsystem.entity.Member newEntry) {
+        this.insert(newEntry); 
+    }
+
+    @Override
+    public mhotelreservationsystem.entity.Member dequeue() {
+        return this.getHighestPriorityVip(); 
+    }
+
+    @Override
+    public mhotelreservationsystem.entity.Member peek() {
+        return this.getHighestPriorityVip(); 
+    }
+
+    @Override
+    public int getNumberOfElements() {
+        return this.getSize(); 
     }
 }

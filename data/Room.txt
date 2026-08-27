@@ -3,7 +3,7 @@
 201|Deluxe|2|3|680.0|Occupied
 202|Family|2|3|680.0|Occupied
 301|Suite|3|4|1200.0|Reserved
-302|Single|3|2|350.0|Reserved
+301|Suite|3|4|1200.0|Reserved
 401|Double|4|2|420.0|Reserved
 402|Deluxe|4|3|680.0|Reserved
 501|Family|5|4|1200.0|Reserved
@@ -11,3 +11,4 @@
 403|Deluxe|4|3|680.0|Reserved
 404|Deluxe|4|3|680.0|Maintenance
 405|Deluxe|4|3|680.0|Cleaning
+406|Deluxe|4|3|680.0|Reserved

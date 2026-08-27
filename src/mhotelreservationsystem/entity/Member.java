@@ -9,7 +9,7 @@ import java.time.LocalDate;
  *
  * @author phoon
  */
-public class Member {
+public class Member implements Comparable<Member> {
 
     private String memberID;
     private String confirmationNumber;
@@ -89,5 +89,16 @@ public class Member {
                 joinDate,
                 membershipStatus
         );
+    }
+
+    @Override
+    public int compareTo(Member other) {
+        int levelComparison = this.getMemberLevel().compareTo(other.getMemberLevel());
+
+        if (levelComparison != 0) {
+            return levelComparison;
+        }
+        
+        return Integer.compare(this.getRewardPoints(), other.getRewardPoints());
     }
 }

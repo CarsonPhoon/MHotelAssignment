@@ -140,4 +140,15 @@ public class MemberRepository{
                member.getJoinDate() + "|" +
                member.getMembershipStatus();
     }
+
+    public void updatePoints(String memberID, int newPoints) {
+        for (int i = 0; i < members.getNumberOfEntries(); i++) {
+            mhotelreservationsystem.entity.Member member = members.get(i);
+            if (member.getMemberID().equals(memberID)) {
+                member.setRewardPoints(newPoints);
+                saveToFile();
+                return;
+            }
+        }
+    }
 }

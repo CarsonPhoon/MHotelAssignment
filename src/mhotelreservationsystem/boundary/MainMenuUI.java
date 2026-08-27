@@ -4,7 +4,6 @@
  */
 package mhotelreservationsystem.boundary;
 
-import mhotelreservationsystem.boundary.Navigator;
 import mhotelreservationsystem.boundary.frontdeskmodule.FrontDeskUI;
 import mhotelreservationsystem.repository.*;
 import mhotelreservationsystem.utility.MessageUI;
@@ -61,7 +60,7 @@ public class MainMenuUI {
                     navigator.run();
                     break;
                 case 2:
-                    navigator.navigateTo(new VIPRoomUI(memberRepository, guestRepository));
+                    navigator.navigateTo(new VIPRoomUI(memberRepository, guestRepository, roomRepository));
                     navigator.run();
                     break;
                 case 3:
