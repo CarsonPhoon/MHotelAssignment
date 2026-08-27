@@ -287,6 +287,27 @@ public class VIPRoomUI implements Navigable {
         System.out.println("Current Level  : " + vip.getMemberLevel());
         System.out.println("Current Points : " + vip.getRewardPoints());
         
+<<<<<<< HEAD
+=======
+        System.out.println("\n--- Rewards Catalog ---");
+        System.out.println("1. Welcome Drink          (200 pts)");
+        System.out.println("2. Free Breakfast         (600 pts)");
+        System.out.println("3. Late Check-out         (1000 pts)");
+        System.out.println("4. Free Room Upgrade      (2500 pts)");
+        System.out.println("0. Cancel");
+        System.out.print("Select item to redeem: ");
+        
+        int redeemChoice = -1;
+        if (ScannerUtility.scanner.hasNextInt()) {
+            redeemChoice = ScannerUtility.scanner.nextInt();
+            ScannerUtility.scanner.nextLine();
+        } else {
+            System.out.println("[Error] Invalid input.");
+            ScannerUtility.scanner.nextLine();
+            return;
+        }
+        
+>>>>>>> 78464f6375a0e8794e12e4b6b5c2346e65a3b424
         int pointsCost = 0;
         String itemName = "";
         int redeemChoice = -1;
