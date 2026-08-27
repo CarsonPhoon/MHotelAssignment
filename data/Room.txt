@@ -2,7 +2,7 @@
 102|Single|1|2|350.0|Available
 103|Single|1|2|350.0|Available
 104|Double|1|2|420.0|Available
-201|Double|2|2|420.0|Available
+201|Double|2|2|420.0|Occupied
 202|Double|2|2|420.0|Available
 203|Deluxe|3|3|680.0|Available
 204|Family|4|4|900.0|Available

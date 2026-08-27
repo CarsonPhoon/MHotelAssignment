@@ -15,6 +15,7 @@ import mhotelreservationsystem.utility.Validation;
 
 /**
  * Walk-In UI: Register walk-in guests, manage pending bookings, and generate reports.
+ * @author xb
  */
 public class WalkInUI implements Navigable {
 
@@ -137,6 +138,7 @@ public class WalkInUI implements Navigable {
             case 9: addCommentOrComplain(); break;
             default: break;
         }
+        Validation.pressEnterToContinue();
         return null;
     }
 
