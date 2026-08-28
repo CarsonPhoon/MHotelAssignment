@@ -134,15 +134,16 @@ public class RoomRepository{
 
     public String updateStatus(String roomNumber, mhotelreservationsystem.entity.RoomStatus newStatus) {
         for (int i = 0; i < rooms.getNumberOfEntries(); i++) {
-            mhotelreservationsystem.entity.Room room = rooms.get(i);
+            mhotelreservationsystem.entity.Room room = (mhotelreservationsystem.entity.Room) rooms.get(i + 1);
+            
             if (String.valueOf(room.getRoomNumber()).equals(roomNumber)) {
                 
                 if (!room.getStatus().name().equalsIgnoreCase("AVAILABLE")) {
                     return "NOT_AVAILABLE";
                 }
-                
+
                 room.setStatus(newStatus);
-                rooms.replace(i + 1, room);
+                
                 saveToFile();
                 return "SUCCESS";
             }

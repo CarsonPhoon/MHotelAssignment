@@ -90,9 +90,11 @@ public class VIPRoomControl {
 
     public Member assignRoomToNextVip() {
         Member assignedVip = vipQueue.dequeue();
+        
         if (assignedVip != null) {
             assignedHistoryStack.push(assignedVip);
         }
+        
         return assignedVip;
     }
 
@@ -121,10 +123,14 @@ public class VIPRoomControl {
     }
 
     public String redeemPoints(String confirmNum, int pointsToDeduct) {
-        Member vip = vipQueue.searchByConfirmationNumber(confirmNum);
+        mhotelreservationsystem.entity.Member vip = this.searchVipInDatabase(confirmNum); 
         
         if (vip == null) {
             return "NOT_FOUND";
+        }
+        
+        if (vip.getMembershipStatus() == mhotelreservationsystem.entity.MembershipStatus.INACTIVE) {
+            return "NOT_FOUND"; 
         }
         
         if (vip.getRewardPoints() < pointsToDeduct) {
@@ -139,9 +145,6 @@ public class VIPRoomControl {
         return "SUCCESS";
     }
 
-    public void displayAllWaitingVips() {
-        vipQueue.displayAll();
-    }
 
     public Member searchVip(String confirmNum) {
         return vipQueue.searchByConfirmationNumber(confirmNum);
@@ -176,5 +179,30 @@ public class VIPRoomControl {
         }
         
         return isUpdated;
+    }
+
+    public void displayActiveAndCompletedVips() {
+        mhotelreservationsystem.adt.VipBST tempDisplayTree = new mhotelreservationsystem.adt.VipBST();
+        
+        for (int i = 0; i < memberRepository.getTotalMember(); i++) {
+            mhotelreservationsystem.entity.Member m = memberRepository.getMember(i);
+            
+        if (m.getMembershipStatus() == mhotelreservationsystem.entity.MembershipStatus.ACTIVE || 
+                m.getMembershipStatus() == mhotelreservationsystem.entity.MembershipStatus.COMPLETED) {
+                
+                tempDisplayTree.enqueue(m);
+            }
+        }
+
+        tempDisplayTree.displayAll();
+    }
+
+    public mhotelreservationsystem.entity.Room searchRoom(String roomNumber) {
+        try {
+            int roomNumInt = Integer.parseInt(roomNumber);
+            return roomRepository.searchRoom(roomNumInt);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }

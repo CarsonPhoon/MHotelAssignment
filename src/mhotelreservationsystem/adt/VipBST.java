@@ -34,8 +34,7 @@ public class VipBST implements PriorityQueueInterface<mhotelreservationsystem.en
             return new VipBSTNode(newMember);
         }
 
-        int levelCompare = newMember.getMemberLevel().compareTo(currentNode.getData().getMemberLevel());
-
+        int levelCompare = newMember.getMemberLevel().compareTo(currentNode.getData().getMemberLevel());//compare level
         if (levelCompare > 0) {
             currentNode.setRight(insertNode(currentNode.getRight(), newMember));
         } 
@@ -43,8 +42,7 @@ public class VipBST implements PriorityQueueInterface<mhotelreservationsystem.en
             currentNode.setLeft(insertNode(currentNode.getLeft(), newMember));
         } 
         else {
-            int pointsCompare = Integer.compare(newMember.getRewardPoints(), currentNode.getData().getRewardPoints());
-            
+            int pointsCompare = Integer.compare(newMember.getRewardPoints(), currentNode.getData().getRewardPoints());//compare points     
             if (pointsCompare > 0) {
                 currentNode.setRight(insertNode(currentNode.getRight(), newMember));
             } 
@@ -196,7 +194,14 @@ public class VipBST implements PriorityQueueInterface<mhotelreservationsystem.en
 
     @Override
     public mhotelreservationsystem.entity.Member peek() {
-        return this.getHighestPriorityVip(); 
+        if (root == null) {
+            return null;
+        }
+        VipBSTNode current = root;
+        while (current.getRight() != null) {
+            current = current.getRight();
+        }
+        return current.getData();
     }
 
     @Override

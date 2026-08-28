@@ -11,7 +11,8 @@ package mhotelreservationsystem.entity;
 public enum MembershipStatus {
 
     ACTIVE("Active"),
-    INACTIVE("Inactive");
+    INACTIVE("Inactive"),
+    COMPLETED("Completed");
 
     private final String displayName;
 
