@@ -1,5 +1,5 @@
 # M Hotel Reservation System
-A console-based hotel management system for M Resorts, implementing Abstract Data Types (ADTs) for room booking, VIP allocation, housekeeping, and front-desk operations.
+A console-based hotel management system for M Hotel, implementing Abstract Data Types (ADTs) for room booking, VIP allocation, housekeeping, and front-desk operations.
 
 ## How to Run
 1. Open project in **NetBeans IDE**
