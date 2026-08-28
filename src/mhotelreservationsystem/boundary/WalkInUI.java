@@ -7,6 +7,7 @@ package mhotelreservationsystem.boundary;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import mhotelreservationsystem.control.WalkInControl;
+import mhotelreservationsystem.control.HousekeepingControl;
 import mhotelreservationsystem.entity.Booking;
 import mhotelreservationsystem.report.WalkInReport;
 import mhotelreservationsystem.repository.*;
@@ -24,9 +25,9 @@ public class WalkInUI implements Navigable {
 
     public WalkInUI(GuestRepository guestRepository, BookingRepository bookingRepository,
                     RoomRepository roomRepository, MemberRepository memberRepository,
-                    CommentRepository commentRepository){
+                    CommentRepository commentRepository, HousekeepingControl housekeepingControl){
         control = new WalkInControl(guestRepository, bookingRepository, roomRepository,
-                                    memberRepository, commentRepository);
+                                    memberRepository, commentRepository, housekeepingControl);
         report = new WalkInReport(
             guestRepository,
             bookingRepository,

@@ -21,18 +21,20 @@ public class WalkInControl {
     private RoomRepository roomRepository;
     private MemberRepository memberRepository;
     private CommentRepository commentRepository;
+    private HousekeepingControl housekeepingControl;
     
     // Queue for pending walk-in bookings (using ArrayListADT as queue)
     private ArrayListADT<Booking> pendingBookings;
 
     public WalkInControl(GuestRepository guestRepository, BookingRepository bookingRepository,
                          RoomRepository roomRepository, MemberRepository memberRepository,
-                         CommentRepository commentRepository){
+                         CommentRepository commentRepository, HousekeepingControl housekeepingControl){
         this.guestRepository = guestRepository;
         this.bookingRepository = bookingRepository;
         this.roomRepository = roomRepository;
         this.memberRepository = memberRepository;
         this.commentRepository = commentRepository;
+        this.housekeepingControl = housekeepingControl;
         this.pendingBookings = new ArrayListADT<>();
         syncPendingQueueFromRepository();
     }
@@ -268,7 +270,8 @@ public class WalkInControl {
         booking.setCheckOutDate(LocalDate.now());
         guest.setStatus(GuestStatus.CHECKED_OUT);
         guest.setCheckOutDate(LocalDate.now());
-        room.setStatus(RoomStatus.AVAILABLE);
+        // room.setStatus(RoomStatus.AVAILABLE);
+        housekeepingControl.stateRoomDirtyAfterCheckout(booking.getRoomNumber());
 
         boolean ok1 = bookingRepository.updateBooking(booking);
         boolean ok2 = guestRepository.updateGuest(guest);

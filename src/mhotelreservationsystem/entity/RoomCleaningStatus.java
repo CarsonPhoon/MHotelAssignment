@@ -6,7 +6,7 @@ package mhotelreservationsystem.entity;
 
 /**
  *
- * @author user
+ * @author chanzj
  */
 public enum RoomCleaningStatus {
    
@@ -17,14 +17,17 @@ public enum RoomCleaningStatus {
 
     private final String displayName;
 
+    // sets display label per status
     RoomCleaningStatus(String displayName){
         this.displayName = displayName;
     }
 
+    // gets display label
     public String getLabel(){
         return displayName;
     }
 
+    // gets next status in sequence
     public RoomCleaningStatus next(){
         RoomCleaningStatus[] values = RoomCleaningStatus.values();
         int nextIndex = this.ordinal() + 1;
