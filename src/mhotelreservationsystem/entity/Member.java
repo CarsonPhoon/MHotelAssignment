@@ -101,4 +101,17 @@ public class Member implements Comparable<Member> {
         
         return Integer.compare(this.getRewardPoints(), other.getRewardPoints());
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Member other = (Member) obj;
+        return memberID != null && memberID.equals(other.memberID);
+    }
+    
+    @Override
+    public int hashCode() {
+        return memberID != null ? memberID.hashCode() : 0;
+    }
 }

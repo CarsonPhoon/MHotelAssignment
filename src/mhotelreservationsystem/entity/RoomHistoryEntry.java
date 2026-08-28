@@ -24,4 +24,17 @@ public class RoomHistoryEntry {
     public StackInterface<RoomCleaningStatus> getHistory(){
         return statusHistory;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        RoomHistoryEntry other = (RoomHistoryEntry) obj;
+        return roomNumber == other.roomNumber;
+    }
+    
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(roomNumber);
+    }
 }

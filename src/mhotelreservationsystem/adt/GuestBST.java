@@ -259,10 +259,10 @@ public class GuestBST implements BSTInterface<Guest, String>, GuestBSTInterface 
     private class GuestBSTIterator implements Iterator<Guest> {
         
         private GuestBSTNode current;  // Pointer to the current node
-        private java.util.Stack<GuestBSTNode> stack; // Auxiliary stack used to track the traversal path
+        private LinkedStack<GuestBSTNode> stack; // Auxiliary stack used to track the traversal path
         
         public GuestBSTIterator() {
-            stack = new java.util.Stack<>();
+            stack = new LinkedStack<>();
             current = root;
             // During construction, push the entire path from the root node to the leftmost node onto the stack
             pushLeft(current);  
