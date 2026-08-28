@@ -2,6 +2,7 @@ package mhotelreservationsystem.boundary;
 
 import mhotelreservationsystem.control.VIPRoomControl;
 import mhotelreservationsystem.report.VIPQueueReport;
+import mhotelreservationsystem.repository.BookingRepository;
 import mhotelreservationsystem.repository.GuestRepository;
 import mhotelreservationsystem.repository.MemberRepository;
 import mhotelreservationsystem.repository.RoomRepository;
@@ -17,8 +18,8 @@ public class VIPRoomUI implements Navigable {
     private VIPRoomControl vipControl;
     private VIPQueueReport reportGenerator;
 
-    public VIPRoomUI(MemberRepository memberRepo, GuestRepository guestRepo, RoomRepository roomRepo) {
-        this.vipControl = new VIPRoomControl(memberRepo, guestRepo, roomRepo);
+    public VIPRoomUI(MemberRepository memberRepo, GuestRepository guestRepo, RoomRepository roomRepo, BookingRepository bookingRepo) {
+        this.vipControl = new VIPRoomControl(memberRepo, guestRepo, roomRepo, bookingRepo);
         this.reportGenerator = new VIPQueueReport(this.vipControl);
     }
 
@@ -212,10 +213,23 @@ public class VIPRoomUI implements Navigable {
                     continue;
                 }
                 
+                int roomNumber;
+                try {
+                    roomNumber = Integer.parseInt(roomNum);
+                } catch (NumberFormatException e) {
+                    System.out.println("[Error] Invalid room number! Please try again.\n");
+                    continue;
+                }
+
                 String statusResult = vipControl.updateRoomStatus(roomNum, mhotelreservationsystem.entity.RoomStatus.RESERVED);
                 
                 if (statusResult.equals("SUCCESS")) {
                     System.out.println("[System] Success! Room " + roomNum + " status updated to 'Reserved' in Room.txt.");
+
+                    boolean bookingCreated = vipControl.createBookingForVip(assignedVip, roomNumber);
+                    if (bookingCreated) {
+                        System.out.println("[System] VIP booking record created in Guest.txt and Booking.txt.");
+                    }
                     break;
                 } else if (statusResult.equals("NOT_AVAILABLE")) {
                     System.out.println("[Error] Room '" + roomNum + "' is currently Occupied, Reserved, or under Maintenance!");

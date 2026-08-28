@@ -158,6 +158,11 @@ public class FrontDeskControl {
         }
         return allComments;
     }
+    
+    // Get all comments sorted by date descending
+    public Comment[] getAllCommentsSortedByDate(){
+        return commentRepository.getAllCommentsSortedByDate();
+    }
 
     // Search comments by date
     public ArrayListADT<Comment> searchCommentsByDate(LocalDate date){

@@ -4,11 +4,12 @@
  */
 package mhotelreservationsystem.control;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import mhotelreservationsystem.adt.LinkedStack;
 import mhotelreservationsystem.adt.VipBST;
-import mhotelreservationsystem.entity.Member;
-import mhotelreservationsystem.entity.MemberLevel;
-import mhotelreservationsystem.entity.MembershipStatus;
+import mhotelreservationsystem.entity.*;
+import mhotelreservationsystem.repository.BookingRepository;
 import mhotelreservationsystem.repository.GuestRepository;
 import mhotelreservationsystem.repository.MemberRepository;
 import mhotelreservationsystem.repository.RoomRepository;
@@ -24,11 +25,13 @@ public class VIPRoomControl {
     private MemberRepository memberRepository;
     private GuestRepository guestRepository;
     private RoomRepository roomRepository;
+    private BookingRepository bookingRepository;
 
-    public VIPRoomControl(MemberRepository memberRepo, GuestRepository guestRepo, RoomRepository roomRepo) {
+    public VIPRoomControl(MemberRepository memberRepo, GuestRepository guestRepo, RoomRepository roomRepo, BookingRepository bookingRepo) {
         this.memberRepository = memberRepo;
         this.guestRepository = guestRepo;
         this.roomRepository = roomRepo;
+        this.bookingRepository = bookingRepo;
         
         this.vipQueue = new VipBST();
         this.assignedHistoryStack = new LinkedStack<>();
@@ -176,5 +179,75 @@ public class VIPRoomControl {
         }
         
         return isUpdated;
+    }
+
+    private String generateNextBookingID(){
+        int max = 0;
+        for(int i = 0; i < bookingRepository.getTotalBooking(); i++){
+            String id = bookingRepository.getBooking(i).getBookingID();
+            if(id != null && id.length() > 2 && id.startsWith("BK")){
+                try{
+                    int num = Integer.parseInt(id.substring(2));
+                    if(num > max) max = num;
+                }catch(NumberFormatException e){
+                    // ignore malformed ids
+                }
+            }
+        }
+        return String.format("BK%04d", max + 1);
+    }
+
+    public boolean createBookingForVip(Member member, int roomNumber){
+        if(member == null) return false;
+
+        String confirmNum = member.getConfirmationNumber();
+        Room room = roomRepository.searchRoom(roomNumber);
+        if(room == null){
+            System.out.println("[Error] Room not found.");
+            return false;
+        }
+
+        Guest existingGuest = guestRepository.searchGuest(confirmNum);
+        if(existingGuest == null){
+            System.out.println("[Error] Guest record not found for confirmation number: " + confirmNum);
+            return false;
+        }
+
+        String bookingID = generateNextBookingID();
+        LocalDate checkIn = LocalDate.now();
+        LocalDate checkOut = checkIn.plusDays(1);
+        long nights = ChronoUnit.DAYS.between(checkIn, checkOut);
+        double total = room.getRoomRate() * nights;
+
+        Booking booking = new Booking(
+            bookingID,
+            confirmNum,
+            roomNumber,
+            room.getRoomType(),
+            2,
+            LocalDate.now(),
+            checkIn,
+            checkOut,
+            total,
+            BookingStatus.CHECKED_IN
+        );
+
+        existingGuest.setBookingID(bookingID);
+        existingGuest.setRoomNumber(roomNumber);
+        existingGuest.setCheckInDate(checkIn);
+        existingGuest.setCheckOutDate(checkOut);
+        existingGuest.setStatus(GuestStatus.CHECKED_IN);
+
+        boolean ok1 = bookingRepository.addBooking(booking);
+        boolean ok2 = guestRepository.updateGuest(existingGuest);
+        boolean ok3 = roomRepository.updateStatus(String.valueOf(roomNumber), RoomStatus.OCCUPIED).equals("SUCCESS");
+
+        if(ok1 && ok2 && ok3){
+            System.out.println("[System] Booking created: " + bookingID + " | Guest updated | Room occupied.");
+            return true;
+        }
+
+        System.out.println("[Error] Failed to create booking for VIP.");
+        return false;
     }
 }

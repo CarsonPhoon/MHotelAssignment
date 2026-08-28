@@ -60,7 +60,7 @@ public class MainMenuUI {
                     navigator.run();
                     break;
                 case 2:
-                    navigator.navigateTo(new VIPRoomUI(memberRepository, guestRepository, roomRepository));
+                    navigator.navigateTo(new VIPRoomUI(memberRepository, guestRepository, roomRepository, bookingRepository));
                     navigator.run();
                     break;
                 case 3:
