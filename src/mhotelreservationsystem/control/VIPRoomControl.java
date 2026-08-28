@@ -1,7 +1,11 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package mhotelreservationsystem.control;
 
 import mhotelreservationsystem.adt.LinkedStack;
-import mhotelreservationsystem.adt.VipBST; // 🟡 HIGHLIGHT YELLOW: Import Custom ADT
+import mhotelreservationsystem.adt.VipBST;
 import mhotelreservationsystem.entity.Member;
 import mhotelreservationsystem.entity.MemberLevel;
 import mhotelreservationsystem.entity.MembershipStatus;
@@ -15,19 +19,19 @@ import mhotelreservationsystem.repository.RoomRepository;
  */
 public class VIPRoomControl {
     
-    private VipBST vipQueue; // 🟡 HIGHLIGHT YELLOW (Declaration of ADT)
-    private LinkedStack<Member> assignedHistoryStack; // 🟡 HIGHLIGHT YELLOW (Declaration of CUSTOM LinkedStack ADT, solving Issue 3)
+    private VipBST vipQueue; 
+    private LinkedStack<Member> assignedHistoryStack;
     private MemberRepository memberRepository;
     private GuestRepository guestRepository;
-    private RoomRepository roomRepository; // 🟡 新增：为了不直接写文件，引入 RoomRepo
+    private RoomRepository roomRepository;
 
     public VIPRoomControl(MemberRepository memberRepo, GuestRepository guestRepo, RoomRepository roomRepo) {
         this.memberRepository = memberRepo;
         this.guestRepository = guestRepo;
         this.roomRepository = roomRepo;
         
-        this.vipQueue = new VipBST(); // 🟡 HIGHLIGHT YELLOW (Creation)
-        this.assignedHistoryStack = new LinkedStack<>(); // 🟡 HIGHLIGHT YELLOW (Creation of CUSTOM LinkedStack)
+        this.vipQueue = new VipBST();
+        this.assignedHistoryStack = new LinkedStack<>();
         
         loadVipsFromRepository(); 
     }
@@ -36,8 +40,7 @@ public class VIPRoomControl {
         for (int i = 0; i < memberRepository.getTotalMember(); i++) {
             Member member = memberRepository.getMember(i);
             if (member.getMembershipStatus() == MembershipStatus.ACTIVE) {
-                // 🟡 呼叫你在 VipBST 里新改的 enqueue 方法 (满足 PriorityQueueInterface)
-                vipQueue.enqueue(member); // 🟡 HIGHLIGHT YELLOW
+                vipQueue.enqueue(member);
             }
         }
         System.out.println("[System] Successfully loaded VIP data from MemberRepository!");
@@ -46,8 +49,7 @@ public class VIPRoomControl {
     public boolean addVipToQueue(Member vipMember) {
         if (vipMember == null) return false;
         
-        // 🟡 呼叫你在 VipBST 里新改的 enqueue 方法 (如果你还没把 insert 改名，就暂时写回 insert)
-        vipQueue.enqueue(vipMember); // 🟡 HIGHLIGHT YELLOW
+        vipQueue.enqueue(vipMember);
         memberRepository.addMember(vipMember);
         return true;
     }
@@ -87,43 +89,39 @@ public class VIPRoomControl {
     }
 
     public Member assignRoomToNextVip() {
-        // 🟡 呼叫你在 VipBST 里新改的 dequeue 方法 (满足 PriorityQueueInterface)
-        Member assignedVip = vipQueue.dequeue(); // 🟡 HIGHLIGHT YELLOW
+        Member assignedVip = vipQueue.dequeue();
         if (assignedVip != null) {
-            assignedHistoryStack.push(assignedVip); // 🟡 HIGHLIGHT YELLOW (Invocation of CUSTOM LinkedStack method)
+            assignedHistoryStack.push(assignedVip);
         }
         return assignedVip;
     }
 
     public void displayAssignedHistory() {
         System.out.println("\n=====================================");
-        System.out.println("   Recent VIP Room Allocations (LIFO)");
+        System.out.println("   Recent VIP Room Allocations ");
         System.out.println("=====================================");
         
-        if (assignedHistoryStack.isEmpty()) { // 🟡 HIGHLIGHT YELLOW
+        if (assignedHistoryStack.isEmpty()) {
             System.out.println("No rooms have been assigned yet today.");
             return;
         }
         
-        // 由于你的 LinkedStack 可能没有 get(i) 方法，为了显示历史，我们用一个临时栈来倒腾数据
-        LinkedStack<Member> tempStack = new LinkedStack<>(); // 🟡 HIGHLIGHT YELLOW
+        LinkedStack<Member> tempStack = new LinkedStack<>();
         int count = 1;
         
-        // 倒出来打印 (保证 LIFO 后进先出)
         while (!assignedHistoryStack.isEmpty()) {
-            Member m = assignedHistoryStack.pop(); // 🟡 HIGHLIGHT YELLOW
+            Member m = assignedHistoryStack.pop();
             System.out.println((count++) + ". " + m.toString());
-            tempStack.push(m); // 🟡 HIGHLIGHT YELLOW
+            tempStack.push(m);
         }
-        
-        // 装回去恢复原样
+
         while (!tempStack.isEmpty()) {
-            assignedHistoryStack.push(tempStack.pop()); // 🟡 HIGHLIGHT YELLOW
+            assignedHistoryStack.push(tempStack.pop());
         }
     }
 
     public String redeemPoints(String confirmNum, int pointsToDeduct) {
-        Member vip = vipQueue.searchByConfirmationNumber(confirmNum); // 🟡 HIGHLIGHT YELLOW
+        Member vip = vipQueue.searchByConfirmationNumber(confirmNum);
         
         if (vip == null) {
             return "NOT_FOUND";
@@ -136,33 +134,47 @@ public class VIPRoomControl {
         int newPoints = vip.getRewardPoints() - pointsToDeduct;
         vip.setRewardPoints(newPoints);
 
-        // 呼叫改写后的架构标准方法
         updateVipPointsInFile(vip.getMemberID(), newPoints);
         
         return "SUCCESS";
     }
 
     public void displayAllWaitingVips() {
-        vipQueue.displayAll(); // 🟡 HIGHLIGHT YELLOW
+        vipQueue.displayAll();
     }
 
     public Member searchVip(String confirmNum) {
-        return vipQueue.searchByConfirmationNumber(confirmNum); // 🟡 HIGHLIGHT YELLOW
+        return vipQueue.searchByConfirmationNumber(confirmNum);
     }
 
     public int getVipCountByLevel(MemberLevel level) {
-        return vipQueue.getCountByLevel(level); // 🟡 HIGHLIGHT YELLOW
+        return vipQueue.getCountByLevel(level);
     }
 
     public int getTotalWaitingCount() {
-        return vipQueue.getNumberOfElements(); // 🟡 HIGHLIGHT YELLOW (改成 Interface 里定义的名字)
+        return vipQueue.getNumberOfElements();
     }
 
     public String getHighValueVipsData(int minPoints) {
-        return vipQueue.getHighValueVipsData(minPoints); // 🟡 HIGHLIGHT YELLOW
+        return vipQueue.getHighValueVipsData(minPoints);
     }
 
     public int getHighValueVipsCount(int minPoints) {
-        return vipQueue.getHighValueVipsCount(minPoints); // 🟡 HIGHLIGHT YELLOW
+        return vipQueue.getHighValueVipsCount(minPoints);
+    }
+
+    public mhotelreservationsystem.entity.Member searchVipInDatabase(String confirmNum) {
+        return memberRepository.searchByConfirmation(confirmNum);
+    }
+
+    public boolean updateMemberStatus(String confirmNum, mhotelreservationsystem.entity.MembershipStatus newStatus) {
+        boolean isUpdated = memberRepository.updateMembershipStatus(confirmNum, newStatus);
+        
+        mhotelreservationsystem.entity.Member vipInQueue = vipQueue.searchByConfirmationNumber(confirmNum);
+        if (vipInQueue != null) {
+            vipInQueue.setMembershipStatus(newStatus);
+        }
+        
+        return isUpdated;
     }
 }

@@ -33,15 +33,16 @@ public class VIPRoomUI implements Navigable {
         System.out.println("4. Search VIP Status in Queue");
         System.out.println("5. VIP Rewards Redemption");
         System.out.println("6. View Allocation Audit Log");
-        System.out.println("7. Report: Queue Status by Level");
-        System.out.println("8. Report: High-Value VIPs");
+        System.out.println("7. Update VIP Membership Status");
+        System.out.println("8. Report: Queue Status by Level");
+        System.out.println("9. Report: High-Value VIPs");
         System.out.println("0. Back to Main Menu");
         System.out.println("=====================================");
     }
 
     @Override
     public int getMaxChoice() {
-        return 8;
+        return 9;
     }
 
     @Override
@@ -67,9 +68,12 @@ public class VIPRoomUI implements Navigable {
                 vipControl.displayAssignedHistory();
                 break;
             case 7:
-                reportGenerator.generateQueueByLevelReport();
+                this.updateVipStatus();
                 break;
             case 8:
+                reportGenerator.generateQueueByLevelReport();
+                break;
+            case 9:
                 reportGenerator.generateHighValueVipReport();
                 break;
             case 0:
@@ -292,81 +296,157 @@ public class VIPRoomUI implements Navigable {
         int redeemChoice = -1;
 
         while (true) {
-            System.out.println("\n--- Rewards Catalog ---");
-            System.out.println("1. Welcome Drink          (200 pts)");
-            System.out.println("2. Free Breakfast         (600 pts)");
-            System.out.println("3. Late Check-out         (1000 pts)");
-            System.out.println("4. Free Room Upgrade      (2500 pts)");
+           while (true) {
+                System.out.println("\n--- Rewards Catalog ---");
+                System.out.println("1. Welcome Drink          (200 pts)");
+                System.out.println("2. Free Breakfast         (600 pts)");
+                System.out.println("3. Late Check-out         (1000 pts)");
+                System.out.println("4. Free Room Upgrade      (2500 pts)");
+                System.out.println("0. Cancel");
+                System.out.print("Select item to redeem: ");
+                
+                String inputChoice = ScannerUtility.scanner.nextLine().trim();
+                
+                if (inputChoice.isEmpty()) {
+                    System.out.println("\n[Error] Input cannot be empty or just spaces! Please try again.");
+                    continue;
+                }
+
+                try {
+                    redeemChoice = Integer.parseInt(inputChoice);
+                } catch (NumberFormatException e) {
+                    System.out.println("\n[Error] Invalid input! Please enter a valid number (0-4).");
+                    continue;
+                }
+
+                if (redeemChoice == 0) {
+                    System.out.println("[System] Redemption cancelled.");
+                    return;
+                } else if (redeemChoice == 1) {
+                    pointsCost = 200; itemName = "Welcome Drink"; break;
+                } else if (redeemChoice == 2) {
+                    pointsCost = 600; itemName = "Free Breakfast"; break;
+                } else if (redeemChoice == 3) {
+                    pointsCost = 1000; itemName = "Late Check-out"; break;
+                } else if (redeemChoice == 4) {
+                    pointsCost = 2500; itemName = "Free Room Upgrade"; break;
+                } else {
+                    System.out.println("\n[Error] Invalid choice! Please select an option between 0 and 4.");
+                }
+            }
+            
+            if (pointsCost > 0) {
+                String result = vipControl.redeemPoints(confirmNum, pointsCost);
+                if (result.equals("SUCCESS")) {
+                    System.out.println("\n[Success] " + itemName + " redeemed successfully!");
+                    System.out.println("-> Remaining Points: " + vip.getRewardPoints());
+                    System.out.println("-> Member Level remains: " + vip.getMemberLevel() + " (Tier Protected)");
+                    
+                    if (redeemChoice == 4) {
+                        System.out.println("\n*** Room Upgrade Selection ***");
+                        while (true) {
+                            System.out.print("Please enter the Premium Room Number to upgrade to (or enter 0 to skip): ");
+                            String upgradeRoom = ScannerUtility.scanner.nextLine().trim();
+                            
+                            if (upgradeRoom.equals("0")) {
+                                System.out.println("[System] Room upgrade selection skipped.");
+                                break;
+                            }
+                            if (upgradeRoom.isEmpty()) {
+                                System.out.println("[Error] Room number cannot be empty! Please try again.\n");
+                                continue;
+                            }
+                            
+                            String upgradeResult = vipControl.updateRoomStatus(upgradeRoom, mhotelreservationsystem.entity.RoomStatus.RESERVED);
+                            if (upgradeResult.equals("SUCCESS")) {
+                                System.out.println("[System] Awesome! Premium Room " + upgradeRoom + " has been successfully reserved.");
+                                break;
+                            } else if (upgradeResult.equals("NOT_AVAILABLE")) {
+                                System.out.println("[Error] Room '" + upgradeRoom + "' is currently Occupied, Reserved, or under Maintenance!");
+                                System.out.println("-> Please choose another available premium room.\n");
+                            } else {
+                                System.out.println("[Error] Room '" + upgradeRoom + "' does not exist in the database! Please check and try again.\n");
+                            }
+                        }
+                    }
+                    break;
+                } else if (result.equals("INSUFFICIENT")) {
+                    System.out.println("\n[Error] Insufficient points to redeem " + itemName + ".");
+                    System.out.println("-> Your current points (" + vip.getRewardPoints() + ") are not enough. Please choose another reward or press 0 to cancel.");
+                }
+            }
+        }
+    }
+
+    private void updateVipStatus() {
+        System.out.println("\n--- Update VIP Membership Status ---");
+        String confirmNum = "";
+        mhotelreservationsystem.entity.Member vip = null;
+
+        while (true) {
+            System.out.print("Enter Confirmation Number (or enter 0 to cancel): ");
+            confirmNum = ScannerUtility.scanner.nextLine().trim();
+            
+            if (confirmNum.equals("0")) {
+                System.out.println("[System] Operation cancelled.");
+                return;
+            }
+            if (confirmNum.isEmpty()) {
+                System.out.println("\n[Error] Input cannot be empty or just spaces! Please try again.\n");
+                continue;
+            }
+
+            vip = vipControl.searchVipInDatabase(confirmNum);
+            if (vip == null) {
+                System.out.println("\n[Error] VIP Number '" + confirmNum + "' not found in the database! Please try again.\n");
+                continue;
+            }
+            break;
+        }
+
+        System.out.println("\n[Success] VIP Found!");
+        System.out.println("Current Level  : " + vip.getMemberLevel());
+        System.out.println("Current Status : " + vip.getMembershipStatus());
+
+        mhotelreservationsystem.entity.MembershipStatus newStatus = null;
+
+        while (true) {
+            System.out.println("\n--- Select New Status ---");
+            System.out.println("1. ACTIVE");
+            System.out.println("2. INACTIVE");
             System.out.println("0. Cancel");
-            System.out.print("Select item to redeem: ");
+            System.out.print("Enter choice (1-2 or 0 to cancel): ");
             
-            String inputChoice = ScannerUtility.scanner.nextLine().trim();
+            String choiceStr = ScannerUtility.scanner.nextLine().trim();
             
-            if (inputChoice.isEmpty()) {
+            if (choiceStr.isEmpty()) {
                 System.out.println("\n[Error] Input cannot be empty or just spaces! Please try again.");
                 continue;
             }
 
-            try {
-                redeemChoice = Integer.parseInt(inputChoice);
-            } catch (NumberFormatException e) {
-                System.out.println("\n[Error] Invalid input! Please enter a valid number (0-4).");
-                continue;
-            }
-
-            if (redeemChoice == 0) {
-                System.out.println("[System] Redemption cancelled.");
+            if (choiceStr.equals("0")) {
+                System.out.println("[System] Status update cancelled.");
                 return;
-            } else if (redeemChoice == 1) {
-                pointsCost = 200; itemName = "Welcome Drink"; break;
-            } else if (redeemChoice == 2) {
-                pointsCost = 600; itemName = "Free Breakfast"; break;
-            } else if (redeemChoice == 3) {
-                pointsCost = 1000; itemName = "Late Check-out"; break;
-            } else if (redeemChoice == 4) {
-                pointsCost = 2500; itemName = "Free Room Upgrade"; break;
+            } else if (choiceStr.equals("1")) {
+                newStatus = mhotelreservationsystem.entity.MembershipStatus.ACTIVE;
+                break;
+            } else if (choiceStr.equals("2")) {
+                newStatus = mhotelreservationsystem.entity.MembershipStatus.INACTIVE;
+                break;
             } else {
-                System.out.println("\n[Error] Invalid choice! Please select an option between 0 and 4.");
+                System.out.println("\n[Error] Invalid choice! Please enter 1, 2, or 0.");
             }
         }
-        
-        if (pointsCost > 0) {
-            String result = vipControl.redeemPoints(confirmNum, pointsCost);
-            if (result.equals("SUCCESS")) {
-                System.out.println("\n[Success] " + itemName + " redeemed successfully!");
-                System.out.println("-> Remaining Points: " + vip.getRewardPoints());
-                System.out.println("-> Member Level remains: " + vip.getMemberLevel() + " (Tier Protected)");
-                
-                if (redeemChoice == 4) {
-                    System.out.println("\n*** Room Upgrade Selection ***");
-                    while (true) {
-                        System.out.print("Please enter the Premium Room Number to upgrade to (or enter 0 to skip): ");
-                        String upgradeRoom = ScannerUtility.scanner.nextLine().trim();
-                        
-                        if (upgradeRoom.equals("0")) {
-                            System.out.println("[System] Room upgrade selection skipped.");
-                            break;
-                        }
-                        if (upgradeRoom.isEmpty()) {
-                            System.out.println("[Error] Room number cannot be empty! Please try again.\n");
-                            continue;
-                        }
-                        
-                        String upgradeResult = vipControl.updateRoomStatus(upgradeRoom, mhotelreservationsystem.entity.RoomStatus.RESERVED);
-                        if (upgradeResult.equals("SUCCESS")) {
-                            System.out.println("[System] Awesome! Premium Room " + upgradeRoom + " has been successfully reserved.");
-                            break;
-                        } else if (upgradeResult.equals("NOT_AVAILABLE")) {
-                            System.out.println("[Error] Room '" + upgradeRoom + "' is currently Occupied, Reserved, or under Maintenance!");
-                            System.out.println("-> Please choose another available premium room.\n");
-                        } else {
-                            System.out.println("[Error] Room '" + upgradeRoom + "' does not exist in the database! Please check and try again.\n");
-                        }
-                    }
-                }
-            } else if (result.equals("INSUFFICIENT")) {
-                System.out.println("\n[Error] Insufficient points to redeem " + itemName + ".");
-            }
+
+        if (vip.getMembershipStatus() == newStatus) {
+            System.out.println("\n[System] The VIP is already " + newStatus + ". No changes made.");
+            return;
+        }
+
+        if (vipControl.updateMemberStatus(confirmNum, newStatus)) {
+            System.out.println("\n[Success] VIP status successfully updated to " + newStatus + "!");
+        } else {
+            System.out.println("\n[Error] Failed to update status. Please try again.");
         }
     }
 }

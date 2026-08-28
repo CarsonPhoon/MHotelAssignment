@@ -149,4 +149,17 @@ public class MemberRepository{
             }
         }
     }
+
+    public boolean updateMembershipStatus(String confirmNum, mhotelreservationsystem.entity.MembershipStatus newStatus) {
+        for (int i = 0; i < members.getNumberOfEntries(); i++) {
+            mhotelreservationsystem.entity.Member member = members.get(i);
+            if (member.getConfirmationNumber().equalsIgnoreCase(confirmNum)) {
+                // 修改状态并保存
+                member.setMembershipStatus(newStatus); 
+                saveToFile();
+                return true;
+            }
+        }
+        return false;
+    }
 }
