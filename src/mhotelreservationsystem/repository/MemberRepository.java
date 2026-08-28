@@ -20,6 +20,7 @@ import mhotelreservationsystem.utility.FileUtility;
  */
 public class MemberRepository{
     
+    // Use an ArrayList to store member data
     private ArrayListADT<Member> members;
     
     public MemberRepository(){
@@ -43,7 +44,6 @@ public class MemberRepository{
     }
     
     public Member getMember(int index){
-
         return members.get(index);
     }
     
@@ -112,7 +112,6 @@ public class MemberRepository{
     }
     
     private Member convertToMember(String line){
-
         String[] data = line.split("\\|");
 
         if(data.length != 6){
@@ -120,7 +119,6 @@ public class MemberRepository{
         }
 
         return new Member(
-
                 data[0],                               // Member ID
                 data[1],                               // Confirmation Number
                 MemberLevel.fromDisplayName(data[2]),  // Member Level
@@ -139,5 +137,29 @@ public class MemberRepository{
                member.getRewardPoints() + "|" +
                member.getJoinDate() + "|" +
                member.getMembershipStatus();
+    }
+
+    public void updatePoints(String memberID, int newPoints) {
+        for (int i = 0; i < members.getNumberOfEntries(); i++) {
+            mhotelreservationsystem.entity.Member member = members.get(i);
+            if (member.getMemberID().equals(memberID)) {
+                member.setRewardPoints(newPoints);
+                saveToFile();
+                return;
+            }
+        }
+    }
+
+    public boolean updateMembershipStatus(String confirmNum, mhotelreservationsystem.entity.MembershipStatus newStatus) {
+        for (int i = 0; i < members.getNumberOfEntries(); i++) {
+            mhotelreservationsystem.entity.Member member = members.get(i);
+            if (member.getConfirmationNumber().equalsIgnoreCase(confirmNum)) {
+                // 修改状态并保存
+                member.setMembershipStatus(newStatus); 
+                saveToFile();
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -63,4 +63,17 @@ public class Staff {
         this.assignedRoom = -1;
         this.available = true;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Staff other = (Staff) obj;
+        return staffID != null && staffID.equals(other.staffID);
+    }
+    
+    @Override
+    public int hashCode() {
+        return staffID != null ? staffID.hashCode() : 0;
+    }
 }

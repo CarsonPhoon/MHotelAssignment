@@ -4,29 +4,37 @@
  */
 package mhotelreservationsystem.control;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import mhotelreservationsystem.adt.LinkedStack;
 import mhotelreservationsystem.adt.VipBST;
-import mhotelreservationsystem.entity.Member;
-import mhotelreservationsystem.entity.MemberLevel;
-import mhotelreservationsystem.entity.MembershipStatus;
+import mhotelreservationsystem.entity.*;
+import mhotelreservationsystem.repository.BookingRepository;
 import mhotelreservationsystem.repository.GuestRepository;
 import mhotelreservationsystem.repository.MemberRepository;
+import mhotelreservationsystem.repository.RoomRepository;
 
 /**
- * 
+ * Control class for managing VIP Room operations and queue.
  * @author zekai
  */
 public class VIPRoomControl {
     
-    private VipBST vipQueue;
-    private java.util.Stack<Member> assignedHistoryStack;
+    private VipBST vipQueue; 
+    private LinkedStack<Member> assignedHistoryStack;
     private MemberRepository memberRepository;
     private GuestRepository guestRepository;
+    private RoomRepository roomRepository;
+    private BookingRepository bookingRepository;
 
-    public VIPRoomControl(MemberRepository memberRepository, GuestRepository guestRepository) {
-        this.memberRepository = memberRepository;
-        this.guestRepository = guestRepository;
+    public VIPRoomControl(MemberRepository memberRepo, GuestRepository guestRepo, RoomRepository roomRepo, BookingRepository bookingRepo) {
+        this.memberRepository = memberRepo;
+        this.guestRepository = guestRepo;
+        this.roomRepository = roomRepo;
+        this.bookingRepository = bookingRepo;
+        
         this.vipQueue = new VipBST();
-        this.assignedHistoryStack = new java.util.Stack<>(); // 【关键】在这里初始化你的栈
+        this.assignedHistoryStack = new LinkedStack<>();
         
         loadVipsFromRepository(); 
     }
@@ -35,7 +43,7 @@ public class VIPRoomControl {
         for (int i = 0; i < memberRepository.getTotalMember(); i++) {
             Member member = memberRepository.getMember(i);
             if (member.getMembershipStatus() == MembershipStatus.ACTIVE) {
-                vipQueue.insert(member);
+                vipQueue.enqueue(member);
             }
         }
         System.out.println("[System] Successfully loaded VIP data from MemberRepository!");
@@ -44,12 +52,9 @@ public class VIPRoomControl {
     public boolean addVipToQueue(Member vipMember) {
         if (vipMember == null) return false;
         
-        boolean isAdded = vipQueue.insert(vipMember);
-        
-        if (isAdded) {
-            memberRepository.addMember(vipMember);
-        }
-        return isAdded;
+        vipQueue.enqueue(vipMember);
+        memberRepository.addMember(vipMember);
+        return true;
     }
 
     public boolean verifyGuestExists(String confirmNum) {
@@ -77,55 +82,28 @@ public class VIPRoomControl {
         return memberRepository.searchByConfirmation(confirmNum) != null;
     }
 
-    public boolean updateRoomStatus(String roomNumber, String newStatus) {
-        String filePath = "data/Room.txt"; 
-        java.util.List<String> allLines = new java.util.ArrayList<>();
-        boolean roomFound = false;
-        
-        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(filePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-                
-                String[] parts = line.split("\\|");
-                
-                if (parts.length > 0 && parts[0].trim().equals(roomNumber)) {
-                    parts[parts.length - 1] = newStatus; 
-                    line = String.join("|", parts);
-                    roomFound = true;
-                }
-                allLines.add(line);
-            }
-        } catch (Exception e) {
-            System.out.println("[System Error] Cannot read Room.txt.");
-            return false;
-        }
-        
-        if (roomFound) {
-            try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(filePath, false))) {
-                for (String l : allLines) {
-                    bw.write(l);
-                    bw.newLine();
-                }
-                return true;
-            } catch (Exception e) {
-                System.out.println("[System Error] Failed to update Room.txt.");
-            }
-        }
-        return false;
+
+    public String updateRoomStatus(String roomNumber, mhotelreservationsystem.entity.RoomStatus newStatus) {
+        return roomRepository.updateStatus(roomNumber, newStatus);
     }
 
-    public mhotelreservationsystem.entity.Member assignRoomToNextVip() {
-        mhotelreservationsystem.entity.Member assignedVip = vipQueue.getHighestPriorityVip();
+    public void updateVipPointsInFile(String memberID, int newPoints) {
+        memberRepository.updatePoints(memberID, newPoints);
+    }
+
+    public Member assignRoomToNextVip() {
+        Member assignedVip = vipQueue.dequeue();
+        
         if (assignedVip != null) {
             assignedHistoryStack.push(assignedVip);
         }
+        
         return assignedVip;
     }
 
     public void displayAssignedHistory() {
         System.out.println("\n=====================================");
-        System.out.println("   Recent VIP Room Allocations (LIFO)");
+        System.out.println("   Recent VIP Room Allocations ");
         System.out.println("=====================================");
         
         if (assignedHistoryStack.isEmpty()) {
@@ -133,47 +111,29 @@ public class VIPRoomControl {
             return;
         }
         
-        for (int i = assignedHistoryStack.size() - 1; i >= 0; i--) {
-            System.out.println((assignedHistoryStack.size() - i) + ". " + assignedHistoryStack.get(i).toString());
+        LinkedStack<Member> tempStack = new LinkedStack<>();
+        int count = 1;
+        
+        while (!assignedHistoryStack.isEmpty()) {
+            Member m = assignedHistoryStack.pop();
+            System.out.println((count++) + ". " + m.toString());
+            tempStack.push(m);
         }
-    }
 
-    public void updateVipPointsInFile(String memberID, int newPoints) {
-        String filePath = "data/Member.txt";
-        java.util.List<String> allLines = new java.util.ArrayList<>();
-        
-        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(filePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-                String[] parts = line.split("\\|");
-                
-                if (parts.length > 3 && parts[0].trim().equals(memberID)) {
-                    parts[3] = String.valueOf(newPoints); // 更新分数
-                    line = String.join("|", parts);
-                }
-                allLines.add(line);
-            }
-        } catch (Exception e) {
-            System.out.println("[System Error] Cannot read Member.txt.");
-        }
-        
-        // 覆写文件
-        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(filePath, false))) {
-            for (String l : allLines) {
-                bw.write(l);
-                bw.newLine();
-            }
-        } catch (Exception e) {
-            System.out.println("[System Error] Failed to update points in Member.txt.");
+        while (!tempStack.isEmpty()) {
+            assignedHistoryStack.push(tempStack.pop());
         }
     }
 
     public String redeemPoints(String confirmNum, int pointsToDeduct) {
-        mhotelreservationsystem.entity.Member vip = vipQueue.searchByConfirmationNumber(confirmNum);
+        mhotelreservationsystem.entity.Member vip = this.searchVipInDatabase(confirmNum); 
         
         if (vip == null) {
             return "NOT_FOUND";
+        }
+        
+        if (vip.getMembershipStatus() == mhotelreservationsystem.entity.MembershipStatus.INACTIVE) {
+            return "NOT_FOUND"; 
         }
         
         if (vip.getRewardPoints() < pointsToDeduct) {
@@ -188,9 +148,6 @@ public class VIPRoomControl {
         return "SUCCESS";
     }
 
-    public void displayAllWaitingVips() {
-        vipQueue.displayAll();
-    }
 
     public Member searchVip(String confirmNum) {
         return vipQueue.searchByConfirmationNumber(confirmNum);
@@ -201,7 +158,7 @@ public class VIPRoomControl {
     }
 
     public int getTotalWaitingCount() {
-        return vipQueue.getSize();
+        return vipQueue.getNumberOfElements();
     }
 
     public String getHighValueVipsData(int minPoints) {
@@ -210,5 +167,113 @@ public class VIPRoomControl {
 
     public int getHighValueVipsCount(int minPoints) {
         return vipQueue.getHighValueVipsCount(minPoints);
+    }
+
+    public mhotelreservationsystem.entity.Member searchVipInDatabase(String confirmNum) {
+        return memberRepository.searchByConfirmation(confirmNum);
+    }
+
+    public boolean updateMemberStatus(String confirmNum, mhotelreservationsystem.entity.MembershipStatus newStatus) {
+        boolean isUpdated = memberRepository.updateMembershipStatus(confirmNum, newStatus);
+        
+        mhotelreservationsystem.entity.Member vipInQueue = vipQueue.searchByConfirmationNumber(confirmNum);
+        if (vipInQueue != null) {
+            vipInQueue.setMembershipStatus(newStatus);
+        }
+        
+        return isUpdated;
+    }
+
+    public void displayActiveAndCompletedVips() {
+        mhotelreservationsystem.adt.VipBST tempDisplayTree = new mhotelreservationsystem.adt.VipBST();
+        
+        for (int i = 0; i < memberRepository.getTotalMember(); i++) {
+            mhotelreservationsystem.entity.Member m = memberRepository.getMember(i);
+            
+        if (m.getMembershipStatus() == mhotelreservationsystem.entity.MembershipStatus.ACTIVE || 
+                m.getMembershipStatus() == mhotelreservationsystem.entity.MembershipStatus.COMPLETED) {
+                
+                tempDisplayTree.enqueue(m);
+            }
+        }
+
+        tempDisplayTree.displayAll();
+    }
+
+    public mhotelreservationsystem.entity.Room searchRoom(String roomNumber) {
+        try {
+            int roomNumInt = Integer.parseInt(roomNumber);
+            return roomRepository.searchRoom(roomNumInt);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    private String generateNextBookingID(){
+        int max = 0;
+        for(int i = 0; i < bookingRepository.getTotalBooking(); i++){
+            String id = bookingRepository.getBooking(i).getBookingID();
+            if(id != null && id.length() > 2 && id.startsWith("BK")){
+                try{
+                    int num = Integer.parseInt(id.substring(2));
+                    if(num > max) max = num;
+                }catch(NumberFormatException e){
+                    // ignore malformed ids
+                }
+            }
+        }
+        return String.format("BK%04d", max + 1);
+    }
+
+    public boolean createBookingForVip(Member member, int roomNumber){
+        if(member == null) return false;
+
+        String confirmNum = member.getConfirmationNumber();
+        Room room = roomRepository.searchRoom(roomNumber);
+        if(room == null){
+            System.out.println("[Error] Room not found.");
+            return false;
+        }
+
+        Guest existingGuest = guestRepository.searchGuest(confirmNum);
+        if(existingGuest == null){
+            System.out.println("[Error] Guest record not found for confirmation number: " + confirmNum);
+            return false;
+        }
+
+        String bookingID = generateNextBookingID();
+        LocalDate checkIn = LocalDate.now();
+        LocalDate checkOut = checkIn.plusDays(1);
+        long nights = ChronoUnit.DAYS.between(checkIn, checkOut);
+        double total = room.getRoomRate() * nights;
+
+        Booking booking = new Booking(
+            bookingID,
+            confirmNum,
+            roomNumber,
+            room.getRoomType(),
+            2,
+            LocalDate.now(),
+            checkIn,
+            checkOut,
+            total,
+            BookingStatus.CHECKED_IN
+        );
+
+        existingGuest.setBookingID(bookingID);
+        existingGuest.setRoomNumber(roomNumber);
+        existingGuest.setCheckInDate(checkIn);
+        existingGuest.setCheckOutDate(checkOut);
+        existingGuest.setStatus(GuestStatus.CHECKED_IN);
+
+        boolean ok1 = bookingRepository.addBooking(booking);
+        boolean ok2 = guestRepository.updateGuest(existingGuest);
+        boolean ok3 = roomRepository.updateStatus(String.valueOf(roomNumber), RoomStatus.OCCUPIED).equals("SUCCESS");
+
+        if(ok1 && ok2 && ok3){
+            System.out.println("[System] Booking created: " + bookingID + " | Guest updated | Room occupied.");
+            return true;
+        }
+
+        System.out.println("[Error] Failed to create booking for VIP.");
+        return false;
     }
 }

@@ -12,6 +12,7 @@ package mhotelreservationsystem.adt;
  *   clear   - O(1)
  *   getSize - O(1)
  */
+
 public interface BSTInterface<T, K extends Comparable<K>> {
 
     boolean insert(T data);

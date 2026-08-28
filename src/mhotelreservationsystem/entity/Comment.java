@@ -99,4 +99,17 @@ public class Comment {
                 status,
                 description);
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Comment other = (Comment) obj;
+        return commentID != null && commentID.equals(other.commentID);
+    }
+    
+    @Override
+    public int hashCode() {
+        return commentID != null ? commentID.hashCode() : 0;
+    }
 }

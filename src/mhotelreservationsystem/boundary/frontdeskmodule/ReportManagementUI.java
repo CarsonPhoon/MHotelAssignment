@@ -24,11 +24,9 @@ public class ReportManagementUI implements Navigable {
     private FrontDeskControl control;
     private FrontDeskReport report;
 
-    public ReportManagementUI(GuestRepository guestRepository, BookingRepository bookingRepository,
-                              RoomRepository roomRepository, MemberRepository memberRepository,
-                              CommentRepository commentRepository) {
-        control = new FrontDeskControl(guestRepository, bookingRepository, roomRepository,
-                                       memberRepository, commentRepository);
+    // Constructor: Create Control and Report objects
+    public ReportManagementUI(GuestRepository guestRepository, BookingRepository bookingRepository, RoomRepository roomRepository, MemberRepository memberRepository, CommentRepository commentRepository) {
+        control = new FrontDeskControl(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
         report = new FrontDeskReport(
             guestRepository,
             bookingRepository,
@@ -63,12 +61,14 @@ public class ReportManagementUI implements Navigable {
         return 2;
     }
 
+    // Generate occupancy rate report
     private void generateRoomOccupancyReport() {
         report.generateRoomOccupancyReport();
         System.out.print("\nPress ENTER to return to menu... ");
         ScannerUtility.scanner.nextLine();
     }
 
+    // Generate guest entry/exit report
     private void generateGuestCheckInOutReport() {
         report.generateGuestCheckInOutReport();
         System.out.print("\nPress ENTER to return to menu... ");

@@ -12,6 +12,7 @@ import mhotelreservationsystem.repository.*;
 
 /**
  * Walk-In Reports: Daily Summary and Revenue Analysis
+ * @author xb
  */
 public class WalkInReport {
     
@@ -102,9 +103,10 @@ public class WalkInReport {
         
         LocalDate today = LocalDate.now();
         
-        // Collect revenue by room type
-        java.util.Map<RoomType, Double> revenueByType = new java.util.HashMap<>();
-        java.util.Map<RoomType, Integer> countByType = new java.util.HashMap<>();
+        // Collect revenue by room type using parallel ADT lists (no Java Collections allowed)
+        ArrayListADT<RoomType> roomTypes = new ArrayListADT<>();
+        ArrayListADT<Double> revenueByType = new ArrayListADT<>();
+        ArrayListADT<Integer> countByType = new ArrayListADT<>();
         
         for(int i = 0; i < bookingRepository.getTotalBooking(); i++){
             Booking b = bookingRepository.getBooking(i);
@@ -114,8 +116,23 @@ public class WalkInReport {
                      b.getBookingStatus() == BookingStatus.CHECKED_OUT)){
                 
                 RoomType type = b.getRoomType();
-                revenueByType.put(type, revenueByType.getOrDefault(type, 0.0) + b.getTotalAmount());
-                countByType.put(type, countByType.getOrDefault(type, 0) + 1);
+
+                int index = -1;
+                for(int j = 0; j < roomTypes.getNumberOfEntries(); j++){
+                    if(roomTypes.get(j) == type){
+                        index = j;
+                        break;
+                    }
+                }
+
+                if(index == -1){
+                    roomTypes.add(type);
+                    revenueByType.add(b.getTotalAmount());
+                    countByType.add(1);
+                } else {
+                    revenueByType.replace(index, revenueByType.get(index) + b.getTotalAmount());
+                    countByType.replace(index, countByType.get(index) + 1);
+                }
             }
         }
         
@@ -125,7 +142,7 @@ public class WalkInReport {
         System.out.println("  Date: " + today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         System.out.println("========================================================");
         
-        if(revenueByType.isEmpty()){
+        if(roomTypes.isEmpty()){
             System.out.println("No walk-in bookings recorded for today.");
         } else {
             
@@ -137,9 +154,10 @@ public class WalkInReport {
             double totalRevenue = 0;
             int totalCount = 0;
             
-            for(RoomType type : revenueByType.keySet()){
-                double revenue = revenueByType.get(type);
-                int count = countByType.get(type);
+            for(int i = 0; i < roomTypes.getNumberOfEntries(); i++){
+                RoomType type = roomTypes.get(i);
+                double revenue = revenueByType.get(i);
+                int count = countByType.get(i);
                 double avgPerBooking = revenue / count;
                 
                 System.out.printf("%-10s %-8d RM%-11.2f RM%-14.2f%n",

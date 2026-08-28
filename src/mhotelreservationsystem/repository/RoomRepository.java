@@ -19,6 +19,7 @@ import mhotelreservationsystem.utility.FileUtility;
  */
 public class RoomRepository{
 
+    // Use an ArrayList to store room data
     private ArrayListADT<Room> rooms;
     
     public RoomRepository() {
@@ -32,7 +33,6 @@ public class RoomRepository{
 
         // RU operation
         public Room getRoom(int index){
-
             return rooms.get(index);
         }
         
@@ -40,6 +40,7 @@ public class RoomRepository{
             return rooms.getNumberOfEntries();
         }
         
+        // Search for a room – using linear search
         public Room searchRoom(int roomNumber){
             for(int i = 0; i < rooms.getNumberOfEntries(); i++){
                 Room r = rooms.get(i);
@@ -130,4 +131,23 @@ public class RoomRepository{
                    room.getRoomRate() + "|" +
                    room.getStatus();
         }
+
+    public String updateStatus(String roomNumber, mhotelreservationsystem.entity.RoomStatus newStatus) {
+        for (int i = 0; i < rooms.getNumberOfEntries(); i++) {
+            mhotelreservationsystem.entity.Room room = (mhotelreservationsystem.entity.Room) rooms.get(i + 1);
+            
+            if (String.valueOf(room.getRoomNumber()).equals(roomNumber)) {
+                
+                if (!room.getStatus().name().equalsIgnoreCase("AVAILABLE")) {
+                    return "NOT_AVAILABLE";
+                }
+
+                room.setStatus(newStatus);
+                
+                saveToFile();
+                return "SUCCESS";
+            }
+        }
+        return "NOT_FOUND";
+    }
 }

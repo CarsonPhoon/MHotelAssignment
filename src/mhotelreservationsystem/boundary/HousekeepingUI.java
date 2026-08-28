@@ -4,13 +4,13 @@
  */
 package mhotelreservationsystem.boundary;
 
-import java.util.Scanner;
 import mhotelreservationsystem.entity.RoomCleaningStatus;
 import mhotelreservationsystem.control.HousekeepingControl;
 import mhotelreservationsystem.repository.RoomRepository;
 import mhotelreservationsystem.repository.StaffRepository;
 import mhotelreservationsystem.report.HousekeepingReport;
 import mhotelreservationsystem.utility.Validation;
+import mhotelreservationsystem.utility.ScannerUtility;
 
 /**
  *
@@ -18,7 +18,6 @@ import mhotelreservationsystem.utility.Validation;
  */
 public class HousekeepingUI implements Navigable {
     private HousekeepingControl houseKeeping;
-    private Scanner scanner;
     private HousekeepingReport report;
     private RoomRepository roomRepository;
 
@@ -132,13 +131,13 @@ public class HousekeepingUI implements Navigable {
     
     // reads a validated integer input from console
     private int getIntInput(){
-        while (!scanner.hasNextInt()){
+        while (!ScannerUtility.scanner.hasNextInt()){
             System.out.println("Invalid input. Please enter a number.");
-            scanner.next();
+            ScannerUtility.scanner.next();
             System.out.print("The option chosen: ");
         }
-        int input = scanner.nextInt();
-        scanner.nextLine();
+        int input = ScannerUtility.scanner.nextInt();
+        ScannerUtility.scanner.nextLine();
         return input;
     }
     

@@ -65,6 +65,16 @@ public class ArrayListADT<T> implements ListInterface<T> {
         return removed;
     }
     
+     @Override
+    public T get(int position) {
+
+        if (position < 0 || position >= numberOfEntries) {
+            return null;
+        }
+
+        return array[position];
+    }
+    
     @Override
     public T replace(int position, T newEntry) {
 
@@ -86,26 +96,14 @@ public class ArrayListADT<T> implements ListInterface<T> {
         }
         return false;
     }
-    
-    @Override
-    public T get(int position) {
-
-        if (position < 0 || position >= numberOfEntries) {
-            return null;
-        }
-
-        return array[position];
-    }
 
     @Override
     public int getNumberOfEntries() {
-
         return numberOfEntries;
     }
     
     @Override
     public boolean isEmpty() {
-
         return numberOfEntries == 0;
     }
 

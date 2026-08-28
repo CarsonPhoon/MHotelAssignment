@@ -34,17 +34,19 @@ public class FrontDeskReport {
     //  Quick Sort - Sort Room array by roomRate in descending order
     private void quickSortRoomsByRate(Room[] arr, int low, int high){
         if(low < high){
-            int pivotIndex = partitionRoomsByRate(arr, low, high);
-            quickSortRoomsByRate(arr, low, pivotIndex - 1);
-            quickSortRoomsByRate(arr, pivotIndex + 1, high);
+            int pivotIndex = partitionRoomsByRate(arr, low, high); // Partition
+            quickSortRoomsByRate(arr, low, pivotIndex - 1); // Recursively sort the left half
+            quickSortRoomsByRate(arr, pivotIndex + 1, high); // Recursively sort the right half
         }
     }
 
+    // Partitioning method
     private int partitionRoomsByRate(Room[] arr, int low, int high){
-        Room pivot = arr[high];
-        int i = low - 1;
+        Room pivot = arr[high]; // Select the last element as the pivot
+        int i = low - 1; // i points to the region smaller than the pivot
 
         for(int j = low; j < high; j++){
+            // If the current element is greater than or equal to the pivot, swap it to the left side
             if(arr[j].getRoomRate() >= pivot.getRoomRate()){
                 i++;
                 Room temp = arr[i];
@@ -53,10 +55,12 @@ public class FrontDeskReport {
             }
         }
 
+        // Position the datum correctly
         Room temp = arr[i + 1];
         arr[i + 1] = arr[high];
         arr[high] = temp;
 
+        // Return to the reference position
         return i + 1;
     }
     
@@ -69,11 +73,13 @@ public class FrontDeskReport {
         }
     }
 
+    // Partitioning method
     private int partitionGuestsByName(Guest[] arr, int low, int high){
         Guest pivot = arr[high];
         int i = low - 1;
 
         for(int j = low; j < high; j++){
+            // If the current name is less than or equal to the pivot name, swap it to the left side
             if(arr[j].getGuestName().compareTo(pivot.getGuestName()) <= 0){
                 i++;
                 Guest temp = arr[i];
@@ -100,9 +106,10 @@ public class FrontDeskReport {
             allRooms[i] = roomRepository.getRoom(i);
         }
         
-        // Sort all rooms by rate descending before filtering
+        // Sort all rooms by rate/price descending before filtering
         quickSortRoomsByRate(allRooms, 0, totalRoom - 1);
         
+        // Initialize counter
         int availableCount = 0;
         int occupiedCount = 0;
         int reservedCount = 0;
@@ -212,6 +219,7 @@ public class FrontDeskReport {
         // Sort all guests by name ascending 
         quickSortGuestsByName(allGuests, 0, totalGuest - 1);
         
+         // Initialize counter
         int checkedInCount = 0;
         int checkedOutCount = 0;
         int reservedCount = 0;
@@ -236,7 +244,6 @@ public class FrontDeskReport {
                 checkedInCount++;
             }
         }
-
         System.out.println();
         System.out.println("Total Checked In : " + checkedInCount);
 
@@ -254,7 +261,6 @@ public class FrontDeskReport {
                 checkedOutCount++;
             }
         }
-
         System.out.println();
         System.out.println("Total Checked Out : " + checkedOutCount);
 
@@ -275,7 +281,6 @@ public class FrontDeskReport {
 
         System.out.println();
         System.out.println("Total Reserved : " + reservedCount);
-
         System.out.println();
         System.out.println("========================================================");
         System.out.println("Total Guest : " + totalGuest);

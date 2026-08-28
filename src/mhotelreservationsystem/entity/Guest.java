@@ -119,4 +119,17 @@ public class Guest{
                 status
         );
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Guest other = (Guest) obj;
+        return confirmationNumber != null && confirmationNumber.equals(other.confirmationNumber);
+    }
+    
+    @Override
+    public int hashCode() {
+        return confirmationNumber != null ? confirmationNumber.hashCode() : 0;
+    }
 }

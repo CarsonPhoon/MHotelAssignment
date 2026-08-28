@@ -27,12 +27,14 @@ public class VIPQueueReport {
         System.out.println("=======================================================");
         
         int platinum = vipControl.getVipCountByLevel(MemberLevel.PLATINUM);
+        int elite = vipControl.getVipCountByLevel(MemberLevel.ELITE);
         int gold = vipControl.getVipCountByLevel(MemberLevel.GOLD);
         int silver = vipControl.getVipCountByLevel(MemberLevel.SILVER);
         int bronze = vipControl.getVipCountByLevel(MemberLevel.BRONZE);
         int total = vipControl.getTotalWaitingCount();
         
         System.out.println("PLATINUM Members Waiting : " + platinum);
+        System.out.println("ELITE Members Waiting    : " + elite);
         System.out.println("GOLD Members Waiting     : " + gold);
         System.out.println("SILVER Members Waiting   : " + silver);
         System.out.println("BRONZE Members Waiting   : " + bronze);

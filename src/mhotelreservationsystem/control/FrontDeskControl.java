@@ -13,16 +13,15 @@ import mhotelreservationsystem.repository.*;
  * @author phoon
  */
 public class FrontDeskControl {
-
+    // Declare 5 repository variables for accessing different types of txt databases
     private GuestRepository guestRepository;
     private BookingRepository bookingRepository;
     private RoomRepository roomRepository;
     private MemberRepository memberRepository;
     private CommentRepository commentRepository;
 
-    public FrontDeskControl(GuestRepository guestRepository, BookingRepository bookingRepository,
-                            RoomRepository roomRepository, MemberRepository memberRepository,
-                            CommentRepository commentRepository){
+    // Initialize all repositories (passed in from an external source, not created internally)
+    public FrontDeskControl(GuestRepository guestRepository, BookingRepository bookingRepository, RoomRepository roomRepository, MemberRepository memberRepository, CommentRepository commentRepository){
         this.guestRepository = guestRepository;
         this.bookingRepository = bookingRepository;
         this.roomRepository = roomRepository;
@@ -68,7 +67,7 @@ public class FrontDeskControl {
         return memberRepository.searchByMemberID(memberID);
     }
 
-    // View Methods - Return objects, no System.out
+    // View Methods - Return objects, no System.out ((Retrieve information for a single entity)
     public Guest getGuestProfile(String confirmationNumber){
         return searchGuest(confirmationNumber);
     }
@@ -151,6 +150,7 @@ public class FrontDeskControl {
     }
 
     // Comment / Complaint Methods - Return data, no System.out
+    // Get all comments
     public ArrayListADT<Comment> getAllComments(){
         ArrayListADT<Comment> allComments = new ArrayListADT<Comment>();
         for(int i = 0; i < commentRepository.getTotalComment(); i++){
@@ -158,7 +158,13 @@ public class FrontDeskControl {
         }
         return allComments;
     }
+    
+    // Get all comments sorted by date descending
+    public Comment[] getAllCommentsSortedByDate(){
+        return commentRepository.getAllCommentsSortedByDate();
+    }
 
+    // Search comments by date
     public ArrayListADT<Comment> searchCommentsByDate(LocalDate date){
         ArrayListADT<Comment> results = new ArrayListADT<Comment>();
         for(int i = 0; i < commentRepository.getTotalComment(); i++){
@@ -169,7 +175,8 @@ public class FrontDeskControl {
         }
         return results;
     }
-
+    
+    // Search comment by guest
     public ArrayListADT<Comment> searchCommentsByConfirmation(String confirmationNumber){
         return commentRepository.searchByConfirmation(confirmationNumber);
     }

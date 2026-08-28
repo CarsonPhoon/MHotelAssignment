@@ -5,6 +5,8 @@ package mhotelreservationsystem.adt;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import mhotelreservationsystem.entity.Guest;
 import mhotelreservationsystem.entity.GuestStatus;
 /**
@@ -17,6 +19,7 @@ public class GuestBST implements BSTInterface<Guest, String>, GuestBSTInterface 
     private GuestBSTNode root;
     private int size;
     
+    // First initialize as an empty tree
     public GuestBST() {
         root = null;
         size = 0;
@@ -29,6 +32,8 @@ public class GuestBST implements BSTInterface<Guest, String>, GuestBSTInterface 
             size++;
             return new GuestBSTNode(guest);
         }
+        
+        // Compare the "confirmationNumber" to decide whether to insert it on the left or the right
         int compare = guest.getConfirmationNumber().compareTo(current.getData().getConfirmationNumber());
 
         if (compare < 0) {
@@ -62,7 +67,8 @@ public class GuestBST implements BSTInterface<Guest, String>, GuestBSTInterface 
         if (current == null) {
             return null;
         }
-
+        
+        // Compare the key to be searched with the key of the current node
         int compare = confirmationNumber.compareTo(
                 current.getData().getConfirmationNumber());
 
@@ -83,7 +89,8 @@ public class GuestBST implements BSTInterface<Guest, String>, GuestBSTInterface 
             return false;
         }
 
-        root = removeNode(root, confirmationNumber);
+        // Recursively delete starting from the root node
+        root = removeNode(root, confirmationNumber); 
         size--;
         return true;
 
@@ -104,6 +111,7 @@ public class GuestBST implements BSTInterface<Guest, String>, GuestBSTInterface 
             return null;
         }
 
+        // Compare the key to be deleted with the current node's key
         int compare = confirmationNumber.compareTo(current.getData().getConfirmationNumber());
 
         if (compare < 0) {
@@ -127,17 +135,17 @@ public class GuestBST implements BSTInterface<Guest, String>, GuestBSTInterface 
             }
             
             // Situation 4
+            // Find the in-order successor (the smallest node in the right subtree)
             Guest successor = findMin(current.getRight());
-
+            // Replace the current node's data with the successor's data
             current.setData(successor);
-            current.setRight(removeNode(
-                    current.getRight(),
-                    successor.getConfirmationNumber()));
+            // Remove the successor node
+            current.setRight(removeNode(current.getRight(),successor.getConfirmationNumber()));
         }
         return current;
     }
     
-    // Find the node with the smallest confirmationNumber in the subtree
+    // Find the node with the smallest confirmationNumber in the subtree (the leftmost node)
     private Guest findMin(GuestBSTNode current) {
         
         while (current.getLeft() != null) {
@@ -147,14 +155,13 @@ public class GuestBST implements BSTInterface<Guest, String>, GuestBSTInterface 
         return current.getData();
     }
     
-    // Print all guests in ascending order of confirmationNumber (in-order traversal)
+    // Print all guests in ascending order of confirmationNumber (in-order traversal) 
     @Override
     public void inorderTraversal() {
-        
-        inorder(root);
+        inorder(root);  // Start from the root node
     }
     
-    
+    // Recursive helper method: In-order traversal (Left → Root → Right)
     private void inorder(GuestBSTNode current){
     
         if (current == null){
@@ -189,11 +196,10 @@ public class GuestBST implements BSTInterface<Guest, String>, GuestBSTInterface 
     // Save all guests to file in sorted order using in-order traversal
     @Override
     public void saveToFile(BufferedWriter writer) throws IOException {
-
         saveNode(root, writer);
-
     }
 
+    // Recursive helper method: Save using in-order traversal (ensures data in the file is ordered)
     private void saveNode(GuestBSTNode current,
                           BufferedWriter writer) throws IOException {
 
@@ -202,9 +208,8 @@ public class GuestBST implements BSTInterface<Guest, String>, GuestBSTInterface 
         }
 
         saveNode(current.getLeft(), writer);
-
+        
         Guest guest = current.getData();
-
         writer.write(
                 guest.getConfirmationNumber() + "|" +
                 guest.getGuestName() + "|" +
@@ -218,15 +223,13 @@ public class GuestBST implements BSTInterface<Guest, String>, GuestBSTInterface 
         );
 
         writer.newLine();
-
         saveNode(current.getRight(), writer);
-
     }
     
     // Display and count all guests matching the given status (in-order with filter)
     @Override
     public int displayGuestByStatus(GuestStatus status){
-        return displayGuestByStatus(root,status);
+        return displayGuestByStatus(root,status); // Start from the root node
     }
     
     private int displayGuestByStatus(GuestBSTNode current, GuestStatus status){
@@ -244,5 +247,51 @@ public class GuestBST implements BSTInterface<Guest, String>, GuestBSTInterface 
         }
         count += displayGuestByStatus(current.getRight(), status);
         return count;
+    }
+    
+    
+   // 
+    @Override
+    public Iterator<Guest> getIterator() {
+        return new GuestBSTIterator();
+    }
+    
+    private class GuestBSTIterator implements Iterator<Guest> {
+        
+        private GuestBSTNode current;  // Pointer to the current node
+        private LinkedStack<GuestBSTNode> stack; // Auxiliary stack used to track the traversal path
+        
+        public GuestBSTIterator() {
+            stack = new LinkedStack<>();
+            current = root;
+            // During construction, push the entire path from the root node to the leftmost node onto the stack
+            pushLeft(current);  
+        }
+        
+        private void pushLeft(GuestBSTNode node) {
+            while (node != null) {
+                stack.push(node);  // Push the current node onto the stack
+                node = node.getLeft();  // Move left
+            }
+        }
+        
+        @Override
+        public boolean hasNext() {
+            // Stack is not empty = there are still unvisited elements
+            return !stack.isEmpty();
+        }
+        
+        @Override
+        public Guest next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException("No more elements in the tree.");
+            }
+            // Step 1 - Pop the top of the stack = current minimum node (the "root" in the "left → root" sequence of an in-order traversal)
+            GuestBSTNode node = stack.pop();
+            // Step 2: If the node has a right subtree, push the entire leftmost path of the right subtree onto the stack
+            pushLeft(node.getRight());
+            // Step 3: Return the data for that node.
+            return node.getData();
+        }
     }
 }

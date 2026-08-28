@@ -12,6 +12,7 @@ import mhotelreservationsystem.repository.*;
 
 /**
  * Walk-In control: manage registration, queue of pending bookings, and reports.
+ * @author xb
  */
 public class WalkInControl {
 

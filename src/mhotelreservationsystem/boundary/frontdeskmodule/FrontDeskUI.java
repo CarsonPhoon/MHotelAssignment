@@ -22,9 +22,8 @@ public class FrontDeskUI implements Navigable {
     private MemberRepository memberRepository;
     private CommentRepository commentRepository;
 
-    public FrontDeskUI(GuestRepository guestRepository, BookingRepository bookingRepository,
-                       RoomRepository roomRepository, MemberRepository memberRepository,
-                       CommentRepository commentRepository){
+    // Constructor: Accepts all repositories (shared data sources)
+    public FrontDeskUI(GuestRepository guestRepository, BookingRepository bookingRepository, RoomRepository roomRepository, MemberRepository memberRepository, CommentRepository commentRepository){
         this.guestRepository = guestRepository;
         this.bookingRepository = bookingRepository;
         this.roomRepository = roomRepository;
@@ -49,11 +48,16 @@ public class FrontDeskUI implements Navigable {
     @Override
     public Navigable handleChoice(int choice) {
         switch (choice) {
-            case 1: return new GuestManagementUI(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
-            case 2: return new RoomBookingManagementUI(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
-            case 3: return new CommentManagementUI(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
-            case 4: return new ReportManagementUI(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
-            default: return null;
+            case 1: 
+                return new GuestManagementUI(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
+            case 2: 
+                return new RoomBookingManagementUI(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
+            case 3: 
+                return new CommentManagementUI(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
+            case 4: 
+                return new ReportManagementUI(guestRepository, bookingRepository, roomRepository, memberRepository, commentRepository);
+            default: 
+                return null;
         }
     }
 

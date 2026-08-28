@@ -12,7 +12,7 @@ public enum MembershipStatus {
 
     ACTIVE("Active"),
     INACTIVE("Inactive"),
-    EXPIRED("Expired");
+    COMPLETED("Completed");
 
     private final String displayName;
 
