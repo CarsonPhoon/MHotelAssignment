@@ -24,7 +24,6 @@ public class HousekeepingUI implements Navigable {
     public HousekeepingUI(RoomRepository roomRepository, HousekeepingControl housekeepingControl){
         this.roomRepository = roomRepository;
         this.houseKeeping = housekeepingControl;
-        this.scanner = new Scanner(System.in);
         this.report = new HousekeepingReport(houseKeeping, roomRepository);
     }
 
