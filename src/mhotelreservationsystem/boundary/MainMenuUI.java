@@ -7,6 +7,7 @@ package mhotelreservationsystem.boundary;
 import mhotelreservationsystem.boundary.Navigator;
 import mhotelreservationsystem.boundary.frontdeskmodule.FrontDeskUI;
 import mhotelreservationsystem.repository.*;
+import mhotelreservationsystem.control.HousekeepingControl;
 import mhotelreservationsystem.utility.MessageUI;
 import mhotelreservationsystem.utility.Validation;
 
@@ -17,6 +18,8 @@ import mhotelreservationsystem.utility.Validation;
 public class MainMenuUI {
 
     private Navigator navigator;
+    private HousekeepingUI housekeepingUI;
+    private HousekeepingControl housekeepingControl;
 
     // Shared repository instances (single source of truth for all modules)
     private GuestRepository guestRepository;
@@ -24,6 +27,7 @@ public class MainMenuUI {
     private RoomRepository roomRepository;
     private MemberRepository memberRepository;
     private CommentRepository commentRepository;
+    private StaffRepository staffRepository;
 
     public MainMenuUI() {
         this.navigator = new Navigator();
@@ -32,7 +36,12 @@ public class MainMenuUI {
         this.roomRepository = new RoomRepository();
         this.memberRepository = new MemberRepository();
         this.commentRepository = new CommentRepository();
+        this.staffRepository = new StaffRepository();
+        
+        this.housekeepingControl = new HousekeepingControl(roomRepository, staffRepository);
+        this.housekeepingUI = new HousekeepingUI(roomRepository, housekeepingControl);
     }
+    
 
     public void start() {
         int mainMenuChoice;
@@ -57,7 +66,7 @@ public class MainMenuUI {
             switch (mainMenuChoice) {
                 case 1:
                     navigator.navigateTo(new WalkInUI(guestRepository, bookingRepository,
-                                                      roomRepository, memberRepository, commentRepository));
+                                                      roomRepository, memberRepository, commentRepository, housekeepingControl));
                     navigator.run();
                     break;
                 case 2:
@@ -65,7 +74,7 @@ public class MainMenuUI {
                     navigator.run();
                     break;
                 case 3:
-                    navigator.navigateTo(new HousekeepingUI(roomRepository));
+                    navigator.navigateTo(housekeepingUI);
                     navigator.run();
                     break;
                 case 4:

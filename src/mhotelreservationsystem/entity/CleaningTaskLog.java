@@ -12,15 +12,17 @@ import mhotelreservationsystem.adt.LinkedStack;
 
 /**
  *
- * @author user
+ * @author chanzj
  */
 public class CleaningTaskLog {
     private ListInterface<RoomHistoryEntry> roomHistories;
 
+    // create empty log
     public CleaningTaskLog(){
         this.roomHistories = new ArrayListADT<>();
     }
 
+    // pushes a new status for a room
     public void logStatusChange(int roomNumber, RoomCleaningStatus newStatus){
         RoomHistoryEntry entry = findEntry(roomNumber);
         if (entry == null){
@@ -30,6 +32,7 @@ public class CleaningTaskLog {
         entry.getHistory().push(newStatus);
     }
 
+    // pops the last status off a room's history
     public RoomCleaningStatus rollback(int roomNumber){
         RoomHistoryEntry entry = findEntry(roomNumber);
         if (entry == null || entry.getHistory().isEmpty()){
@@ -39,6 +42,7 @@ public class CleaningTaskLog {
         return entry.getHistory().pop();
     }
 
+    // peeks the current status of a room
     public RoomCleaningStatus getCurrentStatus(int roomNumber){
         RoomHistoryEntry entry = findEntry(roomNumber);
         if (entry == null || entry.getHistory().isEmpty()){
@@ -47,6 +51,7 @@ public class CleaningTaskLog {
         return entry.getHistory().peek();
     }
 
+    // prints a room's full history
     public void getRoomStatusHistories(int roomNumber){
         RoomHistoryEntry entry = findEntry(roomNumber);
         if(entry == null || entry.getHistory().isEmpty()){
@@ -67,10 +72,12 @@ public class CleaningTaskLog {
         }
     }
 
+    // checks if a room has any history
     public boolean hasRoom(int roomNumber){
         return findEntry(roomNumber) != null; // 
     }
 
+    // finds a room's history entry
     private RoomHistoryEntry findEntry(int roomNumber){
         for (int i = 0; i < roomHistories.getNumberOfEntries(); i++){
             RoomHistoryEntry entry = roomHistories.get(i);

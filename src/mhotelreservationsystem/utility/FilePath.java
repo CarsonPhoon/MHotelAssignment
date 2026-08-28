@@ -19,5 +19,7 @@ public class FilePath {
     public static final String MEMBER_FILE = "data/Member.txt";
 
     public static final String COMMENT_FILE = "data/Comment.txt";
+    
+    public static final String STAFF_FILE = "data/Staff.txt";
 
 }
