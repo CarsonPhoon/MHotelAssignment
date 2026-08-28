@@ -32,7 +32,7 @@ public class HousekeepingControl {
     
     private ListInterface<CleaningRecord> completedRecords;
     
-    // ocnstructor
+    // constructor
     // sets up housekeeping: loads staff into the assignment queue
     public HousekeepingControl(RoomRepository roomRepository, StaffRepository staffRepository){
         this.roomRepository = roomRepository;
@@ -136,7 +136,7 @@ public class HousekeepingControl {
         return taskLog.getCurrentStatus(roomNumber);
     }
     
-    // gets all compoleted cleaning records
+    // gets all completed cleaning records
     public ListInterface<CleaningRecord> getCompletedRecords(){
         return completedRecords;
     }
