@@ -107,6 +107,17 @@ public class CommentRepository {
         }
     }
     
+    // Get all comments sorted by date descending
+    public Comment[] getAllCommentsSortedByDate(){
+        int size = comments.getNumberOfEntries();
+        Comment[] arr = new Comment[size];
+        for(int i = 0; i < size; i++){
+            arr[i] = comments.get(i);
+        }
+        bubbleSortByDateDesc(arr, size);
+        return arr;
+    }
+    
     public void displayAllComments(){
         int size = comments.getNumberOfEntries();
         Comment[] arr = new Comment[size];

@@ -139,7 +139,7 @@ public class GuestBST implements BSTInterface<Guest, String>, GuestBSTInterface 
             Guest successor = findMin(current.getRight());
             // Replace the current node's data with the successor's data
             current.setData(successor);
-            // Delete the successor node
+            // Remove the successor node
             current.setRight(removeNode(current.getRight(),successor.getConfirmationNumber()));
         }
         return current;

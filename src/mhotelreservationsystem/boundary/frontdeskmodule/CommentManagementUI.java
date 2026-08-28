@@ -23,6 +23,7 @@ public class CommentManagementUI implements Navigable {
 
     private static final String Y = "\033[33m";
     private static final String R = "\033[0m";
+    private static final int PAGE_SIZE = 15;  // Comments per page
 
     private FrontDeskControl control;
 
@@ -59,43 +60,60 @@ public class CommentManagementUI implements Navigable {
         return 3;
     }
     
-    // View all comments (sorted using Bubble Sort)
+    // View all comments with pagination
     private void viewAllComments() {
-        ArrayListADT<Comment> allComments = control.getAllComments();
-
-        // Convert to an array and sort using Bubble Sort (by date - descending)
-        Comment[] arr = new Comment[allComments.getNumberOfEntries()];
-        for (int i = 0; i < allComments.getNumberOfEntries(); i++) {
-            arr[i] = allComments.get(i);
+        Comment[] arr = control.getAllCommentsSortedByDate();
+        int totalComments = arr.length;
+        
+        if (totalComments == 0) {
+            System.out.println("\nNo comments found.");
+            System.out.print("\nPress ENTER to return to menu... ");
+            ScannerUtility.scanner.nextLine();
+            return;
         }
         
-        // Bubble Sort
-        for (int i = 0; i < arr.length - 1; i++) {
-            for (int j = 0; j < arr.length - 1 - i; j++) {
-                if (arr[j].getDate().compareTo(arr[j + 1].getDate()) < 0) {
-                    Comment temp = arr[j];
-                    arr[j] = arr[j + 1];
-                    arr[j + 1] = temp;
-                }
+        int totalPages = (totalComments + PAGE_SIZE - 1) / PAGE_SIZE;  // Calculate total pages
+        int currentPage = 0;  // Start from page 0
+        
+        while (true) {
+            // Calculate start and end index for current page
+            int startIndex = currentPage * PAGE_SIZE;
+            int endIndex = Math.min(startIndex + PAGE_SIZE, totalComments);
+            
+            // Clear screen and display header
+            System.out.println();
+            System.out.println("==================================================================================================");
+            System.out.printf("%-12s %-8s %-12s %-6s %-10s %-10s %s%n",
+                    "Date", "ID", "Confirm", "Room", "Type", "Status", "Description");
+            System.out.println("==================================================================================================");
+            
+            // Display comments for current page
+            for (int i = startIndex; i < endIndex; i++) {
+                System.out.println(arr[i]);
+            }
+            
+            System.out.println("==================================================================================================");
+            System.out.println("Total Comments : " + totalComments + " | Page " + (currentPage + 1) + " of " + totalPages);
+            
+            // Display navigation options
+            if (currentPage < totalPages - 1) {
+                System.out.println("\nPress ENTER for next page, or enter 0 to return to menu: ");
+            } else {
+                System.out.println("\nThis is the last page. Press ENTER to return to menu: ");
+            }
+            
+            String input = ScannerUtility.scanner.nextLine().trim();
+            
+            if (input.equals("0")) {
+                return;  // Return to menu
+            }
+            
+            if (currentPage < totalPages - 1) {
+                currentPage++;  // Go to next page
+            } else {
+                return;  // Last page, return to menu
             }
         }
-
-        System.out.println();
-        System.out.println("==================================================================================================");
-        System.out.printf("%-12s %-8s %-12s %-6s %-10s %-10s %s%n",
-                "Date", "ID", "Confirm", "Room", "Type", "Status", "Description");
-        System.out.println("==================================================================================================");
-
-        // Display sorted comments
-        for (int i = 0; i < arr.length; i++) {
-            System.out.println(arr[i]);
-        }
-
-        System.out.println("==================================================================================================");
-        System.out.println("Total Comments : " + arr.length);
-
-        System.out.print("\nPress ENTER to return to menu... ");
-        ScannerUtility.scanner.nextLine();
     }
     
     // Search comment by guest

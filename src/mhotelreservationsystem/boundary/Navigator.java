@@ -34,7 +34,8 @@ public class Navigator {
             navStack.peek().display();
         }
     }
-
+    
+    // Current Page
     public void run() {
         while (!navStack.isEmpty()) {
             Navigable currentPage = navStack.peek();
