@@ -207,6 +207,8 @@ public class VIPRoomControl {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+    
     private String generateNextBookingID(){
         int max = 0;
         for(int i = 0; i < bookingRepository.getTotalBooking(); i++){

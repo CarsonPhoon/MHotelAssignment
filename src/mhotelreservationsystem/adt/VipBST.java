@@ -158,29 +158,31 @@ public class VipBST implements PriorityQueueInterface<mhotelreservationsystem.en
         return sb.toString();
     }
 
-    private void getHighValueDataRecursive(VipBSTNode current, int minPoints, StringBuilder sb) {
-        if (current == null) return;
-        
-        getHighValueDataRecursive(current.getRight(), minPoints, sb); 
-        
-        if (current.getData().getRewardPoints() > minPoints) {
-            Member m = current.getData();
-            sb.append(String.format("%-10s %-10s %-12s %-8s\n", 
-                m.getMemberID(), m.getConfirmationNumber(), m.getMemberLevel(), m.getRewardPoints()));
-        }
-        
-        getHighValueDataRecursive(current.getLeft(), minPoints, sb);
+   private void getHighValueDataRecursive(VipBSTNode current, int minPoints, StringBuilder sb) {
+    if (current == null) return;
+
+    getHighValueDataRecursive(current.getRight(), minPoints, sb);
+
+    if (current.getData().getRewardPoints() > minPoints) {
+        Member m = current.getData();
+        sb.append(String.format("%-10s %-10s %-12s %-8s\n", 
+            m.getMemberID(), m.getConfirmationNumber(), m.getMemberLevel(), m.getRewardPoints()));
     }
+
+    getHighValueDataRecursive(current.getLeft(), minPoints, sb);
+}
 
     public int getHighValueVipsCount(int minPoints) {
         return countHighValueRecursive(root, minPoints);
     }
 
     private int countHighValueRecursive(VipBSTNode current, int minPoints) {
-        if (current == null) return 0;
-        int count = (current.getData().getRewardPoints() > minPoints) ? 1 : 0;
-        return count + countHighValueRecursive(current.getLeft(), minPoints) + countHighValueRecursive(current.getRight(), minPoints);
-    }
+    if (current == null) return 0;
+    
+    int count = (current.getData().getRewardPoints() > minPoints) ? 1 : 0;
+    
+    return count + countHighValueRecursive(current.getLeft(), minPoints) + countHighValueRecursive(current.getRight(), minPoints);
+}
 
     @Override
     public void enqueue(mhotelreservationsystem.entity.Member newEntry) {
