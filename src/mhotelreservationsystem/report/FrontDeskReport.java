@@ -80,7 +80,7 @@ public class FrontDeskReport {
 
         for(int j = low; j < high; j++){
             // If the current name is less than or equal to the pivot name, swap it to the left side
-            if(arr[j].getGuestName().compareTo(pivot.getGuestName()) <= 0){
+            if(arr[j].getGuestName().compareToIgnoreCase(pivot.getGuestName()) <= 0){
                 i++;
                 Guest temp = arr[i];
                 arr[i] = arr[j];
