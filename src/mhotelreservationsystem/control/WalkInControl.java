@@ -7,6 +7,7 @@ package mhotelreservationsystem.control;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import mhotelreservationsystem.adt.ArrayListADT;
+import mhotelreservationsystem.adt.LinkedQueue;
 import mhotelreservationsystem.entity.*;
 import mhotelreservationsystem.repository.*;
 
@@ -26,6 +27,9 @@ public class WalkInControl {
     // Queue for pending walk-in bookings (using ArrayListADT as queue)
     private ArrayListADT<Booking> pendingBookings;
 
+    // FIFO queue of guests waiting for a room to become available
+    private LinkedQueue<WaitingListEntry> waitingList;
+
     public WalkInControl(GuestRepository guestRepository, BookingRepository bookingRepository,
                          RoomRepository roomRepository, MemberRepository memberRepository,
                          CommentRepository commentRepository, HousekeepingControl housekeepingControl){
@@ -36,6 +40,7 @@ public class WalkInControl {
         this.commentRepository = commentRepository;
         this.housekeepingControl = housekeepingControl;
         this.pendingBookings = new ArrayListADT<>();
+        this.waitingList = new LinkedQueue<>();
         syncPendingQueueFromRepository();
     }
 
@@ -112,14 +117,138 @@ public class WalkInControl {
         return String.format("CM%04d", max + 1);
     }
 
+    // A confirmation number can have multiple bookings over time; prefer the active checked-in one.
     private Booking findBookingByConfirmation(String confirmationNumber){
+        Booking fallback = null;
         for (int i = 0; i < bookingRepository.getTotalBooking(); i++) {
             Booking booking = bookingRepository.getBooking(i);
             if (booking.getConfirmationNumber().equalsIgnoreCase(confirmationNumber)) {
-                return booking;
+                if (booking.getBookingStatus() == BookingStatus.CHECKED_IN) {
+                    return booking;
+                }
+                if (fallback == null) {
+                    fallback = booking;
+                }
+            }
+        }
+        return fallback;
+    }
+
+    private String generateNextWaitingID(){
+        int max = 0;
+        for (Object obj : waitingList.toArray()) {
+            WaitingListEntry entry = (WaitingListEntry) obj;
+            String id = entry.getWaitingID();
+            if (id != null && id.startsWith("WL") && id.length() > 2) {
+                try {
+                    int num = Integer.parseInt(id.substring(2));
+                    if (num > max) max = num;
+                } catch (NumberFormatException e) {
+                    // ignore malformed ids
+                }
+            }
+        }
+        return String.format("WL%04d", max + 1);
+    }
+
+    public boolean hasAnyAvailableRoom(){
+        for (int i = 0; i < roomRepository.getTotalRoom(); i++) {
+            if (roomRepository.getRoom(i).getStatus() == RoomStatus.AVAILABLE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Room findAvailableRoomByType(RoomType type){
+        for (int i = 0; i < roomRepository.getTotalRoom(); i++) {
+            Room room = roomRepository.getRoom(i);
+            if (room.getRoomType() == type && room.getStatus() == RoomStatus.AVAILABLE) {
+                return room;
             }
         }
         return null;
+    }
+
+    // Add a guest to the waiting list when no matching room is available right now.
+    public String addToWaitingList(String guestName, String phone, String email, RoomType roomType, int numberOfGuests, int nights){
+        String waitingID = generateNextWaitingID();
+        WaitingListEntry entry = new WaitingListEntry(waitingID, guestName, phone, email, roomType, numberOfGuests, nights, LocalDate.now());
+        waitingList.enqueue(entry);
+        System.out.println("Added to waiting list. Waiting ID: " + waitingID);
+        return waitingID;
+    }
+
+    public void displayWaitingList(){
+        Object[] entries = waitingList.toArray();
+
+        if (entries.length == 0) {
+            System.out.println("Waiting list is empty.");
+            return;
+        }
+
+        System.out.println();
+        System.out.println("==============================================================");
+        System.out.printf("%-3s %-8s %-20s %-10s %-6s %-8s%n",
+                "No", "Wait ID", "Guest", "Room Type", "Guest", "Nights");
+        System.out.println("==============================================================");
+
+        for (int i = 0; i < entries.length; i++) {
+            WaitingListEntry entry = (WaitingListEntry) entries[i];
+            System.out.printf("%-3d %-8s %-20s %-10s %-6d %-8d%n",
+                    i + 1,
+                    entry.getWaitingID(),
+                    entry.getGuestName(),
+                    entry.getRequestedRoomType(),
+                    entry.getNumberOfGuests(),
+                    entry.getRequestedNights());
+        }
+
+        System.out.println("==============================================================");
+        System.out.println("Total Waiting: " + entries.length);
+    }
+
+    public int getWaitingListSize(){
+        return waitingList.getSize();
+    }
+
+    // Try every waiting entry in order (not just the front) so a later guest whose
+    // room type is available isn't blocked by an earlier guest still waiting on a different type.
+    public int assignAvailableFromWaitingList(){
+        int size = waitingList.getSize();
+
+        if (size == 0) {
+            System.out.println("Waiting list is empty.");
+            return 0;
+        }
+
+        int assignedCount = 0;
+
+        for (int pass = 0; pass < size; pass++) {
+            WaitingListEntry entry = waitingList.dequeue();
+            Room room = findAvailableRoomByType(entry.getRequestedRoomType());
+            boolean served = false;
+
+            if (room != null) {
+                LocalDate checkOut = LocalDate.now().plusDays(entry.getRequestedNights());
+                Booking booking = registerWalkInPending(entry.getGuestName(), entry.getPhoneNumber(), entry.getEmail(),
+                        room.getRoomNumber(), entry.getNumberOfGuests(), checkOut);
+
+                if (booking != null) {
+                    System.out.println(entry.getGuestName() + " has been assigned to Room " + room.getRoomNumber() + " and removed from the waiting list.");
+                    assignedCount++;
+                    served = true;
+                }
+            } else {
+                System.out.println("No available " + entry.getRequestedRoomType() + " room yet for " + entry.getGuestName() + ". Still waiting.");
+            }
+
+            if (!served) {
+                waitingList.enqueue(entry);
+            }
+        }
+
+        return assignedCount;
     }
 
     // Register a walk-in: save to repository as pending and reserve the room.
@@ -266,10 +395,18 @@ public class WalkInControl {
             return false;
         }
 
+        LocalDate today = LocalDate.now();
+        long lateDays = ChronoUnit.DAYS.between(booking.getCheckOutDate(), today);
+        if (lateDays > 0) {
+            double lateFee = room.getRoomRate() * lateDays;
+            booking.setTotalAmount(booking.getTotalAmount() + lateFee);
+            System.out.println("Guest checked out " + lateDays + " day(s) late. Late checkout fee charged: RM " + String.format("%.2f", lateFee));
+        }
+
         booking.setBookingStatus(BookingStatus.CHECKED_OUT);
-        booking.setCheckOutDate(LocalDate.now());
+        booking.setCheckOutDate(today);
         guest.setStatus(GuestStatus.CHECKED_OUT);
-        guest.setCheckOutDate(LocalDate.now());
+        guest.setCheckOutDate(today);
         // room.setStatus(RoomStatus.AVAILABLE);
         housekeepingControl.stateRoomDirtyAfterCheckout(booking.getRoomNumber());
 

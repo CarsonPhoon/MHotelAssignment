@@ -9,6 +9,7 @@ import java.time.format.DateTimeParseException;
 import mhotelreservationsystem.control.WalkInControl;
 import mhotelreservationsystem.control.HousekeepingControl;
 import mhotelreservationsystem.entity.Booking;
+import mhotelreservationsystem.entity.RoomType;
 import mhotelreservationsystem.report.WalkInReport;
 import mhotelreservationsystem.repository.*;
 import mhotelreservationsystem.utility.ScannerUtility;
@@ -120,6 +121,8 @@ public class WalkInUI implements Navigable {
         System.out.println("7. Revenue Analysis Report");
         System.out.println("8. Daily Check-Out Report");
         System.out.println("9. Add Comment/Complain");
+        System.out.println("10. Join Waiting List");
+        System.out.println("11. View Waiting List & Assign Room");
         System.out.println("0. Back");
         System.out.println("========================================");
     }
@@ -137,6 +140,8 @@ public class WalkInUI implements Navigable {
             case 7: report.generateWalkInRevenueAnalysis(); break;
             case 8: report.generateDailyCheckOutReport(); break;
             case 9: addCommentOrComplain(); break;
+            case 10: joinWaitingList(); break;
+            case 11: manageWaitingList(); break;
             default: break;
         }
         Validation.pressEnterToContinue();
@@ -146,7 +151,7 @@ public class WalkInUI implements Navigable {
     // Stack navigation: max selectable option (0 is handled by Navigator)
     @Override
     public int getMaxChoice() {
-        return 9;
+        return 11;
     }
 
     private void registerWalkIn(){
@@ -164,6 +169,14 @@ public class WalkInUI implements Navigable {
 
         // Show available rooms
         control.displayAvailableRooms();
+
+        if (!control.hasAnyAvailableRoom()) {
+            System.out.println("All rooms are currently unavailable.");
+            if (Validation.confirmYesNo("Would you like to join the waiting list instead?")) {
+                joinWaitingListFlow(name, phone, email);
+            }
+            return;
+        }
 
         // Get room number and validate it exists and is available
         int roomNumber;
@@ -341,6 +354,59 @@ public class WalkInUI implements Navigable {
             control.addGuestComment(confirmation, mhotelreservationsystem.entity.CommentType.COMMENT, description);
         } else {
             control.addGuestComment(confirmation, mhotelreservationsystem.entity.CommentType.COMPLAINT, description);
+        }
+    }
+
+    private void joinWaitingList(){
+        String name = Validation.getNameOrReturn("Enter guest name (0 to return back): ");
+        if (name.equals("0")) return;
+
+        String phone = Validation.getPhoneOrReturn("Enter phone number (0 to return back): ");
+        if (phone.equals("0")) return;
+
+        String email = Validation.getEmailOrReturn("Enter email (0 to return back): ");
+        if (email.equals("0")) return;
+
+        joinWaitingListFlow(name, phone, email);
+    }
+
+    private void joinWaitingListFlow(String guestName, String phone, String email){
+        RoomType roomType = null;
+        while (roomType == null) {
+            System.out.print("Enter desired Room Type (Single/Double/Deluxe/Family/Suite/VIP, 0 to cancel): ");
+            String input = ScannerUtility.scanner.nextLine().trim();
+            if (input.equals("0")) return;
+
+            try {
+                roomType = RoomType.fromDisplayName(input);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid room type. Please try again.");
+            }
+        }
+
+        int numGuests = Validation.getIntOrReturn("Enter number of guests (0 to cancel): ", 1, 100);
+        if (numGuests == 0) return;
+
+        int nights = Validation.getIntOrReturn("Enter number of nights needed (0 to cancel): ", 1, 365);
+        if (nights == 0) return;
+
+        control.addToWaitingList(guestName, phone, email, roomType, numGuests, nights);
+    }
+
+    private void manageWaitingList(){
+        control.displayWaitingList();
+
+        if (control.getWaitingListSize() == 0) {
+            return;
+        }
+
+        if (Validation.confirmYesNo("Try to assign rooms to waiting guests now?")) {
+            int assigned = control.assignAvailableFromWaitingList();
+            if (assigned == 0) {
+                System.out.println("No waiting guest could be assigned a room right now.");
+            } else {
+                System.out.println(assigned + " guest(s) assigned from the waiting list.");
+            }
         }
     }
 

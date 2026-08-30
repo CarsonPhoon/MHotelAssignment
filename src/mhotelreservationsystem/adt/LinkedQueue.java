@@ -62,6 +62,30 @@ public class LinkedQueue<T> implements QueueInterface<T> {
         lastNode = null;
     }
 
+    // Snapshot of queue contents front-to-back, without removing entries.
+    // Returns Object[] (not T[]) to avoid a ClassCastException from generic array erasure.
+    public Object[] toArray() {
+        int size = 0;
+        for (Node<T> cur = firstNode; cur != null; cur = cur.next) {
+            size++;
+        }
+
+        Object[] result = new Object[size];
+        int i = 0;
+        for (Node<T> cur = firstNode; cur != null; cur = cur.next) {
+            result[i++] = cur.data;
+        }
+        return result;
+    }
+
+    public int getSize() {
+        int size = 0;
+        for (Node<T> cur = firstNode; cur != null; cur = cur.next) {
+            size++;
+        }
+        return size;
+    }
+
     private class Node<T> {
         private T data;
         private Node next;
